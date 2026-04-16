@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width = device - width, initial - scale = 1.0">
+    <title>Loan Calculator</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+
+  <body>
+    
+    <div class="app-container">
+
+      <!--header-->
+      <div class="header">
+        <h1>Loan Calculator</h1>
+        <p>Plan your repayments with clarity</p>
+      </div>
+
+      <!--calculator card-->
+      <div class="calculator-card">
+
+        <!--input group-->
+        <div class="input-group">
+          <label>Loan Amount (USD)</label>
+          <input type="number" id="amount" placeholder="Enter Amount" step="10">
+        </div>
+
+        <div class="input-group">
+          <label>Currency</label>
+          
+          <select id="currency">
+            <option value="USD">USD</option>
+            <option value="KES">KES</option>
+            <option value="EUR">EUR</option>
+            <option value="GBP">GBP</option>
+            <option value="INR">INR</option>
+            <option value="JPY">JPY</option>
+          </select>
+      
+          <!--
+          <div class="dropdown">
+
+            <div id="selectedCurrency" class="selected">
+              USD - US Dollar
+            </div>
+
+            <input type="text" id="searchCurrency"      placeholder="Search Currency...">
+
+            <div id="currencyList" class="list"></div>
+
+          </div>
+        </div>
+        -->
+        <div class="input-group">
+          <label>Interest Rate (%)</label>
+          <input type="number" id="rate" placeholder="Enter Interest Rate" step="10">
+        </div>
+
+        <div class="input-group">
+          <label>Loan Duration (Months)</label>
+          <input type="number" id="time" placeholder="Enter Duration" step="10">
+        </div>
+
+        <!--button-->
+        <button onclick="calculateLoan()" class="btn">Calculate</button>
+
+        <!--results-->
+        <div class="results">
+
+          <div class="result-box">
+            <h3>Monthly Payment</h3>
+            <p id="monthly">0</p>
+          </div>
+
+          <div class="result-box">
+            <h3>Total Interest</h3>
+            <p id="interest">0</p>
+          </div>
+
+          <div class="result-box">
+            <h3>Total Payment</h3>
+            <p id="total">0</p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

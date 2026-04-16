@@ -1,0 +1,158 @@
+/*1. RESET*/
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+/*2. BACKGROUND*/
+body {
+  margin-bottom: 500px;
+  margin-top: 200px;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: linear-gradient(135deg, rgb(10, 12, 20), rgb(20, 25, 40))
+
+}
+
+.app-container {
+  width: 100%;
+  max-width: 420px;
+  padding: 20px;
+}
+
+.header {
+  text-align: center;
+  color: white;
+  margin-bottom: 20px;
+}
+.header h1 {
+  font-size: 28px;
+}
+.header p {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.calculator-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(10, 10, 10, 0.4);
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+.input-group label {
+  display: block;
+  color: white;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: rgb(25, 30, 60);
+  color: white;
+  outline: none;
+}
+.input-group input:focus {
+  border: 1px solid rgb(0, 155, 255);
+}
+
+.btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  background: rgb(0, 120, 255);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.3s;
+}
+.btn:hover {
+  background: rgb(0, 150, 255);
+  transform: translateY(-2px);
+}
+
+.results {
+  margin-top: 20px;
+}
+.result-box {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 12px;
+  border-radius: 10px;
+  margin-top: 10px;
+  color: white;
+}
+.result-box p {
+  font-size: 18px;
+  font-weight: bold;
+  color: rgb(0, 200, 80);
+}
+
+.input-group select {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: rgb(25, 30, 60);
+  color: white;
+  outline: none;
+}
+.input-group select:focus {
+  border: 1px solid rgb(0, 155, 255);
+}
+
+/*
+.dropdown {
+  position: relative;
+  margin-top: 10px;
+  color: white;
+}
+
+.selected {
+  padding: 12px;
+  background: rgb(30, 35, 70);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#searchCurrency {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border-radius: 8px;
+  border: none;
+  background: rgb(20, 25, 60);
+  color: white;
+}
+
+.list {
+  max-height: 200px;
+  overflow-y: auto;
+  background: rgb(20, 25, 60);
+  border-radius: 8px;
+  margin-top: 5px;
+}
+
+.item {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.item:hover {
+  background: rgb(40, 45, 90);
+}
+  */
