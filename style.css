@@ -8,8 +8,8 @@
 
 /*2. BACKGROUND*/
 body {
-  margin-bottom: 500px;
-  margin-top: 200px;
+  margin-bottom: 2px;
+  margin-top: 2px;
   height: 100vh;
   display: flex;
   justify-content: center;
@@ -23,6 +23,7 @@ body {
   width: 100%;
   max-width: 420px;
   padding: 20px;
+  position: relative;
 }
 
 .header {
@@ -156,3 +157,106 @@ body {
   background: rgb(40, 45, 90);
 }
   */
+  
+  /*=====Currency Converter======*/
+  /*CURRENCY TOGGLE ICON*/
+  .currency-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgb(0, 120, 255);
+    color: white;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transition: 0.3s;
+  }
+  .currency-toggle:hover {
+    background: rgb(0, 150, 255);
+    transform: scale(1.1);
+  }
+
+  .converter-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 350px;
+
+    background: rgb(30, 35, 50);
+    padding: 20px;
+
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+
+    z-index: 1001;
+    overflow-y: auto;
+  }
+
+  .converter-panel.active {
+    transform: translateX(0);
+  }
+
+  /*CONVERTER PANEL*/
+  /*
+  .converter-panel {
+    position: absolute;
+    top: 80px;
+    right: 20px;
+    width: 300px;
+
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+   /* border: 1px solid rgba(255, 255, 255, 0.1); 
+    border-radius: 12px;
+    padding: 15px;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+
+   /* display: none;
+    
+    opacity: 0;
+    transform: translateY(-20px);
+    pointer-events: none;
+
+    transition: all 0.3s ease;
+
+    z-index: 1000;
+  }
+  .converter-panel.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  */
+  .converter-panel h3 {
+    color: white;
+    margin-bottom: 10px;
+    font-size: 16px;
+  }
+
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background: rgba(0, 0, 0, 0.5);
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition: 0.3s;
+
+    z-index: 1000;
+  }
+
+  .overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }

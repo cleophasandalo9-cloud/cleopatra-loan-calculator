@@ -24,6 +24,7 @@ async function getRates() {
     exchangeRates = data.rates;
     console.log('Rates Loaded');
     populateCurrencies(); //added upgrade
+    populateConverterCurrencies(); //added upgrade
   } catch (error) {
     console.log('Offline mode');
     exchangeRates = {
@@ -32,7 +33,8 @@ async function getRates() {
       EUR: 0.0066
     };
 
-    populateCurrencies(); //added uprade
+    populateCurrencies(); //added upgrade
+    populateConverterCurrencies(); //added uprade
   }
 }
 
@@ -53,7 +55,157 @@ getRates();
       AED: "UAE Dirham",
       KWD: "Kuwaiti Dinar",
       SAR: "Saudi Riyal",
-      ZAR: "South African Rand"
+      ZAR: "South African Rand",
+      AFN: "Afghan Afghani",
+      ALL: "Albanian Lek",
+      /*
+      AMD: "",
+      ANG: "",
+      AOA: "",
+      ARS: "",
+      AWG: "",
+      AZN: "",
+      BAM: "",
+      BBD: "",
+      BDT: "",
+      BGN: "",
+      BHD: "",
+      BIF: "",
+      BMD: "",
+      BND: "",
+      BOB: "",
+      BRL: "",
+      BSD: "",
+      BTN: "",
+      BWP: "",
+      BYN: "",
+      BZD: "",
+      CDF: "",
+      CLF: "",
+      CLP: "",
+      CNH: "",
+      COP: "",
+      CRD: "",
+      CUP: "",
+      CVE: "",
+      CZK: "",
+      DJF: "",
+      DKK: "",
+      DOP: "",
+      DZD: "",
+      EGP: "",
+      ERN: "",
+      ETB: "",
+      FJD: "",
+      FKP: "",
+      FOK: "",
+      GEL: "",
+      GGP: "",
+      GHS: "",
+      GIP: "",
+      GMD: "",
+      GNF: "",
+      GTB: "",
+      GYD: "",
+      HKD: "",
+      HNL: "",
+      HRK: "",
+      HTG: "",
+      HUF: "",
+      IDR: "",
+      ILS: "",
+      IMP: "",
+      IQD: "",
+      IRR: "",
+      ISK: "",
+      JEP: "",
+      JMD: "",
+      JOD: "",
+      KGS: "",
+      KHR: "",
+      KID: "",
+      KMF: "",
+      KYD: "",
+      KZT: "",
+      LAK: "",
+      LBP: "",
+      LKR: "",
+      LYD: "",
+      MAD: "",
+      MDL: "",
+      MGA: "",
+      MKD: "",
+      MMK: "",
+      MNT: "",
+      MOP: "",
+      MRU: "",
+      MVR: "",
+      MWK: "",
+      MYR: "",
+      MZN: "",
+      NAD: "",
+      NGN: "",
+      NIO: "",
+      NOK: "",
+      NPR: "",
+      NZD: "",
+      OMR: "",
+      PAB: "",
+      PEN: "",
+      PGK: "",
+      PHP: "",
+      PKR: "",
+      PLN: "",
+      PYG: "",
+      QAR: "",
+      RON: "",
+      RSD: "",
+      RUB: "",
+      RWF: "",
+      SBD: "",
+      SCR: "",
+      SDG: "",
+      SEK: "",
+      SGD: "",
+      SHP: "",
+      SLE: "",
+      SLL: "",
+      SOS: "",
+      SRD: "",
+      SSP: "",
+      STN: "",
+      SYP: "",
+      SZL: "",
+      THB: "",
+      TJS: "",
+      TMT: "",
+      TND: "",
+      TOP: "",
+      TRY: "",
+      TTD: "",
+      TVD: "",
+      TWD: "",
+      TZS: "",
+      UAH: "",
+      UGX: "",
+      UYU: "",
+      UZS: "",
+      VES: "",
+      VND: "",
+      VUV: "",
+      WST: "",
+      XAF: "",
+      XCD: "",
+      XCG: "",
+      XDR: "",
+      XOF: "",
+      XPF: "",
+      YER: "",
+      ZMW: "",
+      ZWG: "",
+      ZWL: "",
+      */
+
     };
 /*
     //===================================================
@@ -123,6 +275,70 @@ document.getElementById("searchCurrency").addEventListener("input", function () 
   });
 });
 */
+//======================================
+//CONVERTER CURRENCY
+//======================================
+//TOGGLE FUNCTION
+
+function toggleConverter () {
+  const panel = document.getElementById('converterPanel');
+  const overlay = document.getElementById('overlay');
+
+  panel.classList.toggle('active');
+  overlay.classList.toggle('active');
+  /*if (panel.style.display === 'block') {
+    panel.style.display = 'none';
+  } else {
+    panel.style.display = 'block';
+  }
+    */
+}
+
+//CONNECT DROPDOWNS TO API
+function populateConverterCurrencies () {
+  const from = document.getElementById('fromCurrency');
+  const to = document.getElementById('toCurrency');
+
+  from.innerHTML = '';
+  to.innerHTML = '';
+
+  for (let code in exchangeRates) {
+    let option1 = document.createElement('option');
+    option1.value = code;
+    option1.textContent = code;
+
+    let option2 = document.createElement('option');
+    option2.value = code;
+    option2.textContent = code;
+
+    from.appendChild(option1);
+    to.appendChild(option2);
+  }
+
+  from.value = 'USD';
+  to.value = 'KES';
+}
+
+//CONVERSION LOGIC
+function convertCurrency () {
+  const amount = parseFloat(document.getElementById('convertAmount').value);
+  const from = document.getElementById('fromCurrency').value;
+  const to = document.getElementById('toCurrency').value;
+  const result = document.getElementById('convertResult');
+
+  if (!amount) {
+    result.innerText = '0';
+    return
+  }
+
+  let rateFrom = exchangeRates[from];
+  let rateTo = exchangeRates[to];
+
+  let converted = (amount / rateFrom) * rateTo;
+
+  result.innerText = to + ' ' + converted.toFixed(2);
+}
+
 //AUTOPOPULATE CURRENCY LIST
 function populateCurrencies() {
   currencySelect.innerHTML = '';
@@ -208,3 +424,11 @@ amountInput.addEventListener('input', calculateLoan);
 rateInput.addEventListener('input', calculateLoan);
 timeInput.addEventListener('input', calculateLoan);
 currencySelect.addEventListener('change', calculateLoan);
+
+const convertAmountInput = document.getElementById('convertAmount');
+const fromCurrencySelect = document.getElementById('fromCurrency');
+const toCurrencySelect = document.getElementById('toCurrency');
+
+convertAmountInput.addEventListener('input', convertCurrency);
+fromCurrencySelect.addEventListener('change', convertCurrency);
+toCurrencySelect.addEventListener('change', convertCurrency);
