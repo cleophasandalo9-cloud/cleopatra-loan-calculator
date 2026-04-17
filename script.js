@@ -275,6 +275,22 @@ document.getElementById("searchCurrency").addEventListener("input", function () 
   });
 });
 */
+
+function filterCurrencies (searchInputId, selectId) {
+  const searchValue = document.getElementById(searchInputId).value.toLowerCase();
+  const select = document.getElementById(selectId);
+  const options = select.options;
+
+  for (let i = 0; i < options.length; i++) {
+    let text = options[i].text.toLowerCase();
+
+    if (text.includes(searchValue)) {
+      options[i].style.display = '';
+    } else {
+      options[i].style.display = 'none';
+    }
+  }
+}
 //======================================
 //CONVERTER CURRENCY
 //======================================
@@ -432,3 +448,10 @@ const toCurrencySelect = document.getElementById('toCurrency');
 convertAmountInput.addEventListener('input', convertCurrency);
 fromCurrencySelect.addEventListener('change', convertCurrency);
 toCurrencySelect.addEventListener('change', convertCurrency);
+
+//Loan Calculator search
+document.getElementById('currencySearch').addEventListener('input', () => filterCurrencies('currencySearch', 'currency'));
+
+//Converter search
+document.getElementById('fromSearch').addEventListener('input', () => filterCurrencies('fromSearch', 'fromCurrency'));
+document.getElementById('toSearch').addEventListener('input', () => filterCurrencies('toSearch', 'toCurrency'));

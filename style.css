@@ -8,6 +8,7 @@
 
 /*2. BACKGROUND*/
 body {
+  overflow-x: hidden;
   margin-bottom: 2px;
   margin-top: 2px;
   height: 100vh;
@@ -259,4 +260,14 @@ body {
   .overlay.active {
     opacity: 1;
     pointer-events: auto;
+  }
+
+  input[type = 'text'] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    border: none;
+    background: rgb(250, 250, 250);
+    color: black;
   }

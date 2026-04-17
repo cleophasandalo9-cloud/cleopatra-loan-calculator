@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width = device - width, initial - scale = 1.0">
+    <meta name="viewport" content="width=device-width, initial-scale = 1.0">
     <title>Loan Calculator</title>
     <link rel="stylesheet" href="style.css">
   </head>
@@ -35,6 +35,7 @@
         <div class="input-group">
           <label>Currency</label>
           
+          <input type="text" id="currencySearch" placeholder="Search currency...">
           <select id="currency">
             <option value="USD">USD</option>
             <option value="KES">KES</option>
@@ -105,11 +106,17 @@
             <input type="number" id="convertAmount" placeholder="Enter amount">
           </div>
 
+          <input type="text" id="fromSearch" placeholder="Search currency...">
+          <select id="fromCurrency"></select>
+
           <div class="input-group">
             <label>From</label>
             <select id="fromCurrency"></select>
           </div>
 
+          <input type="text" id="toSearch" placeholder="Search currency...">
+          <select id="toCurrency"></select>
+        
           <div class="input-group">
             <label>To</label>
             <select id="toCurrency"></select>
