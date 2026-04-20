@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale = 1.0">
     <title>Loan Calculator</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
   </head>
 
   <body>
@@ -69,9 +69,9 @@
           <input type="number" id="time" placeholder="Enter Duration" step="10">
         </div>
 
-        <!--button-->
+        <!--button
         <button onclick="calculateLoan()" class="btn">Calculate</button>
-
+      -->
         <!--results-->
         <div class="results">
 
@@ -91,6 +91,31 @@
           </div>
 
         </div>
+
+        <!--AMORTIZATION TABLE-->
+        <div class="table-container">
+        <h3 class="breakdown-title">Payment Breakdown</h3>
+
+        <div class="table-scroll">
+        <table id="breakdownTable">
+          <thead>
+            <tr>
+              <th>Month</th>
+              <th>Payment</th>
+              <th>Interest</th>
+              <th>Principal</th>
+              <th>Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- JS will insert rows here -->
+          </tbody>
+        </table>
+        </div>
+        
+        </div>
+
+        
 
       </div>
       

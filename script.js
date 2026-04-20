@@ -401,6 +401,10 @@ function calculateLoan () {
   let P = parseFloat(amountInput.value);
   let annualRate = parseFloat(rateInput.value);
   let n = parseFloat(timeInput.value);
+
+  if (isNaN(P) || isNaN(annualRate) || isNaN(n)) {
+    return;
+  }
   //let selectedCurrency = selectedCurrencyCode;
   let selectedCurrency = currencySelect.value;
 
@@ -420,17 +424,54 @@ function calculateLoan () {
   let total = monthly * n;
   let interest = total - P;
 
-  //======CONVERT RESULTS ONLY======//
-  let rate = exchangeRates[selectedCurrency] || 1;
+  // =====================
+  // AMORTIZATION TABLE
+  // =====================
 
-  let convertedMonthly = monthly * rate;
-  let convertedTotal = total * rate;
-  let convertedInterest = interest * rate;
+  let exchangeRate = exchangeRates[selectedCurrency] || 1;
+    const tableBody = document.querySelector('#breakdownTable tbody');
+
+    // clear previous rows
+    tableBody.innerHTML = "";
+
+    // monthly rate already calculated as r
+    let balance = P;
+
+    // limit rows (performance)
+    let maxRows = Math.min(n, 12); // show only 24 months
+
+    for (let i = 1; i <= maxRows; i++) {
+
+      let interestPayment = balance * r;
+      let principalPayment = monthly - interestPayment;
+
+      balance -= principalPayment;
+
+      const row = document.createElement('tr');
+
+      row.innerHTML = `
+        <td>${i}</td>
+        <td>${(monthly * exchangeRate).toFixed(2)}</td>
+        <td>${(interestPayment * exchangeRate).toFixed(2)}</td>
+        <td>${(principalPayment * exchangeRate).toFixed(2)}</td>
+        <td>${balance > 0 ? (balance * exchangeRate).toFixed(2) : '0.00'}</td>
+      `;
+
+      tableBody.appendChild(row);
+    }
+
+  //======CONVERT RESULTS ONLY======//
+  
+
+  let convertedMonthly = monthly * exchangeRate;
+  let convertedTotal = total * exchangeRate;
+  let convertedInterest = interest * exchangeRate;
 
   //======ANIMATED OUTPUT===========//
   animateValue(monthlyOutput, 0, convertedMonthly, 600, selectedCurrency);
   animateValue(interestOutput, 0, convertedInterest, 600, selectedCurrency);
   animateValue(totalOutput, 0, convertedTotal, 600, selectedCurrency);
+
 }
 
 //===================
@@ -455,3 +496,4 @@ document.getElementById('currencySearch').addEventListener('input', () => filter
 //Converter search
 document.getElementById('fromSearch').addEventListener('input', () => filterCurrencies('fromSearch', 'fromCurrency'));
 document.getElementById('toSearch').addEventListener('input', () => filterCurrencies('toSearch', 'toCurrency'));
+
