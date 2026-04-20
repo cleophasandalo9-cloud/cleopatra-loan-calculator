@@ -30,6 +30,7 @@
         <div class="input-group">
           <label>Loan Amount (USD)</label>
           <input type="number" id="amount" placeholder="Enter Amount" step="10">
+          <small class="error-message" id="amountError"></small>
         </div>
 
         <div class="input-group">
@@ -61,13 +62,22 @@
         -->
         <div class="input-group">
           <label>Interest Rate (%)</label>
-          <input type="number" id="rate" placeholder="Enter Interest Rate" step="10">
+          <input type="number" id="rate" placeholder="Enter Interest Rate p.a" step="10">
+          <small class="error-message" id="interestError"></small>
         </div>
 
         <div class="input-group">
           <label>Loan Duration (Months)</label>
           <input type="number" id="time" placeholder="Enter Duration" step="10">
+          <small class="error-message" id="yearsError"></small>
         </div>
+
+        <!--Flex for compund or simple interest-->
+        <label for="interestType">Interest Type</label>
+        <select id="interestType">
+          <option value="compound">Compound Interest</option>
+          <option value="simple">Simple Interest</option>
+        </select>
 
         <!--button
         <button onclick="calculateLoan()" class="btn">Calculate</button>

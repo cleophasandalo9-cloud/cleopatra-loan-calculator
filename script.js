@@ -398,9 +398,64 @@ function animateValue (element, start, end, duration, currency = ' ') {
 //MAIN CALCULATION
 //======================
 function calculateLoan () {
+  //Get inputs
+  //const amountInput = document.getElementById('amount');
+  //const rateInput = document.getElementById('interest');
+  //const timeInput = document/getElementById('time');
+
+  //Error elements
+  const amountError = document.getElementById('amountError');
+  const interestError = document.getElementById('interestError');
+  const yearsError = document.getElementById('yearsError');
+
+  //Reset errors
+  //amountError.textContent = "";
+  interestError.textContent = "";
+  yearsError.textContent = "";
+
+  amountInput.classList.remove('input-error');
+  rateInput.classList.remove('input-error');
+  timeInput.classList.remove('input-error');
+
+
+  let hasError = false;
+
+  //Validate amount
+  if (amountInput.value === '' || parseFloat(amountInput.value) <= 0) {
+    amountError.textContent = 'This field is required!';
+    amountError.style.opacity = '1';
+    amountError.style.height = 'auto';
+    amountInput.classList.add('input-error');
+    amountError.style.border = '1px solid transparent';
+    hasError = true;
+  }
+
+  //Validate interest
+  if (rateInput.value === '' || parseFloat(rateInput.value) <= 0) {
+    interestError.textContent = 'This field is required!';
+    interestError.style.opacity = '1';
+    interestError.style.height = 'auto';
+    rateInput.classList.add('input-error');
+    interestError.style.border = '1px solid transparent'
+    hasError = true;
+  }
+
+  //Validate years
+  if (timeInput.value === '' || parseFloat(timeInput.value) <= 0) {
+    yearsError.textContent = 'This field is required!';
+    yearsError.style.opacity = '1';
+    yearsError.style.height = 'auto';
+    timeInput.classList.add('input-error');
+    yearsError.style.border = '1px solid transparent';
+    hasError = true;
+  }
+
+  if (hasError) return;
+
   let P = parseFloat(amountInput.value);
   let annualRate = parseFloat(rateInput.value);
   let n = parseFloat(timeInput.value);
+  let type = document.getElementById('interestType').value;
 
   if (isNaN(P) || isNaN(annualRate) || isNaN(n)) {
     return;
@@ -415,6 +470,28 @@ function calculateLoan () {
     return;
   }
 
+  //====================================
+  //SWITCH BETWEEN COMPOUND OR SIMPLE
+  //====================================
+  let monthly, total, interest, r;
+
+  if (type === 'simple') {
+    //SIMPLE INTEREST
+    let t = n / 12;
+    interest = P * (annualRate / 100) * t;
+    total = P + interest;
+    monthly =total / 12;
+
+  } else {
+    //COMPOUND INTEREST
+    let r = annualRate / 100 / 12;
+
+    monthly = P * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+
+    total = monthly * n;
+    interest = total - P;
+  }
+/*
   //convert annual rate to monthly
   let r = annualRate / 100 / 12;
 
@@ -423,12 +500,17 @@ function calculateLoan () {
 
   let total = monthly * n;
   let interest = total - P;
+*/
 
   // =====================
   // AMORTIZATION TABLE
   // =====================
 
   let exchangeRate = exchangeRates[selectedCurrency] || 1;
+  if (type === 'compound') {
+    let r = annualRate / 100 / 12
+    
+  
     const tableBody = document.querySelector('#breakdownTable tbody');
 
     // clear previous rows
@@ -460,6 +542,10 @@ function calculateLoan () {
       tableBody.appendChild(row);
     }
 
+  } else {
+    document.querySelector('#breakdownTable tbody').innerHTML = `<tr><td colspan = '5'>Breakdown not available for simple interest</td></tr>`;
+  }
+
   //======CONVERT RESULTS ONLY======//
   
 
@@ -471,6 +557,10 @@ function calculateLoan () {
   animateValue(monthlyOutput, 0, convertedMonthly, 600, selectedCurrency);
   animateValue(interestOutput, 0, convertedInterest, 600, selectedCurrency);
   animateValue(totalOutput, 0, convertedTotal, 600, selectedCurrency);
+
+  
+  console.log(type);
+  return;
 
 }
 
@@ -490,6 +580,10 @@ convertAmountInput.addEventListener('input', convertCurrency);
 fromCurrencySelect.addEventListener('change', convertCurrency);
 toCurrencySelect.addEventListener('change', convertCurrency);
 
+//simple/compound interest
+const interestType = document.getElementById('interestType');
+interestType.addEventListener('change', calculateLoan);
+
 //Loan Calculator search
 document.getElementById('currencySearch').addEventListener('input', () => filterCurrencies('currencySearch', 'currency'));
 
@@ -497,3 +591,19 @@ document.getElementById('currencySearch').addEventListener('input', () => filter
 document.getElementById('fromSearch').addEventListener('input', () => filterCurrencies('fromSearch', 'fromCurrency'));
 document.getElementById('toSearch').addEventListener('input', () => filterCurrencies('toSearch', 'toCurrency'));
 
+//REMOVE ERROR WHEN USER TYPES
+const inputs = document.querySelectorAll('#amount, #rate, #time');
+
+inputs.forEach(input => {
+  input.addEventListener('input', () => {
+    input.classList.remove('input-error');
+
+    const error = document.getElementById(input.id + 'Error');
+
+    if (error) {
+      error.textContent = "";
+      error.style.opacity = "0";
+      error.style.height = "0";
+    }
+  });
+});

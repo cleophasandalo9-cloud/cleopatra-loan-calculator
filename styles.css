@@ -218,6 +218,11 @@ body {
     transform: translateX(0);
   }
 
+  input {
+    outline: none;
+    border: 1px solid transparent;
+  }
+
   /*CONVERTER PANEL*/
   /*
   .converter-panel {
@@ -292,17 +297,17 @@ body {
   /* ===== AMORTIZATION TABLE ===== */
 
 .breakdown-title {
-  color: white;
+  color: rgb(16, 255, 20);
   font-weight: 500;
   margin-top: 20px;
-  font-size: 16px;
+  font-size: 25px;
 }
 
 #breakdownTable {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
-  font-size: 13px;
+  font-size: 20px;
   color: white;
 }
 
@@ -355,8 +360,10 @@ body {
 #breakdownTable {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 20px;
   color: white;
+  display: block;
+  max-height: 250px;
 }
 
 #breakdownTable th,
@@ -365,12 +372,41 @@ body {
   text-align: center;
 }
 
+#breakdownTable td  {
+  font-size: 20px;
+  font-weight: 500;
+  color: aqua;
+}
+
 #breakdownTable th {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgb(10, 20, 50);
   position: sticky;
-  top: 0; /* 🔥 keeps header visible while scrolling */
+  top: 0;
+  color: white;
+  z-index: 2;
 }
 
 #breakdownTable tr:nth-child(even) {
   background: rgba(255, 255, 255, 0.05);
+}
+
+#interestType {
+  font-weight: 300;
+  font-size: 16px;
+}
+
+.error-message {
+  color: red;
+  font-size: 12px;
+  opacity: 0;
+  height: 0;
+  transition: opacity 0.3s ease;
+}
+
+.input-error {
+  border: 1px solid rgba(255, 80, 80, 0.6) !important;
+}
+
+.input-error:focus {
+  border: 1px solid rgba(255, 80, 80, 0.9) !important;
 }
