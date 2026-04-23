@@ -1,5 +1,16 @@
 let selectedCurrencyCode = "USD";
 
+//<FORMATING FUNCTION>//
+function formatNumber (value, currency = '') {
+  return new Intl.NumberFormat('en-US', {
+    style: currency? 'currency' : 'decimal',
+    currency: currency || undefined,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(value);
+}
+
+
 //INPUTS
 const amountInput = document.getElementById('amount');
 const rateInput = document.getElementById('rate');
@@ -28,9 +39,9 @@ async function getRates() {
   } catch (error) {
     console.log('Offline mode');
     exchangeRates = {
-      KES: 1,
-      USD: 0.0077,
-      EUR: 0.0066
+      //KES: 129.1447,
+      //USD: 1,
+      //EUR: 0.8543
     };
 
     populateCurrencies(); //added upgrade
@@ -39,6 +50,15 @@ async function getRates() {
 }
 
 getRates();
+
+
+//<FORMATS INPUT AS USER TYPES>//
+function formatInput(input) {
+  let value = input.value.replace(/,/g,'');
+  if (!isNaN(value) && value !== '') {
+    input.value = parseFloat(value).toLocaleString('en-US');
+  }
+}
 
 //SUPER UPGRADE
     const currencyNames = {
@@ -59,26 +79,10 @@ getRates();
       AFN: "Afghan Afghani",
       ALL: "Albanian Lek",
       /*
-      AMD: "",
-      ANG: "",
-      AOA: "",
-      ARS: "",
-      AWG: "",
-      AZN: "",
-      BAM: "",
-      BBD: "",
-      BDT: "",
-      BGN: "",
-      BHD: "",
-      BIF: "",
-      BMD: "",
-      BND: "",
-      BOB: "",
-      BRL: "",
-      BSD: "",
-      BTN: "",
-      BWP: "",
-      BYN: "",
+      AMD: "",  ANG: "",  AOA: "", ARS: "", AWG: "",  AZN: "",
+      BAM: "",  BBD: "", BDT: "",  BGN: "",  BHD: "",  BIF: "",
+      BMD: "",  BND: "",  BOB: "", BRL: "",  BSD: "", BTN: "",
+      BWP: "",  BYN: "",
       BZD: "",
       CDF: "",
       CLF: "",
@@ -276,6 +280,22 @@ document.getElementById("searchCurrency").addEventListener("input", function () 
 });
 */
 
+//CURRENCY SYMBOL
+/*
+  const currencySymbols = {
+    USD: '$',
+    EUR: '€',
+    GBP: '£',
+    KES: 'Ksh',
+    INR: '₹',
+    JPY: '¥',
+    AUD: 'A$',
+    CAD: 'C$',
+    CHF: 'CHF',
+    CNY: '¥',
+    ZAR: 'R'
+  }
+*/
 function filterCurrencies (searchInputId, selectId) {
   const searchValue = document.getElementById(searchInputId).value.toLowerCase();
   const select = document.getElementById(selectId);
@@ -331,8 +351,8 @@ function populateConverterCurrencies () {
     to.appendChild(option2);
   }
 
-  from.value = 'USD';
-  to.value = 'KES';
+  from.value = currencySelect.value;
+  to.value = currencySelect.value;
 }
 
 //CONVERSION LOGIC
@@ -342,17 +362,32 @@ function convertCurrency () {
   const to = document.getElementById('toCurrency').value;
   const result = document.getElementById('convertResult');
 
-  if (!amount) {
+  if (!amount || isNaN(amount)) {
     result.innerText = '0';
     return
   }
-
+/*
   let rateFrom = exchangeRates[from];
   let rateTo = exchangeRates[to];
 
   let converted = (amount / rateFrom) * rateTo;
 
   result.innerText = to + ' ' + converted.toFixed(2);
+*/
+
+  let converted;
+  if (Object.keys(exchangeRates).length === 0) {
+    //OFFLINE MODE 'n no conversion
+    converted = amount;
+
+  } else {
+    let rateFrom = exchangeRates[from];
+    let rateTo = exchangeRates[to];
+
+    converted = (amount / rateFrom) * rateTo;
+  }
+
+  result.innerText = `${to} ${converted.toFixed(2)}`;
 }
 
 //AUTOPOPULATE CURRENCY LIST
@@ -384,7 +419,7 @@ function animateValue (element, start, end, duration, currency = ' ') {
     const progress = Math.min((currentTime - startTime) / duration, 1);
     const value = start + (end - start) * progress;
 
-    element.innerText = currency + ' ' + value.toFixed(2);
+    element.innerText = formatNumber(value, currency);
 
     if (progress < 1) {
       requestAnimationFrame(animation);
@@ -506,7 +541,8 @@ function calculateLoan () {
   // AMORTIZATION TABLE
   // =====================
 
-  let exchangeRate = exchangeRates[selectedCurrency] || 1;
+  let exchangeRate = 1; //Added upgrade
+  //let exchangeRate = exchangeRates[selectedCurrency] || 1;
   if (type === 'compound') {
     let r = annualRate / 100 / 12
     
@@ -533,10 +569,10 @@ function calculateLoan () {
 
       row.innerHTML = `
         <td>${i}</td>
-        <td>${(monthly * exchangeRate).toFixed(2)}</td>
-        <td>${(interestPayment * exchangeRate).toFixed(2)}</td>
-        <td>${(principalPayment * exchangeRate).toFixed(2)}</td>
-        <td>${balance > 0 ? (balance * exchangeRate).toFixed(2) : '0.00'}</td>
+        <td>${formatNumber(monthly, selectedCurrency)}</td>
+        <td>${formatNumber(interestPayment, selectedCurrency)}</td>
+        <td>${formatNumber(principalPayment, selectedCurrency)}</td>
+        <td>${balance > 0 ? formatNumber(balance, selectedCurrency) : formatNumber(0, selectedCurrency)}</td>
       `;
 
       tableBody.appendChild(row);
@@ -549,9 +585,13 @@ function calculateLoan () {
   //======CONVERT RESULTS ONLY======//
   
 
-  let convertedMonthly = monthly * exchangeRate;
-  let convertedTotal = total * exchangeRate;
-  let convertedInterest = interest * exchangeRate;
+  let convertedMonthly = monthly;
+  let convertedTotal = total;
+  let convertedInterest = interest;
+
+  //let convertedMonthly = monthly * exchangeRate;
+  //let convertedTotal = total * exchangeRate;
+  //let convertedInterest = interest * exchangeRate;
 
   //======ANIMATED OUTPUT===========//
   animateValue(monthlyOutput, 0, convertedMonthly, 600, selectedCurrency);
