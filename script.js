@@ -10,6 +10,46 @@ function formatNumber (value, currency = '') {
   }).format(value);
 }
 
+window.onlanguagechange = function () {
+  const loanAmount = localStorage.getItem('amount');
+  const interestRate = localStorage.getItem('rate');
+  const loanTerm = localStorage.getItem('time');
+
+  if (loanAmount) document.getElementById('amount').value = loanAmount;
+  if (interestRate) document.getElementById('rate').value = interestRate;
+  if (loanTerm) document.getElementById('time').value = loanTerm;
+};
+
+/*/<UPGRADE: THEME TOGGLE FUNCTION>//
+function toggleTheme () {
+  const body = document.body;
+  const toggle =document.querySelector('.theme-toggle');
+
+  body.classList.toggle('dark-mode');
+
+  //save preference
+  if (body.classList.contains('dark-mode')) {
+    toggle.textContent = '☀';
+    localStorage.setItem('theme', 'dark')
+  } else {
+    toggle.textContent = '🌙';
+    localStorage.setItem('theme', 'light');
+  }
+};
+
+//UPGRADE: LOAD SAVED THEME ON PAGE
+window.onload = function () {
+  const savedTheme = localStorage.getItem('theme');
+  const toggle = document.querySelector('.theme-toggle');
+
+  if (savedTheme === 'dark') {
+    document.body.classList.add('dark-mode');
+    if (toggle) toggle.textContent = '☀';
+  } else {
+    if (toggle) toggle.textContent = '🌙';
+  }
+};
+*/
 
 //INPUTS
 const amountInput = document.getElementById('amount');
@@ -33,11 +73,11 @@ async function getRates() {
     fetch('https://open.er-api.com/v6/latest/USD');
     const data = await response.json();
     exchangeRates = data.rates;
-    console.log('Rates Loaded');
+    console.log('Online mode 😎 \nRates Loaded');
     populateCurrencies(); //added upgrade
     populateConverterCurrencies(); //added upgrade
   } catch (error) {
-    console.log('Offline mode');
+    console.log('Offline mode 👾👾😁 \nNo rates loaded');
     exchangeRates = {
       //KES: 129.1447,
       //USD: 1,
@@ -429,6 +469,30 @@ function animateValue (element, start, end, duration, currency = ' ') {
   requestAnimationFrame(animation);
 }
 
+//========================
+//SAVING USER INPUT
+//========================
+document.addEventListener('DOMContentLoaded', function () {
+  document.getElementById('amount').addEventListener('input', saveInputs);
+
+  document.getElementById('rate').addEventListener('input', saveInputs);
+
+  document.getElementById('time').addEventListener('input', saveInputs);
+});
+
+function saveInputs () {
+//console.log('Saving inputs...');
+
+
+  const loanAmount = document.getElementById('amount').value;
+  const interestRate = document.getElementById('rate');
+  const loanTerm = document.getElementById('time');
+
+  localStorage.setItem('amount', loanAmount);
+  localStorage.setItem('rate', interestRate);
+  localStorage.setItem('time', loanTerm);
+} 
+
 //======================
 //MAIN CALCULATION
 //======================
@@ -498,6 +562,23 @@ function calculateLoan () {
   //let selectedCurrency = selectedCurrencyCode;
   let selectedCurrency = currencySelect.value;
 
+  currencySelect.addEventListener('change', function () {
+    const selected = currencySelect.value;
+
+    //Sync converter
+    let from = document.getElementById('fromCurrency');
+    let to = document.getElementById('toCurrency');
+
+    from.value = selected;
+
+    //Only change 'to' if it was same before
+    if (to.value === from.value) {
+      to.value = selected === 'USD' ? 'KES':'USD';
+    }
+
+    convertCurrency();
+  })
+
   if (!P || !annualRate || !n) {
     monthlyOutput.innerText = '0';
     interestOutput.innerText = '0';
@@ -556,7 +637,7 @@ function calculateLoan () {
     let balance = P;
 
     // limit rows (performance)
-    let maxRows = Math.min(n, 12); // show only 24 months
+    let maxRows = Math.min(n); // show only 24 months
 
     for (let i = 1; i <= maxRows; i++) {
 
@@ -624,7 +705,7 @@ toCurrencySelect.addEventListener('change', convertCurrency);
 const interestType = document.getElementById('interestType');
 interestType.addEventListener('change', calculateLoan);
 
-//Loan Calculator search
+//**************Loan Calculator search*****************
 document.getElementById('currencySearch').addEventListener('input', () => filterCurrencies('currencySearch', 'currency'));
 
 //Converter search

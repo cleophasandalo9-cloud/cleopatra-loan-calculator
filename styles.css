@@ -5,6 +5,26 @@
   box-sizing: border-box;
   font-family: 'Times New Roman', Times, serif;
 }
+/*
+/*UPGRADE: THEME COLOR SYSTEM*
+:root {
+  --bg-color: rgb(245, 247, 250);
+  --card-color: rgb(255, 255, 255);
+  --text-color: rgb(34, 34, 34);
+  --input-bg: rgb(255, 255, 255);
+  --border-color: rgb(221, 221, 221);
+  --primary-color: rgb(76, 175, 80);
+}
+
+body.dark-mode {
+  --bg-color: rgb(18, 18, 18);
+  --card-color: rgb(30, 30, 30);
+  --text-color: rgb(245, 245, 245);
+  --input-bg: rgb(42, 42, 42);
+  --border-color: rgb(68, 68, 68);
+  --primary-color: rgb(102, 187, 106);
+} 
+*/
 
 /*2. BACKGROUND*/
 body {
@@ -409,4 +429,40 @@ body {
 
 .input-error:focus {
   border: 1px solid rgba(255, 80, 80, 0.9) !important;
+}
+/*
+body.dark-mode {
+
+color: rgb(0, 120, 255);
+}
+
+body.dark-mode .calculator-card {
+  background: rgb(240, 240, 240);
+  color: rgb(25, 30, 60);
+}
+
+body.dark-mode input {
+  
+}
+
+body.dark-mode header {
+  
+}
+
+body.dark-mode .theme-toggle {
+  
+}
+
+.theme-toggle {
+  width: 80px;
+  height: 80px;
+  align-content: center;
+  justify-content: center;
+  border-radius: 50%;
+  aspect-ratio: 1 / 1;
+  position: absolute;
+  top: 10px;
+  left: 20px;
+  cursor: pointer;
+  font-size: 40px;
 }
