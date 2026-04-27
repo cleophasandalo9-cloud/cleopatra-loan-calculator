@@ -1,0 +1,490 @@
+/*1. RESET*/
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Times New Roman', Times, serif;
+}
+/*
+/*UPGRADE: THEME COLOR SYSTEM*
+:root {
+  --bg-color: rgb(245, 247, 250);
+  --card-color: rgb(255, 255, 255);
+  --text-color: rgb(34, 34, 34);
+  --input-bg: rgb(255, 255, 255);
+  --border-color: rgb(221, 221, 221);
+  --primary-color: rgb(76, 175, 80);
+}
+
+body.dark-mode {
+  --bg-color: rgb(18, 18, 18);
+  --card-color: rgb(30, 30, 30);
+  --text-color: rgb(245, 245, 245);
+  --input-bg: rgb(42, 42, 42);
+  --border-color: rgb(68, 68, 68);
+  --primary-color: rgb(102, 187, 106);
+} 
+*/
+
+/*2. BACKGROUND*/
+body {
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin-bottom: 2px;
+  margin-top: 2px;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: linear-gradient(135deg, rgb(10, 12, 20), rgb(20, 25, 40))
+
+}
+
+
+.app-container {
+  width: 100%;
+  max-width: 420px;
+  padding: 20px;
+  position: relative;
+}
+
+.header {
+  text-align: center;
+  color: white;
+  margin-bottom: 20px;
+}
+.header h1 {
+  font-size: 28px;
+}
+.header p {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.calculator-card {
+  max-height: 100vh;
+  overflow: visible;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(10, 10, 10, 0.4);
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+.input-group label {
+  display: block;
+  color: white;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: rgb(25, 30, 60);
+  color: white;
+  outline: none;
+}
+.input-group input:focus {
+  border: 1px solid rgb(0, 155, 255);
+}
+
+.btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  background: rgb(0, 120, 255);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.3s;
+}
+.btn:hover {
+  background: rgb(0, 150, 255);
+  transform: translateY(-2px);
+}
+
+.results {
+  margin-top: 20px;
+}
+.result-box {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 12px;
+  border-radius: 10px;
+  margin-top: 10px;
+  color: white;
+}
+.result-box p {
+  font-size: 18px;
+  font-weight: bold;
+  color: rgb(0, 200, 80);
+}
+
+.input-group select {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: rgb(25, 30, 60);
+  color: white;
+  outline: none;
+}
+.input-group select:focus {
+  border: 1px solid rgb(0, 155, 255);
+}
+
+/*
+.dropdown {
+  position: relative;
+  margin-top: 10px;
+  color: white;
+}
+
+.selected {
+  padding: 12px;
+  background: rgb(30, 35, 70);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#searchCurrency {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border-radius: 8px;
+  border: none;
+  background: rgb(20, 25, 60);
+  color: white;
+}
+
+.list {
+  max-height: 200px;
+  overflow-y: auto;
+  background: rgb(20, 25, 60);
+  border-radius: 8px;
+  margin-top: 5px;
+}
+
+.item {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.item:hover {
+  background: rgb(40, 45, 90);
+}
+  */
+  
+  /*=====Currency Converter======*/
+  /*CURRENCY TOGGLE ICON*/
+  .currency-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgb(0, 120, 255);
+    color: white;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transition: 0.3s;
+  }
+  .currency-toggle:hover {
+    background: rgb(0, 150, 255);
+    transform: scale(1.1);
+  }
+
+  .converter-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 350px;
+
+    background: rgb(30, 35, 50);
+    padding: 20px;
+
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+
+    z-index: 1001;
+    overflow-y: auto;
+  }
+
+  .converter-panel.active {
+    transform: translateX(0);
+  }
+
+  input {
+    outline: none;
+    border: 1px solid transparent;
+  }
+
+  /*CONVERTER PANEL*/
+  /*
+  .converter-panel {
+    position: absolute;
+    top: 80px;
+    right: 20px;
+    width: 300px;
+
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+   /* border: 1px solid rgba(255, 255, 255, 0.1); 
+    border-radius: 12px;
+    padding: 15px;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+
+   /* display: none;
+    
+    opacity: 0;
+    transform: translateY(-20px);
+    pointer-events: none;
+
+    transition: all 0.3s ease;
+
+    z-index: 1000;
+  }
+  .converter-panel.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  */
+  .converter-panel h3 {
+    color: white;
+    margin-bottom: 10px;
+    font-size: 16px;
+  }
+
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background: rgba(0, 0, 0, 0.5);
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition: 0.3s;
+
+    z-index: 1000;
+  }
+
+  .overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  input[type = 'text'] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    border: none;
+    background: rgb(250, 250, 250);
+    color: black;
+  }
+
+
+  /* ===== AMORTIZATION TABLE ===== */
+
+.breakdown-title {
+  color: rgb(16, 255, 20);
+  font-weight: 500;
+  margin-top: 20px;
+  font-size: 25px;
+}
+
+#breakdownTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 20px;
+  color: white;
+}
+
+#breakdownTable th,
+#breakdownTable td {
+  padding: 6px;
+  text-align: center;
+}
+
+#breakdownTable th {
+  background: rgba(255, 255, 255, 0.1);
+  font-weight: 500;
+}
+
+#breakdownTable tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ===== TABLE CONTAINER ===== */
+.table-container {
+  margin-top: 20px;
+  padding: 15px;
+
+  background: rgba(0, 0, 255, 0.09);
+  border-radius: 10px;
+
+  max-height: 250px; /* controls total visible area */
+  overflow: hidden;
+}
+
+/* ===== SCROLL AREA ===== */
+.table-scroll {
+  max-height: 200px;
+  overflow-y: auto;
+
+  margin-top: 10px;
+}
+
+/* ===== SCROLLBAR (optional nice look) ===== */
+.table-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.table-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+}
+
+/* ===== TABLE STYLING ===== */
+#breakdownTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 20px;
+  color: white;
+  display: block;
+  max-height: 250px;
+}
+
+#breakdownTable th,
+#breakdownTable td {
+  padding: 6px;
+  text-align: center;
+}
+
+#breakdownTable td  {
+  font-size: 20px;
+  font-weight: 500;
+  color: aqua;
+}
+
+#breakdownTable th {
+  background: rgb(10, 20, 50);
+  position: sticky;
+  top: 0;
+  color: white;
+  z-index: 2;
+}
+
+#breakdownTable tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+#interestType {
+  font-weight: 300;
+  font-size: 16px;
+}
+
+.error-message {
+  color: red;
+  font-size: 12px;
+  opacity: 0;
+  height: 0;
+  transition: opacity 0.3s ease;
+}
+
+.input-error {
+  border: 1px solid rgba(255, 80, 80, 0.6) !important;
+}
+
+.input-error:focus {
+  border: 1px solid rgba(255, 80, 80, 0.9) !important;
+}
+/*
+body.dark-mode {
+
+color: rgb(0, 120, 255);
+}
+
+body.dark-mode .calculator-card {
+  background: rgb(240, 240, 240);
+  color: rgb(25, 30, 60);
+}
+
+body.dark-mode input {
+  
+}
+
+body.dark-mode header {
+  
+}
+
+body.dark-mode .theme-toggle {
+  
+}
+
+.theme-toggle {
+  width: 80px;
+  height: 80px;
+  align-content: center;
+  justify-content: center;
+  border-radius: 50%;
+  aspect-ratio: 1 / 1;
+  position: absolute;
+  top: 10px;
+  left: 20px;
+  cursor: pointer;
+  font-size: 40px;
+}
+  */
+
+@media(max-width: 600px) {
+  .calculator-card {
+    width: 95%;
+    padding: 10px;
+  }
+
+  #breakdownTable {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 10px;
+  }
+
+  .container {
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  h2, h3 {
+    font-size: 18px;
+  }
+
+  input, select {
+    font-size: 16px;
+    padding: 10px;
+  }
+}
