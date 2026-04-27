@@ -43,16 +43,6 @@ body {
 
 }
 
-@media(max-width: 600px) {
-  .calculator-card {
-    width: 95%;
-    padding: 10px;
-  }
-
-  #breakdownTable {
-    font-size: 12px;
-  }
-}
 
 .app-container {
   width: 100%;
@@ -76,7 +66,7 @@ body {
 
 .calculator-card {
   max-height: 100vh;
-  overflow-y: auto;
+  overflow: visible;
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -465,4 +455,36 @@ body.dark-mode .theme-toggle {
   left: 20px;
   cursor: pointer;
   font-size: 40px;
+}
+  */
+
+@media(max-width: 600px) {
+  .calculator-card {
+    width: 95%;
+    padding: 10px;
+  }
+
+  #breakdownTable {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 10px;
+  }
+
+  .container {
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  h2, h3 {
+    font-size: 18px;
+  }
+
+  input, select {
+    font-size: 16px;
+    padding: 10px;
+  }
 }
