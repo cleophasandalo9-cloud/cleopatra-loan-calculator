@@ -39,7 +39,9 @@ body {
   justify-content: center;
   align-items: center;
 
-  background: linear-gradient(135deg, rgb(10, 12, 20), rgb(20, 25, 40))
+  background: linear-gradient(135deg, rgb(10, 12, 20), rgb(20, 25, 40));
+
+  user-select: none;
 
 }
 
@@ -488,3 +490,108 @@ body.dark-mode .theme-toggle {
     padding: 10px;
   }
 }
+
+/*flags dropdown
+.custom-dropdown {
+  position: relative;
+  cursor: pointer;
+}
+
+.slected-currency {
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.currency-list {
+  position: absolute;
+  top: 100%;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  background: black;
+  display: none;
+  border-radius: 8px;
+  z-index: 10;
+}
+
+.currency-item {
+  padding: 10px;
+}
+
+.currency-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+  */
+
+/*===================== HAMBURGER STYLINGS =====================*/
+/*==========================
+HAMBURGER BUTTON
+===========================*/
+.menu-toggle {
+  position: fixed;
+  top: 0;
+  left: 0;
+  font-size: 50px;
+  cursor: pointer;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.9);
+  width: 100%;
+  border-bottom: 1px solid rgba(0, 0, 255, 0.2);
+  box-shadow: 0px 0px 60px rgba(0, 0, 255, 0.1);
+}
+
+.hamburger {
+  color: rgb(5, 118, 163);
+  position: relative;
+  left: 30px;
+}
+
+/*================================
+SIDEBAR
+================================*/
+.sidebar {
+  position: fixed;
+  top: 60px;
+  left: -250px; /*hidden by default*/
+  width: 250px;
+  height: calc(100% - 60px);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  padding: 60px;
+  transition: left 0.3s ease;
+  z-index: 999;
+}
+
+/*ACTIVE STATE*/
+.sidebar.active {
+  left: 0;
+}
+
+/*==============================
+MENU ITEMS
+==============================*/
+.menu-item {
+  padding: 15px 20px;
+  font-size: 20px;
+  color: white;
+  cursor: pointer;
+}
+
+.menu-item:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.menu-item:active {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/*SPACING IN DASHBOARD AND AMORTIZATION TABLE SECTIONS*/
+#dashboardSection, #amortizationSection {
+  padding: 20px;
+}
+
+/*==============================================================*/

@@ -22,114 +22,140 @@
       <div class="currency-toggle" onclick="toggleConverter()">
         &#128178
       </div>
+<!--==================== HAMBURGER MENU ======================-->
+      <div id="menuToggle" class="menu-toggle">
+        <span class="hamburger">&#9776</span></div>
 
-      <!--calculator card-->
-      <div class="calculator-card">
+      <!--Sidebar Menu-->
+      <div id="sidebar" class="sidebar">
 
+        <div class="menu-item" id="dashboardBtn">Dashboard</div>
 
-        <!--input group-->
-        <div class="input-group">
-          <label>Loan Amount </label>
-          <input type="number" id="amount" placeholder="Enter Amount" step="10">
-          <small class="error-message" id="amountError"></small>
-        </div>
-
-        <div class="input-group">
-          <label>Currency</label>
-          
-          <input type="text" id="currencySearch" placeholder="Search currency...">
-          
-          <select id="currency">
-            <option value="USD">USD</option>
-            <option value="KES">KES</option>
-            <option value="EUR">EUR</option>
-            <option value="GBP">GBP</option>
-            <option value="INR">INR</option>
-            <option value="JPY">JPY</option>
-          </select>
-      
-          <!--
-          <div class="dropdown">
-
-            <div id="selectedCurrency" class="selected">
-              USD - US Dollar
-            </div>
-
-            <input type="text" id="searchCurrency"      placeholder="Search Currency...">
-
-            <div id="currencyList" class="list"></div>
-
-          </div>
-        </div>
-        -->
-        <div class="input-group">
-          <label>Interest Rate (%)</label>
-          <input type="number" id="rate" placeholder="Enter Interest Rate p.a" step="10">
-          <small class="error-message" id="interestError"></small>
-        </div>
-
-        <div class="input-group">
-          <label>Loan Duration (Months)</label>
-          <input type="number" id="time" placeholder="Enter Duration" step="10">
-          <small class="error-message" id="yearsError"></small>
-        </div>
-
-        <!--Flex for compund or simple interest-->
-        <label for="interestType">Interest Type</label>
-        <select id="interestType">
-          <option value="compound">Compound Interest</option>
-          <option value="simple">Simple Interest</option>
-        </select>
-
-        <!--button
-        <button onclick="calculateLoan()" class="btn">Calculate</button>
-      -->
-        <!--results-->
-        <div class="results">
-
-          <div class="result-box">
-            <h3>Monthly Payment</h3>
-            <p id="monthly">0</p>
-          </div>
-
-          <div class="result-box">
-            <h3>Total Interest</h3>
-            <p id="interest">0</p>
-          </div>
-
-          <div class="result-box">
-            <h3>Total Payment</h3>
-            <p id="total">0</p>
-          </div>
-
-        </div>
-
-        <!--AMORTIZATION TABLE-->
-        <div class="table-container">
-        <h3 class="breakdown-title">Payment Breakdown</h3>
-
-        <div class="table-scroll">
-        <table id="breakdownTable">
-          <thead>
-            <tr>
-              <th>Month</th>
-              <th>Payment</th>
-              <th>Interest</th>
-              <th>Principal</th>
-              <th>Balance</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- JS will insert rows here -->
-          </tbody>
-        </table>
-        </div>
-        
-        </div>
-
-        
+        <div class="menu-item" id="amortizationBtn">Amortization Table</div>
 
       </div>
+<!--==========================================================-->
+
+      <!--calculator card-->
+      <div id="dashboardSection">
+        <div class="calculator-card">
+
+
+          <!--input group-->
+          <div class="input-group">
+            <label>Loan Amount </label>
+            <input type="number" id="amount" placeholder="Enter Amount" step="10">
+            <small class="error-message" id="amountError"></small>
+          </div>
+
+          <div class="input-group">
+            <label>Currency</label>
+            
+            <input type="text" id="currencySearch" placeholder="Search currency...">
+            
+            <select id="currency">
+              <option value="USD">USD</option>
+              <option value="KES">KES</option>
+              <option value="EUR">EUR</option>
+              <option value="GBP">GBP</option>
+              <option value="INR">INR</option>
+              <option value="JPY">JPY</option>
+            </select>
+
+            <!--<div class="custom-dropdown">
+              <div id="selectedCurrency" class="selected-currency">Select Currency</div>
+              <div id="currencyList" class="currency-list"></div>
+            </div>
+            -->
+            
+            <!--
+            <div class="dropdown">
+
+              <div id="selectedCurrency" class="selected">
+                USD - US Dollar
+              </div>
+
+              <input type="text" id="searchCurrency"      placeholder="Search Currency...">
+
+              <div id="currencyList" class="list"></div>
+
+            </div>
+          </div>
+          -->
+          <div class="input-group">
+            <label>Interest Rate (%)</label>
+            <input type="number" id="rate" placeholder="Enter Interest Rate p.a" step="10">
+            <small class="error-message" id="interestError"></small>
+          </div>
+
+          <div class="input-group">
+            <label>Loan Duration (Months)</label>
+            <input type="number" id="time" placeholder="Enter Duration" step="10">
+            <small class="error-message" id="yearsError"></small>
+          </div>
+
+          <!--Flex for compund or simple interest-->
+          <label for="interestType">Interest Type</label>
+          <select id="interestType">
+            <option value="compound">Compound Interest</option>
+            <option value="simple">Simple Interest</option>
+          </select>
+
+          <!--button
+          <button onclick="calculateLoan()" class="btn">Calculate</button>
+        -->
+          <!--results-->
+          <div class="results">
+
+            <div class="result-box">
+              <h3>Monthly Payment</h3>
+              <p id="monthly">0</p>
+            </div>
+
+            <div class="result-box">
+              <h3>Total Interest</h3>
+              <p id="interest">0</p>
+            </div>
+
+            <div class="result-box">
+              <h3>Total Payment</h3>
+              <p id="total">0</p>
+            </div>
+
+          </div>
+
+
+        </div>
+      </div>
+
+<!--==================== AMORTIZATION TABLE =====================-->
+      <div id="amortizationSection" style="display: none;">
+
+        <!--AMORTIZATION TABLE-->
+          <div class="table-container">
+          <h3 class="breakdown-title">Payment Breakdown</h3>
+
+          <div class="table-scroll">
+          <table id="breakdownTable">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Payment</th>
+                <th>Interest</th>
+                <th>Principal</th>
+                <th>Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- JS will insert rows here -->
+            </tbody>
+          </table>
+          </div>
+          
+          </div>
+
+      </div>
+<!--=============================================================-->
       
 
     </div>
@@ -142,9 +168,10 @@
             <label>Amount</label>
             <input type="number" id="convertAmount" placeholder="Enter amount">
           </div>
-
+      <!--======================================
+        Currency selection in converter panel
+      =======================================-->
           <input type="text" id="fromSearch" placeholder="Search currency...">
-          <select id="fromCurrency"></select>
 
           <div class="input-group">
             <label>From</label>
@@ -152,7 +179,6 @@
           </div>
 
           <input type="text" id="toSearch" placeholder="Search currency...">
-          <select id="toCurrency"></select>
         
           <div class="input-group">
             <label>To</label>

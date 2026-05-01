@@ -1,3 +1,6 @@
+//prevent infinite loop
+let isSyncing = false;
+
 let selectedCurrencyCode = "USD";
 
 //<FORMATING FUNCTION>//
@@ -10,6 +13,7 @@ function formatNumber (value, currency = '') {
   }).format(value);
 }
 
+/*
 window.onlanguagechange = function () {
   const loanAmount = localStorage.getItem('amount');
   const interestRate = localStorage.getItem('rate');
@@ -19,6 +23,23 @@ window.onlanguagechange = function () {
   if (interestRate) document.getElementById('rate').value = interestRate;
   if (loanTerm) document.getElementById('time').value = loanTerm;
 };
+*/
+
+//====================================
+//STORING OF USER INPUTS
+//====================================
+document.addEventListener('DOMContentLoaded', function () {
+  const loanAmount = localStorage.getItem('amount');
+  const interestRate = localStorage.getItem('rate');
+  const loanTerm = localStorage.getItem('time');
+
+  if (loanAmount) document.getElementById('amount').value = loanAmount;
+  if (interestRate) document.getElementById('rate').value = interestRate;
+  if (loanTerm) document.getElementById('time').value = loanTerm;
+
+  calculateLoan(); // auto update results
+});
+
 
 /*/<UPGRADE: THEME TOGGLE FUNCTION>//
 function toggleTheme () {
@@ -62,10 +83,62 @@ const monthlyOutput = document.getElementById('monthly');
 const interestOutput = document.getElementById('interest');
 const totalOutput = document.getElementById('total');
 
+//=========================================================
+//DEBOUNCE FUNCTION
+//Debounce means; waits until the
+//user stops typing, then run the function once
+//=========================================================
+function debounce (func, delay) {
+  let timeout;
+
+  return function (...args) {
+
+    clearTimeout(timeout);
+
+    timeout = setTimeout(() => {
+      func.apply(this, args);
+    }, delay);
+  };
+}
+
+const debouncedCalculate = debounce (function () {
+  calculateLoan();
+  convertCurrency();
+  saveInputs();
+}, 400);
+
+
+
 //=============================
 //EXCHANGE RATES (ONLINE)
 //=============================
 let exchangeRates = {};
+
+//================================================
+//OFFLINE FALLBACK CURRENCIES
+//================================================
+const fallbackRates = {
+  USD: 1,
+  EUR: 0.85,
+  KES: 129.0846,
+  GBP: 0.75,
+  JPY: 150,
+  INR: 83,
+  AUD: 1.5,
+  CAD: 1.35,
+  CHF: 0.9,
+  CNY: 7.2,
+  AED: 3.67,
+  SAR: 3.75,
+  ZAR: 18,
+  NGN: 1500,
+  GHS: 12,
+  UGX: 3800,
+  TZS: 2500,
+  EGP: 48,
+  TRY: 32,
+  BRL: 5
+};
 
 async function getRates() {
   try {
@@ -78,18 +151,18 @@ async function getRates() {
     populateConverterCurrencies(); //added upgrade
   } catch (error) {
     console.log('Offline mode 👾👾😁 \nNo rates loaded');
-    exchangeRates = {
-      //KES: 129.1447,
-      //USD: 1,
-      //EUR: 0.8543
-    };
+    
+    //alert("You're offline. Using limited currency data.")
+    exchangeRates = fallbackRates;
 
     populateCurrencies(); //added upgrade
     populateConverterCurrencies(); //added uprade
   }
 }
-
+document.addEventListener('DOMContentLoaded', function () {
 getRates();
+});
+
 
 
 //<FORMATS INPUT AS USER TYPES>//
@@ -106,6 +179,7 @@ function formatInput(input) {
       EUR: "Euro",
       KES: "Kenyan Shilling",
       GBP: "British Pound",
+      EGP: "Egyptian Pound",
       JPY: "Japanese Yen",
       INR: "Indian Rupee",
       AUD: "Australian Dollar",
@@ -113,143 +187,173 @@ function formatInput(input) {
       CHF: "Swiss Franc",
       CNY: "Chinese Yuan",
       AED: "UAE Dirham",
+      BRL: "Brazilian Real",
       KWD: "Kuwaiti Dinar",
       SAR: "Saudi Riyal",
       ZAR: "South African Rand",
       AFN: "Afghan Afghani",
       ALL: "Albanian Lek",
-      /*
-      AMD: "",  ANG: "",  AOA: "", ARS: "", AWG: "",  AZN: "",
-      BAM: "",  BBD: "", BDT: "",  BGN: "",  BHD: "",  BIF: "",
-      BMD: "",  BND: "",  BOB: "", BRL: "",  BSD: "", BTN: "",
-      BWP: "",  BYN: "",
-      BZD: "",
-      CDF: "",
-      CLF: "",
-      CLP: "",
-      CNH: "",
-      COP: "",
-      CRD: "",
-      CUP: "",
-      CVE: "",
-      CZK: "",
-      DJF: "",
-      DKK: "",
-      DOP: "",
-      DZD: "",
-      EGP: "",
-      ERN: "",
-      ETB: "",
-      FJD: "",
-      FKP: "",
-      FOK: "",
-      GEL: "",
-      GGP: "",
-      GHS: "",
-      GIP: "",
-      GMD: "",
-      GNF: "",
-      GTB: "",
-      GYD: "",
-      HKD: "",
-      HNL: "",
-      HRK: "",
-      HTG: "",
-      HUF: "",
-      IDR: "",
-      ILS: "",
-      IMP: "",
-      IQD: "",
-      IRR: "",
-      ISK: "",
-      JEP: "",
-      JMD: "",
-      JOD: "",
-      KGS: "",
-      KHR: "",
-      KID: "",
-      KMF: "",
-      KYD: "",
-      KZT: "",
-      LAK: "",
-      LBP: "",
-      LKR: "",
-      LYD: "",
-      MAD: "",
-      MDL: "",
-      MGA: "",
-      MKD: "",
-      MMK: "",
-      MNT: "",
-      MOP: "",
-      MRU: "",
-      MVR: "",
-      MWK: "",
-      MYR: "",
-      MZN: "",
-      NAD: "",
-      NGN: "",
-      NIO: "",
-      NOK: "",
-      NPR: "",
-      NZD: "",
-      OMR: "",
-      PAB: "",
-      PEN: "",
-      PGK: "",
-      PHP: "",
-      PKR: "",
-      PLN: "",
-      PYG: "",
-      QAR: "",
-      RON: "",
-      RSD: "",
-      RUB: "",
-      RWF: "",
-      SBD: "",
-      SCR: "",
-      SDG: "",
-      SEK: "",
-      SGD: "",
-      SHP: "",
-      SLE: "",
-      SLL: "",
-      SOS: "",
-      SRD: "",
-      SSP: "",
-      STN: "",
-      SYP: "",
-      SZL: "",
-      THB: "",
-      TJS: "",
-      TMT: "",
-      TND: "",
-      TOP: "",
-      TRY: "",
-      TTD: "",
-      TVD: "",
-      TWD: "",
-      TZS: "",
-      UAH: "",
-      UGX: "",
-      UYU: "",
-      UZS: "",
-      VES: "",
-      VND: "",
-      VUV: "",
-      WST: "",
-      XAF: "",
-      XCD: "",
-      XCG: "",
-      XDR: "",
-      XOF: "",
-      XPF: "",
-      YER: "",
-      ZMW: "",
-      ZWG: "",
-      ZWL: "",
-      */
+      NGN: "Nigerian Naira",
+      GHS: "Ghanaian Cedi",
+      UGX: "Ugandan Shilling",
+      TZS: "Tanzanian Shilling",
+      TRY: "Turkish Lira",
+      KWD: "Kuwaiti Dinar",
+      AMD: "Armenian Dram",
+      ANG: "Neth Antilles Guilder",
+      AOA: "Angolan Kwanza",
+      ARS: "Agentine Peso",
+      AWG: "Aruba Florin",
+      AZN: "Azerbaijani Manat",
+      BAM: "Bosnian Concertible Mark",
+      BBD: "Barbados Dollar",
+      BDT: "Bangladeshi Taka",
+      BGN: "Bulgarian Lev",
+      BHD: "Bahraini Dinar",
+      BIF: "Burundian Franc",
+      BMD: "Bermuda Dollar",
+      BND: "Brunei Dollar",
+      BOB: "Bolivian Boliviano",
+      BSD: "Bahamian Dollar",
+      BTN: "Bhutan Ngultrum",
+      BWP: "Botswana Pula",
+      BYN: "Bhutan Ngultrum",
+      BZD: "Belize Dollar",
+      CDF: "Congolese Franc",
+      CLP: "Chilean Peso",
+      CNH: "RMB Offshore",
+      COP: "Colombian Peso",
+      CRC: "Costa Rican Colón",
+      CUP: "Cuban Peso",
+      CVE: "Cape Verde Escudo",
+      CZK: "Czech Koruna",
+      DJF: "Djiboutian Franc",
+      DKK: "Dansih Krone",
+      DOP: "Dominican Peso",
+      DZD: "Algerian Dinar",
+      ERN: "Eritrea Nakfa",
+      ETB: "Ethiopian Birr",
+      FJD: "Fiji Dollar",
+      FKP: "Falkland Islands Pound",
+      FOK: "Faroese Króna",
+      GEL: "Georgian Lari",
+      GGP: "Guernsey Pound",
+      GIP: "Gibraltar Pound",
+      GMD: "Gambian Dalasi",
+      GNF: "Guinean Franc",
+      GYD: "Guyana Dollar",
+      HKD: "Hong Kong Dollar",
+      HNL: "Honduras Lempira",
+      HRK: "Croatian Kuna",
+      HTG: "Haitian Gourde",
+      HUF: "Hungarian Forint",
+      IDR: "Indonesian Rupiah",
+      ILS: "Israel Shekel",
+      IMP: "Manx Pound",
+      IQD: "Iraqi Dinar",
+      IRR: "Iranian Rial",
+      ISK: "Iceland Krona",
+      JEP: "Jersy Pound",
+      JMD: "Jamaican Dollar",
+      JOD: "Jordanian Dinar",
+      KGS: "Kyrgyzstani Som",
+      KHR: "Cambodian Riel",
+      KID: "Kiribati Dollar",
+      KMF: "Comorian Franc",
+      KYD: "Cayman Islands Dollar",
+      KZT: "Kazakhstani Tenge",
+      LAK: "Lao Kip",
+      LBP: "Lebanese Pound",
+      LKR: "Sri Lankan Rupee",
+      LYD: "Libyan Dinar",
+      MAD: "Moroccan Dirham",
+      MDL: "Moldovan Leu",
+      MGA: "Malagasy Ariary",
+      MKD: "Macedonian Denar",
+      MMK: "Myanmar Kyat",
+      MNT: "Mongolian Tugrik",
+      MOP: "Macau Pataca",
+      MRU: "Mauritanian Ougulya",
+      MVR: "Maldives Rufiyaa",
+      MWK: "Malawian Kwacha",
+      MYR: "Malaysian Ringgit",
+      MZN: "Mozambican Metical",
+      NAD: "Namibian Dollar",
+      NIO: "Nicaragua Cordoba",
+      NOK: "Norwegian Krone",
+      NPR: "Nepalese Rupee",
+      NZD: "New Zealand Dollar",
+      OMR: "Omani Rial",
+      PAB: "Panamanian Balboa",
+      PEN: "Peruvian Sol",
+      PGK: "Papua New Guinea Kina",
+      PHP: "Philippine Peso",
+      PKR: "Pakistani Rupee",
+      PLN: "Polish Zloty",
+      PYG: "Paraguayan Guaraní",
+      QAR: "Qatari Riyal",
+      RON: "Romanian New Leu",
+      RSD: "Serbain Dinars",
+      RUB: "Russian Ruble",
+      RWF: "Rwanda Franc",
+      SBD: "Solomon Islands Dollar",
+      SCR: "Seychellois Rupee",
+      SDG: "Sudanese Pound",
+      SEK: "Sweedish Krona",
+      SGD: "Singapore Dollar",
+      SHP: "St Helena Pound",
+      SLE: "Sierra Leonean Leone",
+      SLL: "Sierra Leonean Leone",
+      SOS: "Somali Shilling",
+      SRD: "Surinam Florin",
+      SSP: "South Sudanese Pound",
+      STN: "Sao Tomean Dobras",
+      SYP: "Syrian Pound",
+      SZL: "Swaziland Lilageni",
+      THB: "Thai Baht",
+      TJS: "Tajikistani Somoni",
+      TMT: "Turkmenistani Manat",
+      TND: "Tunisian Dinar",
+      TOP: "Tonga Pa'ang",
+      TTD: "Trinidad&Tobago Dollar",
+      TVD: "Tavaluan Dollar",
+      TWD: "Taiwan Dollar",
+      UAH: "Ukrainian Hryvnia",
+      UYU: "Uruguayan New Peso",
+      UZS: "Uzbekistani Som",
+      VES: "Venezuelan Bolívar",
+      VND: "Vietnamese Dong",
+      VUV: "Vanuatu Vatu",
+      WST: "Samoa Tala",
+      XAF: "CFA Franc (CEMAC)",
+      XCD: "East Caribbean Dollar",
+      XCG: "Caribbean Guilder",
+      XOF: "CFA Franc (BCEAO)",
+      XPF: "Pacific Franc",
+      YER: "Yemeni Rial",
+      ZWL: "Zimbabwe Dollar",
+      ZWG: "Zimbabwe Gold",
+      ZMW: "Zambian Kwacha",
+    };
 
+    //=========================================
+    //ADDING FLAG ICONS TO THE DROPDOWNS
+    //=========================================
+    const currencyFlags = {
+      USD: "🇺🇸",
+      EUR: "🇪🇺",
+      KES: "🇰🇪",
+      GBP: "🇬🇧",
+      JPY: "🇯🇵",
+      INR: "🇮🇳",
+      AUD: "🇦🇺",
+      CAD: "🇨🇦",
+      CHF: "🇨🇭",
+      CNY: "🇨🇳",
+      AED: "🇦🇪",
+      KWD: "🇰🇼",
+      SAR: "🇸🇦",
+      ZAR: "🇿🇦"
     };
 /*
     //===================================================
@@ -372,20 +476,31 @@ function toggleConverter () {
 
 //CONNECT DROPDOWNS TO API
 function populateConverterCurrencies () {
+    console.log('Exchange Rates:', exchangeRates);
   const from = document.getElementById('fromCurrency');
   const to = document.getElementById('toCurrency');
+  
+
+  //stop if element is not found
+  if (!from || !to) {
+    console.log('Converter elements not found');
+    return;
+  }
+  
 
   from.innerHTML = '';
   to.innerHTML = '';
 
   for (let code in exchangeRates) {
+    let name = currencyNames[code] || code;
+
     let option1 = document.createElement('option');
     option1.value = code;
-    option1.textContent = code;
+    option1.textContent = code + '-' + name;
 
     let option2 = document.createElement('option');
     option2.value = code;
-    option2.textContent = code;
+    option2.textContent = code + '-' + name;
 
     from.appendChild(option1);
     to.appendChild(option2);
@@ -393,6 +508,8 @@ function populateConverterCurrencies () {
 
   from.value = currencySelect.value;
   to.value = currencySelect.value;
+
+
 }
 
 //CONVERSION LOGIC
@@ -416,7 +533,7 @@ function convertCurrency () {
 */
 
   let converted;
-  if (Object.keys(exchangeRates).length === 0) {
+  if (!exchangeRates || Object.keys(exchangeRates).length === 0) {
     //OFFLINE MODE 'n no conversion
     converted = amount;
 
@@ -447,10 +564,58 @@ function populateCurrencies() {
   // somewhere to be put....option.textContent = code + 'Currency';
 }
 
+/*/====================================
+//POPULATE CUSTOM DROPDOWN
+//====================================
+function populateCustomDropdown () {
+  const list = document.getElementById('currencyList');
+  const selected = document.getElementById('selectedCurrency');
+
+  list.innerHTML = '';
+
+  for (let code in exchangeRates) {
+    const item = document.createElement('div');
+    item.className = 'currency-item';
+
+    let name = currencyNames[code] || code;
+    let flag = currencyFlags[code] || '';
+
+    item.textContent = `${flag} ${code} - ${name}`;
+
+    item.addEventListener('click', function () {
+
+      //Update visible UI
+      selected.textContent = item.textContent;
+
+      //Update REAL select (important)
+      document.getElementById('currency').value = code;
+
+      //Trigger existing logic
+      calculateLoan();
+
+      list.style.display = 'none';
+    });
+
+    list.appendChild(item)
+  }
+}
+*/
+
+/*=================================
+//TOGGLE DROPDOWN
+//=================================
+document.getElementById('selectedCurrency').addEventListener('click', function () {
+  const list = document.getElementById('currencyList');
+
+  list.style.display = list.style.display === 'block' ? 'none': 'block';
+});
+*/
+
 //=========================
 //ANIMATION FUNCTION
 //=========================
 function animateValue (element, start, end, duration, currency = ' ') {
+  
   let startTime = null;
 
   function animation (currentTime) {
@@ -485,8 +650,8 @@ function saveInputs () {
 
 
   const loanAmount = document.getElementById('amount').value;
-  const interestRate = document.getElementById('rate');
-  const loanTerm = document.getElementById('time');
+  const interestRate = document.getElementById('rate').value;
+  const loanTerm = document.getElementById('time').value;
 
   localStorage.setItem('amount', loanAmount);
   localStorage.setItem('rate', interestRate);
@@ -685,21 +850,103 @@ function calculateLoan () {
 
 }
 
+//================ TOGGLE LOGIC FOR HAMBURGER MENU ===============//
+const menuToggle = document.getElementById('menuToggle');
+const sidebar = document.getElementById('sidebar');
+
+menuToggle.addEventListener('click', function () {
+  sidebar.classList.toggle('active');
+});
+
+//NAVIGATION LOGIC TO AMORTIZATION TABLE
+const dashboardBtn = document.getElementById('dashboardBtn');
+const amortizationBtn = document.getElementById('amortizationBtn');
+
+const dashboardSection = document.getElementById('dashboardSection');
+const amortizationSection = document.getElementById('amortizationSection');
+
+//SWITCH VIEWS
+dashboardBtn.addEventListener('click', function () {
+  dashboardSection.style.display = 'block';
+  amortizationSection.style.display = 'none';
+
+  sidebar.classList.remove('active'); // closes menu
+});
+
+//EVENT LISTENERS
+amortizationBtn.addEventListener('click', function () {
+
+  dashboardSection.style.display = 'none';
+  amortizationSection.style.display = 'block';
+
+  if(document.getElementById('amount').value) {
+  calculateLoan();
+  }
+
+
+  sidebar.classList.remove('active'); //close menu
+})
+//================================================================//
+
 //===================
 //LIVE EVENTS
 //===================
-amountInput.addEventListener('input', calculateLoan);
-rateInput.addEventListener('input', calculateLoan);
-timeInput.addEventListener('input', calculateLoan);
-currencySelect.addEventListener('change', calculateLoan);
+amountInput.addEventListener('input', function () {
+  if (isSyncing) return;
+
+  isSyncing =true;
+
+  //calculateLoan();
+
+  //sync converter input********
+  document.getElementById('convertAmount').value = this.value;
+  //Recalculate conversion*******
+  //convertCurrency();
+
+  debouncedCalculate();
+
+  isSyncing =false;
+});
+
+//************** *//
+document.getElementById
+
+rateInput.addEventListener('input', debouncedCalculate);
+timeInput.addEventListener('input', debouncedCalculate);
+
+currencySelect.addEventListener('change', function () {
+  if (isSyncing) return;
+
+  isSyncing =true;
+
+  calculateLoan();
+
+  //Sync converter "from" currency**********
+  document.getElementById('fromCurrency').value = currencySelect.value;
+
+  //Trigger conversion********8
+  convertCurrency();
+
+  isSyncing =false;
+});
 
 const convertAmountInput = document.getElementById('convertAmount');
 const fromCurrencySelect = document.getElementById('fromCurrency');
 const toCurrencySelect = document.getElementById('toCurrency');
 
 convertAmountInput.addEventListener('input', convertCurrency);
+
 fromCurrencySelect.addEventListener('change', convertCurrency);
-toCurrencySelect.addEventListener('change', convertCurrency);
+
+toCurrencySelect.addEventListener('change', function () {
+  convertCurrency();
+
+  //sync calculator currency
+  currencySelect.value = this.value;
+
+  //Recalculate loan
+  calculateLoan();
+});
 
 //simple/compound interest
 const interestType = document.getElementById('interestType');
