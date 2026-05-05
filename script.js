@@ -1,258 +1,334 @@
-//=============================================
-//SYSTEM STATUS CONTROLLER
-//=============================================
-
-let currentStatus = 'maintenance';
-
-let isMaintenanceMode = true;
-
-//Get elements from HTML
-const statusDot = document.getElementById('statusDot');
-const statusText = document.getElementById('statusText');
-
-const warningMsg = document.getElementById('warningMsg');
-const mainLink = document.querySelector('.main-link');
-
-const toggleBtn = document.getElementById('toggleMaintenance');
-
-const adminPanel = document.querySelector('.admin-panel');
-const adminTrigger = document.getElementById('adminTrigger');
-
-let isAdmin = false;
-
-//========================
-//LOAD ADMIN SESSION
-//========================
-
-//Check if already authenticated
-const savedAdmin = localStorage.getItem('isAdmin');
-
-if (savedAdmin === 'true') {
-  isAdmin = true;
-  adminPanel.style.display = 'block';
+//===========================================
+//APP STATE (GLOBAL). STEP 1.
+//===========================================
+const AppState = {
+  currentStatus: 'maintenance',//1
+  isMaintenanceMode: true,//2
+  isAdmin: false,//3
+  interval: null,//4
+  maintenanceTime: 86400//5
 }
 
-//=======================================
-//ADMIN ACCESS CONTROL
-//=======================================
-adminTrigger.addEventListener('dblclick', () => {
-  const password = prompt ('Enter admin password');
 
-  if (password === '#theeCalculator@1') {
-    isAdmin =true;
+//============================================
+//DOM ELEMENTS MODULE. STEP 2.
+//============================================
+const DOM = {
 
-    localStorage.setItem ('isAdmin', 'true');
+  init () {
+  this.statusDot = document.getElementById('statusDot');//1
+  this.statusText = document.getElementById('statusText');//2
+  this.warningMsg = document.getElementById('warningMsg');//3
+  this.mainLink = document.querySelector('.main-link');//4
+  this.toggleBtn = document.getElementById('toggleMaintenance');//5
+  this.adminPanel = document.querySelector('.admin-panel');//6
+  this.adminTrigger = document.getElementById('adminTrigger');//7
+  this.logoutBtn = document.getElementById('logoutAdmin');//8
+  this.countdownTimer = document.getElementById('countdownTimer');//9
+  this.redirectMsg = document.getElementById('redirectMsg');//10
 
-    adminPanel.style.display = 'block';
-
-    alert ('Admin access granted');
-
-  } else {
-    alert ('Access denied');
   }
-
-});
-
-//Logout for the admin
-const LogoutBtn = document.getElementById('logoutAdmin');
-
-LogoutBtn.addEventListener('click', () => {
-  isAdmin = false;
-
-  localStorage.removeItem ('isAdmin');
-
-  adminPanel.style.display = 'none';
-
-  alert ('Logged out');
-  
-});
-
-
-//==========================
-//LOAD SAVED STATE
-//==========================
-const savedMode = localStorage.getItem('maintenanceMode');
-
-if (savedMode !== null) {
-  isMaintenanceMode = savedMode === 'true';
 };
 
-if (isMaintenanceMode) {
-  setStatus('maintenance');
-} else {
-  setStatus('online');
-}
-
-//=============================================
-//TOGGLE MAINTENANCE MODE
-//=============================================
-toggleBtn.addEventListener('click', () => {
-
-  //Flip State
-  isMaintenanceMode = !isMaintenanceMode;
-
-  //Save to localStorage
-  localStorage.setItem('maintenanceMode', isMaintenanceMode);
-
-  //Apply new State
-  if (isMaintenanceMode) {
-    setStatus('maintenance');
-    redirectMsg.innerText = 'Maintenance mode activated.'
-  } else {
-    setStatus('online');
-    redirectMsg.innerText = 'System is now live.'
-  }
-});
 
 //============================================
-//STATUS CONFIG FUNCTION
+//ADMIN MODULE. STEP 3.
 //============================================
-function setStatus (status) {
+const AdminModule = {
 
-  currentStatus = status
-
-  if (status === 'maintenance') {
-    statusText.innerText = 'Maintenance in Progress';
-
-    statusDot.style.setProperty('--status-color', 'rgb(255, 180, 0)');
-    statusDot.style.setProperty('--status-glow', '0 0 10px rgba(255, 180, 0, 0.8)');
-    statusDot.style.setProperty('--status-glow-soft', '0 0 10px rgba(255, 180, 0, 0.5)');
-    statusDot.style.setProperty('--status-glow-strong', '0 0 10px rgba(255, 180, 0, 1)');
-
-  } else if (status === 'online') {
-    statusText.innerText = 'System Operational';
-
-statusDot.style.setProperty('--status-color', 'rgb(0, 200, 100)');
-    statusDot.style.setProperty('--status-glow', '0 0 10px rgba(0, 200, 100, 0.8)');
-    statusDot.style.setProperty('--status-glow-soft', '0 0 10px rgba(0, 200, 100, 0.5)');
-    statusDot.style.setProperty('--status-glow-strong', '0 0 10px rgba(0, 200, 100, 1)');
-
-  } else if (status === 'down') {
-    statusText.innerText = 'System Offline';
-
-    statusDot.style.setProperty('--status-color', 'rgb(255, 80, 80)');
-    statusDot.style.setProperty('--status-glow', '0 0 10px rgba(255, 80, 80, 0.8)');
-    statusDot.style.setProperty('--status-glow-soft', '0 0 10px rgba(255, 80, 80, 0.5)');
-    statusDot.style.setProperty('--status-glow-strong', '0 0 10px rgba(255, 80, 80, 1)');
+  init () {                               //1
+    this.loadSession();
+    this.bindEvents();
+  },
 
 
+  loadSession () {                        //2
+    const savedAdmin = sessionStorage.getItem('adminSession');
 
+    if (savedAdmin === 'true') {
+      AppState.isAdmin = true;
+      DOM.adminPanel.style.display = 'block';
+    }
+  },
+
+
+  bindEvents () {                         //3
+    DOM.adminTrigger.addEventListener('dblclick', this.login.bind(this));
+    DOM.logoutBtn.addEventListener('click', this.logout.bind(this));
+  },
+
+
+  async login () {                              //4
+    
+    const password = prompt ('Enter admin password');
+
+    if (!password) return;
+
+    const hashedInput = await hashText(password);
+
+    if (hashedInput === Security.adminHash) {
+
+      AppState.isAdmin = true;
+      sessionStorage.setItem('adminSession', 'active');
+
+      DOM.adminPanel.style.display = 'block';
+
+      alert ('Admin access granted');
+
+    } else {
+      alert ('Access denied');
+    }
+
+  },
+
+
+  logout () {                             //5
+    AppState.isAdmin = false;
+    sessionStorage.removeItem('adminSession');
+
+    DOM.adminPanel.style.display = 'none'
+    alert ('Logged out')
   }
+};
 
+
+//============================================
+//SECURITY CONFIG. STEP 10
+//============================================
+const Security = {
+  //Pre-generate hash of the password
+  adminHash: '164123564372d6d3298b851827a387815387f22b2f2280371143e5a17dcf712f' //we'll generate later
+};
+
+
+//============================================
+//HASH UTILITY. STEP 11.
+//============================================
+ async function hashText(text) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(text);
+
+  const hashBuffer = await crypto.subtle.digest ('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+
+  return hashArray.map (b => b.toString(16).padStart(2, '0')).join('');
+ }
+
+
+
+//============================================
+//STATUS MODULE. STEP 4.
+//============================================
+const StatusModule = {
+
+  set(status) {
+    AppState.currentStatus = status;
+
+    if (status === 'maintenance') {
+      DOM.statusText.innerText = 'Maintenance in Progress';
+
+      DOM.statusDot.style.setProperty('--status-color', 'rgb(255, 180, 0)');
+      DOM.statusDot.style.setProperty('--status-glow', '0 0 10px rgba(255, 180, 0, 0.8)');
+      DOM.statusDot.style.setProperty('--status-glow-soft', '0 0 10px rgba(255, 180, 0, 0.5)');
+      DOM.statusDot.style.setProperty('--status-glow-strong', '0 0 10px rgba(255, 180, 0, 1)');
+
+    } else if (status === 'online') {
+      DOM.statusText.innerText = 'System Operational';
+
+      DOM.statusDot.style.setProperty('--status-color', 'rgb(0, 200, 100)');
+      DOM.statusDot.style.setProperty('--status-glow', '0 0 10px rgba(0, 200, 100, 0.8)');
+      DOM.statusDot.style.setProperty('--status-glow-soft', '0 0 10px rgba(0, 200, 100, 0.5)');
+      DOM.statusDot.style.setProperty('--status-glow-strong', '0 0 10px rgba(0, 200, 100, 1)');
+
+    } else if (status === 'down') {
+      DOM.statusText.innerText = 'System Offline';
+
+      DOM.statusDot.style.setProperty('--status-color', 'rgb(255, 80, 80)');
+      DOM.statusDot.style.setProperty('--status-glow', '0 0 10px rgba(255, 80, 80, 0.8)');
+      DOM.statusDot.style.setProperty('--status-glow-soft', '0 0 10px rgba(255, 80, 80, 0.5)');
+      DOM.statusDot.style.setProperty('--status-glow-strong', '0 0 10px rgba(255, 80, 80, 1)');
+
+    }
+
+    if (!DOM.statusText) {
+      console.error ('DOM not initialized');
+      return;
+    }
+  }
 }
 
 
 
-//==========================================
-//COUNTDOWN SYSTEM
-//==========================================
+//============================================
+//SERVER MODULE. STEP 6.
+//============================================
+const ServerModule = {
 
-//Set maintenance duration (in seconds)
-let maintenanceTime = 86400;
+  async check () {
+    try {
+      const response = await fetch ('index0.html', {
+        method: 'HEAD',
+        cache: 'no-store'
+      });
 
-const countdownTimer = document.getElementById('countdownTimer');
-const redirectMsg = document.getElementById('redirectMsg');
+      return response.ok;
 
-//========================================
-//FORMAT TIME FUNCTION
-//========================================
-function formatTime (seconds) {
+    } catch(error) {
+      return false;
+    }
+
+  }
+
+};
+
+
+//============================================
+//COUNTDOWN MODULE. STEP 7.
+//============================================
+const CountdownModule ={
+
+  formatTime (seconds) {
   let mins = Math.floor(seconds / 60);
   let secs = seconds % 60;
 
   if (secs < 10) secs = '0' + secs;
 
   return mins + ':' + secs;
-}
+},
 
-//==========================================
-//START COUNTDOWN
-//==========================================
-function startCountdown () {
+start() {
 
-  if (!isMaintenanceMode) {
-    clearInterval(interval);
-    return;
+  //Stop any existing interval
+  if (AppState.interval) {
+    clearInterval(AppState.interval);
   }
 
-  const interval = setInterval(() => {
+  if (!AppState.isMaintenanceMode) return;
 
-    maintenanceTime--;
+  AppState.interval = setInterval (async () => {
 
-    countdownTimer.innerText = formatTime(maintenanceTime);
+    AppState.maintenanceTime--;
 
-    //Check server after every 5 seconds
-    if (maintenanceTime % 5 === 0) {
+    DOM.countdownTimer.innerText = this.formatTime(AppState.maintenanceTime);
 
-      checkServerStatus().then(isOnline => {
+    //Every 5 seconds, check if system is online
+    if (AppState.maintenanceTime % 5 === 0) {
 
-        if (isOnline) {
-          warningMsg.innerText = '';
-          clearInterval(interval);
+      const isOnline = await ServerModule.check();
 
-          //Switch status to online
-          setStatus('online');
+      if (isOnline) {
+        clearInterval (AppState.interval);
 
-          redirectMsg.innerText = 'System is back online. Redirecting...';
+        StatusModule.set('online');
+        DOM.warningMsg.innerText = '';
+        DOM.redirectMsg.innerText = 'System is back online. Redirecting...';
 
-          //Redirect after a short delay
-          setTimeout(() => {
-            window.location.href = 'index.html';
-          }, 3000);
+        setTimeout (() => {
+          window.location.href ='index.html';
+        }, 3000);
 
-        } else {
-          redirectMsg.innerText = 'Still under maintenance... checking again.';
+      } else {
+        DOM.redirectMsg.innerText = 'Still under maintenance...checking again.';
 
-          warningMsg.innerText = '⚠ System is currently unavailable. Please wait...'
-        }
-        
-      });
-
-        //countdownTimer.innerText = '00:00';
-
-      
-      
+        DOM.warningMsg.innerText = '⚠ System is currently unavailable. Please wait...';
+      }
     }
 
   }, 1000);
+
 }
 
-//=======================================
-//SERVER STATUS CHECK
-//=======================================
-async function checkServerStatus() {
-  try {
-    const response = await fetch ('index0.html', {
-      method: 'HEAD',
-      cache: 'no-store'
-    });
+};
 
-    //If response is ok 'n server is back
-    if (response.ok) {
-      return true;
+
+//=============================================
+//MAINTENANCE CONTROLLER. STEP 8.
+//=============================================
+const MaintenanceController = {
+
+    init () {
+      this.bindEvents();
+    },
+
+
+  bindEvents () {
+    DOM.toggleBtn.addEventListener('click', this.toggle.bind(this));
+  },
+
+
+  toggle () {
+    if (!AppState.isAdmin) {
+      alert ('Unauthorized action');
+      return;
+    }
+    //Flip stste
+    AppState.isMaintenanceMode = !
+    AppState.isMaintenanceMode;
+
+    //save status
+    localStorage.setItem ('maintenance', AppState.isMaintenanceMode);
+
+    //Apply state
+    if (AppState.isMaintenanceMode) {
+      StatusModule.set('maintenance');
+      DOM.redirectMsg.innerText = 'Maintenance mode activated.';
+      CountdownModule.start();
 
     } else {
-      return false;
+      StatusModule.set('online');
+      DOM.redirectMsg.innerText = 'System is now live';
     }
-
-  } catch (error) {
-    //If request fails 'n still down
-    return false;
   }
-}
 
-//Set default status
-setStatus('maintenance');
-startCountdown();
+};
 
-//=======================================
-//BLOCK ACCESS IF NOT READY
-//=======================================
-mainLink.addEventListener('click', function (e) {
 
-  if (currentStatus !== 'online') {
-    e.preventDefault(); //Stop navigation
+//==============================================
+//LINK GUARD MODULE. STEP 9.
+//==============================================
+const LinkGuard = {
 
-    warningMsg.innerText = `⚠ System is not ready yet. Please wait until it's back online.`;
+  init () {
+    DOM.mainLink.addEventListener('click', this.handleClick);
+  },
+
+  handleClick (e) {
+    if (AppState.currentStatus !== 'online') {
+      e.preventDefault();
+
+      DOM.warningMsg.innerText = "⚠ System is not ready yet. Please wait until it's back online.";
+    }
   }
+};
+
+
+
+
+//============================================
+//APP INITIALIZATION. STEP 5.
+//============================================
+document.addEventListener('DOMContentLoaded', () => {
+
+  //Initialize DOM
+  DOM.init();
+
+  //Load saved maintenance status
+  const savedMode = localStorage.getItem('maintenanceMode');
+
+  if (savedMode !== null) {
+    AppState.isMaintenanceMode = savedMode === 'true';
+  }
+
+  //Init modules
+  AdminModule.init ();
+  MaintenanceController.init();
+  LinkGuard.init();
+
+  //Apply state
+  if (AppState.isMaintenanceMode) {
+    StatusModule.set('maintenance');
+  } else {
+    StatusModule.set('online');
+  }
+
 });
