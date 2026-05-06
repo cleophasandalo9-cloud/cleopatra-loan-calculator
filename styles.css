@@ -279,18 +279,17 @@ body {
 .admin-panel {
   margin-top: 20px;
   text-align: center;
-  display: none;
 }
 
 .admin-panel button {
-  padding: 8px 12px;
+  padding: 12px 12px;
   font-size: 12px;
 
-  border: none;
+  border: 1px solid rgba(0, 150, 255, 0.9);
   border-radius: 6px;
 
   background: rgba(255, 255, 255, 0.1);
-  color: white;
+  color: aqua;
 
   cursor: pointer;
 }
@@ -358,4 +357,129 @@ body {
   .description {
     font-size: 16px;
   }
+}
+
+
+/*=================================================
+  TRANSITION SCREEN
+=================================================*/
+.transition-screen {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(10, 12, 20, 0.96);
+  backdrop-filter: blur(10px);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  opacity: 0;
+  visibility: hidden;
+
+  transition: opacity 0.8s ease, visibility 0.8s ease;
+
+  z-index: 9999;
+}
+
+/*Active State*/
+.transition-screen.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.transition-content {
+  text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  animation: fadeUp 1s ease;
+}
+
+.transition-content h2 {
+  color: rgb(0, 200, 100);
+  margin-bottom: 10px;
+}
+
+.transition-content p {
+  opacity: 0.8;
+}
+
+@keyframes fadeUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+
+/*===============================================
+  SPINNER LOADER
+===============================================*/
+.loader-spinner {
+  width: 70px;
+  height: 70px;
+
+  margin: 0 auto 20px;
+
+  border: 5px solid rgba(255, 255, 255, 0.15);
+  border-top: 5px solid rgb(0, 150, 255);
+
+  border-radius: 50%;
+
+  animation: spinLoader 1s linear infinite;
+}
+
+/*Rotation animatio*/
+@keyframes spinLoader {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/*============================================
+  PROGRESS BAR
+============================================*/
+.progress-container {
+  width: 250px;
+  height: 10px;
+
+  margin-top: 10px;
+
+  background: rgba(255, 255, 255, 0.1);
+
+  border-radius: 20px;
+
+  overflow: hidden;
+}
+
+.progress-bar {
+  width: 0%;
+  height: 100%;
+
+  background: linear-gradient(90deg, rgb(0, 150, 255), rgb(0, 220, 150));
+
+  transition: width 0.2s linear;
+}
+
+#maintenanceEndInput {
+  padding: 10px;
+  border-radius: 12px;
+  outline: none;
+  border: 1px solid rgba(0, 150, 255, 0.9);
+  background: rgba(255, 255, 255, 0.1);
+  color: aqua;
+  cursor: pointer;
 }

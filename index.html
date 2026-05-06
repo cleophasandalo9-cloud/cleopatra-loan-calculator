@@ -75,7 +75,7 @@
 
         <p class="warning-msg" id="warningMsg"></p>
 
-        <a href="index.html" class="main-link">
+        <a href="index_calculator.html" target="_blank" class="main-link">
           Go to Main App
         </a>
 
@@ -107,16 +107,35 @@
         </footer>
         
         <!--==================================
-          ADMIN CONTROL (for developer use)
+          ADMIN CONTROL PANEL (for developer use)
         ===================================-->
-        <div class="admin-panel">
-          <button id="toggleMaintenance">
-            Toggle Maintenance
-          </button>
+        <div class="admin-panel" style="display: none;">
+          <input type="datetime-local" id="maintenanceEndInput">
+          <button id="setEndTime">Set End Time</button>
+
+          <button id="toggleMaintenance">Toggle Maintenance</button>
           <button id="logoutAdmin">Logout</button>
+
         </div>
 
       </section>
+
+
+      <!--============================================
+        TRANSITION SCREEN
+      =============================================-->
+      <div id="transitionScreen" class="transition-screen">
+        <div class="transition-content">
+
+          <div class="loader-spinner"></div>
+          <h2>✅ System Ready</h2>
+          <p>Launching Loan Calculator...</p>
+        </div>
+      </div>
+
+      <div class="progress-container" style="display: none;">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
 
     </main>
 

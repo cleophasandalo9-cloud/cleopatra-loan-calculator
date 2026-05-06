@@ -6,7 +6,7 @@ const AppState = {
   isMaintenanceMode: true,//2
   isAdmin: false,//3
   interval: null,//4
-  maintenanceTime: 86400//5
+  maintenanceEndTime: null//5
 }
 
 
@@ -14,6 +14,9 @@ const AppState = {
 //DOM ELEMENTS MODULE. STEP 2.
 //============================================
 const DOM = {
+
+  endInput: document.getElementById('maintenanceEndInput'), //11
+  setEndBtn: document.getElementById('setEndTime'), //12
 
   init () {
   this.statusDot = document.getElementById('statusDot');//1
@@ -26,8 +29,11 @@ const DOM = {
   this.logoutBtn = document.getElementById('logoutAdmin');//8
   this.countdownTimer = document.getElementById('countdownTimer');//9
   this.redirectMsg = document.getElementById('redirectMsg');//10
+  this.transtionScreen = document.getElementById('transitionScreen'); //13
+  this.progressBar = document.getElementById('progressBar'); //14
 
   }
+
 };
 
 
@@ -36,6 +42,8 @@ const DOM = {
 //============================================
 const AdminModule = {
 
+  
+
   init () {                               //1
     this.loadSession();
     this.bindEvents();
@@ -43,12 +51,13 @@ const AdminModule = {
 
 
   loadSession () {                        //2
-    const savedAdmin = sessionStorage.getItem('adminSession');
+    const session = sessionStorage.getItem('adminSession');
 
-    if (savedAdmin === 'true') {
+    if (session === 'active') {
       AppState.isAdmin = true;
       DOM.adminPanel.style.display = 'block';
     }
+
   },
 
 
@@ -69,6 +78,7 @@ const AdminModule = {
     if (hashedInput === Security.adminHash) {
 
       AppState.isAdmin = true;
+      
       sessionStorage.setItem('adminSession', 'active');
 
       DOM.adminPanel.style.display = 'block';
@@ -90,6 +100,46 @@ const AdminModule = {
     alert ('Logged out')
   }
 };
+
+
+
+//============================================
+//TIME ADMIN MODULE
+//============================================
+const TimeAdmin = {
+
+  init () {
+    DOM.setEndBtn.addEventListener('click', this.setTime.bind(this));
+  },
+
+  setTime () {
+    console.log('set time clicked');
+
+    if (!AppState.isAdmin) {
+      console.log('Is Admin', AppState.isAdmin);
+      alert ('Unauthorized');
+      return;
+    }
+
+    const value = DOM.endInput.value;
+
+    if (!value) {
+      alert ('Please select a date and time');
+      return;
+    }
+
+    const endTime = new Date (value).toISOString ();
+
+    AppState.maintenanceEndTime = endTime;
+    localStorage.setItem('maintenanceEndTime', endTime);
+
+    localStorage.setItem('maintenanceEndTime', endTime);
+
+    alert (`Maintenace end time set: ${endTime}`);
+
+    CountdownModule.start();
+  }
+}
 
 
 //============================================
@@ -166,7 +216,7 @@ const ServerModule = {
 
   async check () {
     try {
-      const response = await fetch ('index0.html', {
+      const response = await fetch ('index_calculator.html', {
         method: 'HEAD',
         cache: 'no-store'
       });
@@ -180,6 +230,30 @@ const ServerModule = {
   }
 
 };
+
+
+
+//============================================
+//TIME UTILITY. STEP 12.
+//============================================
+const TimeUtils = {
+
+  getRemainingTime(endTime) {
+    const now = Date.now();
+    const end = new Date(endTime).getTime();
+
+    return Math.max(0, end - now); // in ms
+  },
+
+  format(ms) {
+    const totalSeconds = Math.floor(ms / 1000);
+
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+
+    return `${mins}:${secs <10 ? '0' : ''}${secs}`;
+  }
+}
 
 
 //============================================
@@ -197,6 +271,10 @@ const CountdownModule ={
 },
 
 start() {
+  console.log('Countdown started');
+  console.log('End time:', AppState.maintenanceEndTime);
+      
+
 
   //Stop any existing interval
   if (AppState.interval) {
@@ -204,34 +282,82 @@ start() {
   }
 
   if (!AppState.isMaintenanceMode) return;
+  if (!AppState.maintenanceEndTime) return;
 
   AppState.interval = setInterval (async () => {
 
-    AppState.maintenanceTime--;
+    const remaining = TimeUtils.getRemainingTime(AppState.maintenanceEndTime);
+    console.log('Remaining:', remaining);
 
-    DOM.countdownTimer.innerText = this.formatTime(AppState.maintenanceTime);
+    
 
-    //Every 5 seconds, check if system is online
-    if (AppState.maintenanceTime % 5 === 0) {
+    DOM.countdownTimer.innerText = TimeUtils.format(remaining);
+
+    //If time reached, end maintenance
+    if (remaining <= 0) {
+
+      console.log('Countdown finished');
+
+      clearInterval(AppState.interval);
+
+      AppState.interval = null;
+
+      localStorage.removeItem('maintenanceEndTime');
+
+
+      StatusModule.set('online');
+      DOM.redirectMsg.innerText = 'System is back online. Redirecting...';
+
+      DOM.transtionScreen.classList.add('show');
+
+      //Progress Animation
+      let progress = 0;
+
+      const progressInterval = setInterval(() => {
+
+        progress += 5;
+
+        DOM.progressBar.style.width = progress + '%';
+
+        //Stop at 100%
+        if (progress >= 100) {
+          clearInterval(progressInterval);
+
+          //Redirect after full loading
+          window.location.href = 'index_calculator.html'
+        }
+
+      }, 150);
+/*
+      setTimeout(() => {
+        window.location.href = 'index_calculator.html';
+      }, 3000);
+*/
+      console.log('Remaining:', remaining);
+      console.log('End time:', AppState.maintenanceEndTime);
+      
+      return;
+
+    }
+
+    //Every 10 seconds, check if system is online
+    if (Math.floor(remaining / 1000)  % 10 === 0) {
+
 
       const isOnline = await ServerModule.check();
 
       if (isOnline) {
-        clearInterval (AppState.interval);
+        
+        DOM.redirectMsg.innerText = 'System is ready. Waiting to be redirected...'
 
-        StatusModule.set('online');
         DOM.warningMsg.innerText = '';
-        DOM.redirectMsg.innerText = 'System is back online. Redirecting...';
-
-        setTimeout (() => {
-          window.location.href ='index.html';
-        }, 3000);
 
       } else {
         DOM.redirectMsg.innerText = 'Still under maintenance...checking again.';
 
         DOM.warningMsg.innerText = '⚠ System is currently unavailable. Please wait...';
       }
+
     }
 
   }, 1000);
@@ -261,12 +387,14 @@ const MaintenanceController = {
       alert ('Unauthorized action');
       return;
     }
-    //Flip stste
-    AppState.isMaintenanceMode = !
-    AppState.isMaintenanceMode;
+    //Flip state
+    console.log('Before', AppState.isMaintenanceMode);
+    AppState.isMaintenanceMode = !AppState.isMaintenanceMode;
+  
+    console.log('after', AppState.isMaintenanceMode);
 
     //save status
-    localStorage.setItem ('maintenance', AppState.isMaintenanceMode);
+    localStorage.setItem ('maintenanceMode', AppState.isMaintenanceMode);
 
     //Apply state
     if (AppState.isMaintenanceMode) {
@@ -312,6 +440,15 @@ document.addEventListener('DOMContentLoaded', () => {
   //Initialize DOM
   DOM.init();
 
+
+    //Init modules
+    AdminModule.init ();
+    MaintenanceController.init();
+    LinkGuard.init();
+    TimeAdmin.init();
+    console.log(DOM.adminPanel)
+
+
   //Load saved maintenance status
   const savedMode = localStorage.getItem('maintenanceMode');
 
@@ -319,10 +456,6 @@ document.addEventListener('DOMContentLoaded', () => {
     AppState.isMaintenanceMode = savedMode === 'true';
   }
 
-  //Init modules
-  AdminModule.init ();
-  MaintenanceController.init();
-  LinkGuard.init();
 
   //Apply state
   if (AppState.isMaintenanceMode) {
@@ -330,5 +463,23 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     StatusModule.set('online');
   }
+
+
+  const savedEndTime = localStorage.getItem('maintenanceEndTime');
+
+  if(savedEndTime) {
+    const remaining = new Date (savedEndTime).getTime() - Date.now ();
+
+    if (remaining > 0) {
+      AppState.maintenanceEndTime = savedEndTime;
+      CountdownModule.start();
+
+    } else {
+      //clean expired state
+      localStorage.removeItem('maintenanceEndTime');
+    }
+
+  }
+
 
 });
