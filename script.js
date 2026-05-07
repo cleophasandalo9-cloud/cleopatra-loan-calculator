@@ -1,4 +1,40 @@
 //===========================================
+//FIREBASE IMPORT
+//===========================================
+    import {initializeApp} 
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+    import {
+      getDatabase,
+      ref,
+      set,
+      onValue
+    }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+
+//===========================================
+//FIREBASE IMPORT AND CONFIG
+//===========================================
+const firebaseConfig = {
+  apiKey: "AIzaSyCf6jCXVnJNKNKTInJ_tlRU5_HWpzo1b9o",
+  authDomain: "loan-calculator-maintenance.firebaseapp.com",
+  projectId: "loan-calculator-maintenance",
+  storageBucket: "loan-calculator-maintenance.firebasestorage.app",
+  messagingSenderId: "1042675039005",
+  appId: "1:1042675039005:web:768d498538594aedce3ff4",
+  measurementId: "G-MRNERE0TZJ"
+};
+
+//Initialize Firebase
+const app = initializeApp(firebaseConfig);
+//const analytics = getAnalytics(app);
+
+//Realtime Database
+const database = getDatabase(app);
+
+
+//===========================================
 //APP STATE (GLOBAL). STEP 1.
 //===========================================
 const AppState = {
@@ -131,9 +167,12 @@ const TimeAdmin = {
     const endTime = new Date (value).toISOString ();
 
     AppState.maintenanceEndTime = endTime;
-    localStorage.setItem('maintenanceEndTime', endTime);
 
-    localStorage.setItem('maintenanceEndTime', endTime);
+    //Firebase (saving to cloud database)
+    set (
+      ref (database, 'maintenance/endTime'),
+      endTime
+    );
 
     alert (`Maintenace end time set: ${endTime}`);
 
@@ -415,7 +454,6 @@ start() {
 
       AppState.interval = null;
 
-      localStorage.removeItem('maintenanceEndTime');
 
 
       StatusModule.set('online');
@@ -485,8 +523,11 @@ const MaintenanceController = {
   
     console.log('after', AppState.isMaintenanceMode);
 
-    //save status
-    localStorage.setItem ('maintenanceMode', AppState.isMaintenanceMode);
+    //Saving status to cloud database
+    set (
+      ref (database, 'maintenance/mode'),
+      AppState.isMaintenanceMode
+    );
 
     //Apply state
     if (AppState.isMaintenanceMode) {
@@ -540,13 +581,61 @@ document.addEventListener('DOMContentLoaded', () => {
     TimeAdmin.init();
     RealtimeModule.start();
 
+    
+    //===========================================
+    //FIREBASE REALTIME LISTENERS
+    //===========================================
+    
+    //Maintenance mode listener
+    onValue (
+      ref (database, 'maintenance/mode'),
+      (snapshot) => {
 
-  //Load saved maintenance status
-  const savedMode = localStorage.getItem('maintenanceMode');
+        const mode = snapshot.val();
 
-  if (savedMode !== null) {
-    AppState.isMaintenanceMode = savedMode === 'true';
-  }
+        if (mode !== null) {
+          AppState.isMaintenanceMode = mode;
+
+          if (mode) {
+
+            StatusModule.set('maintenance');
+            
+          } else {
+
+            StatusModule.set('online');
+
+          }
+
+        }
+
+      }
+
+    );
+
+
+    //Maintenance end time listener
+    onValue(
+      ref(database, 'maintenance/endTime'),
+      (snapshot) => {
+
+        const endTime = snapshot.val();
+
+        if (!endTime) return;
+
+        AppState.maintenanceEndTime = endTime;
+
+        const remaining = new Date(endTime).getTime() - Date.now();
+
+        if (remaining > 0) {
+
+          CountdownModule.start();
+
+        }
+
+      }
+
+    );
+
 
 
   //Apply state
@@ -557,8 +646,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 
-  const savedEndTime = localStorage.getItem('maintenanceEndTime');
-
+/*
   if(savedEndTime) {
     const remaining = new Date (savedEndTime).getTime() - Date.now ();
 
@@ -572,6 +660,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
   }
-
+*/
 
 });
