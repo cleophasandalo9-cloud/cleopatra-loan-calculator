@@ -29,7 +29,7 @@ const DOM = {
   this.logoutBtn = document.getElementById('logoutAdmin');//8
   this.countdownTimer = document.getElementById('countdownTimer');//9
   this.redirectMsg = document.getElementById('redirectMsg');//10
-  this.transtionScreen = document.getElementById('transitionScreen'); //13
+  this.transitionScreen = document.getElementById('transitionScreen'); //13
   this.progressBar = document.getElementById('progressBar'); //14
 
   }
@@ -234,6 +234,86 @@ const ServerModule = {
 
 
 //============================================
+//REALTIME MODULE
+//============================================
+const RealtimeModule = {
+
+  checkInterval: null,
+
+  start () {
+
+
+    //prevent duplicate intervals
+    if (this.checkInterval) {
+      clearInterval(this.checkInterval);
+    }
+
+    //Run immediately once
+    this.checkServer();
+
+    //Then repeat every 10 seconds
+    this.checkInterval = setInterval(() => {
+      this.checkServer ();
+    }, 10000);
+
+  },
+
+  stop () {
+
+    if(this.checkInterval) {
+      clearInterval(this.checkInterval);
+      this.checkInterval = null;
+    }
+
+  },
+
+  async checkServer () {
+
+    //Don't check if maintenance already ended
+    if(!AppState.isMaintenanceMode) return;
+
+    const isOnline = await ServerModule.check();
+
+    const remaining = TimeUtils.getRemainingTime(AppState.maintenanceEndTime);
+
+    const phase = TimeUtils.getMaintenancePhase(AppState.maintenanceEndTime);
+
+    switch (phase) {
+
+      case 'early': DOM.redirectMsg.innerText = `System being worked on. You'll be redirected afterwards.`
+
+      break;
+
+      case 'finalizing': DOM.redirectMsg.innerText = `Finalizing upgrades. Redirect will begin shortly...`;
+
+      break;
+
+      case 'preparing': DOM.redirectMsg.innerText = `Preparing launch systems... redirect incoming...`;
+
+      break;
+
+      case 'complete': DOM.redirectMsg.innerText = `System is back online. Redirecting...`;
+
+      break;
+
+    }
+
+    //Server status warning
+    if (!isOnline) {
+
+      DOM.warningMsg.innerText = '⚠ System is currently unavailable. Please wait...';
+
+    } else {
+
+      DOM.warningMsg.innerText = '';
+    }
+  }
+
+};
+
+
+
+//============================================
 //TIME UTILITY. STEP 12.
 //============================================
 const TimeUtils = {
@@ -248,12 +328,43 @@ const TimeUtils = {
   format(ms) {
     const totalSeconds = Math.floor(ms / 1000);
 
-    const mins = Math.floor(totalSeconds / 60);
-    const secs = totalSeconds % 60;
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
 
-    return `${mins}:${secs <10 ? '0' : ''}${secs}`;
-  }
-}
+    const seconds = totalSeconds % 60;
+
+    const formatedHours = String(hours).padStart(2, '0');
+    const formatedMinutes = String(minutes).padStart(2, '0');
+    const formatedSeconds = String(seconds).padStart(2, '0');
+
+    return `${formatedHours}:${formatedMinutes}:${formatedSeconds}`;
+
+  },
+
+  getMaintenancePhase (endTime) {
+
+    const remaining = this.getRemainingTime(endTime);
+
+    const THIRTY_MINUTES = 30 * 60 * 1000;
+    const FIVE_MINUTES = 5 * 60 * 1000;
+
+    if (remaining <= 0) {
+      return 'complete';
+    }
+
+    if (remaining <= FIVE_MINUTES) {
+      return 'preparing';
+    }
+
+    if (remaining <= THIRTY_MINUTES) {
+      return 'finalizing';
+    }
+
+    return 'early';
+
+  },
+
+};
 
 
 //============================================
@@ -300,6 +411,8 @@ start() {
 
       clearInterval(AppState.interval);
 
+      RealtimeModule.stop();
+
       AppState.interval = null;
 
       localStorage.removeItem('maintenanceEndTime');
@@ -308,7 +421,7 @@ start() {
       StatusModule.set('online');
       DOM.redirectMsg.innerText = 'System is back online. Redirecting...';
 
-      DOM.transtionScreen.classList.add('show');
+      DOM.transitionScreen.classList.add('show');
 
       //Progress Animation
       let progress = 0;
@@ -316,6 +429,8 @@ start() {
       const progressInterval = setInterval(() => {
 
         progress += 5;
+
+        console.log('Progress', progress);
 
         DOM.progressBar.style.width = progress + '%';
 
@@ -325,38 +440,15 @@ start() {
 
           //Redirect after full loading
           window.location.href = 'index_calculator.html'
+          console.log('Redirecting now...')
         }
 
       }, 150);
-/*
-      setTimeout(() => {
-        window.location.href = 'index_calculator.html';
-      }, 3000);
-*/
+
       console.log('Remaining:', remaining);
       console.log('End time:', AppState.maintenanceEndTime);
       
       return;
-
-    }
-
-    //Every 10 seconds, check if system is online
-    if (Math.floor(remaining / 1000)  % 10 === 0) {
-
-
-      const isOnline = await ServerModule.check();
-
-      if (isOnline) {
-        
-        DOM.redirectMsg.innerText = 'System is ready. Waiting to be redirected...'
-
-        DOM.warningMsg.innerText = '';
-
-      } else {
-        DOM.redirectMsg.innerText = 'Still under maintenance...checking again.';
-
-        DOM.warningMsg.innerText = '⚠ System is currently unavailable. Please wait...';
-      }
 
     }
 
@@ -446,7 +538,7 @@ document.addEventListener('DOMContentLoaded', () => {
     MaintenanceController.init();
     LinkGuard.init();
     TimeAdmin.init();
-    console.log(DOM.adminPanel)
+    RealtimeModule.start();
 
 
   //Load saved maintenance status
