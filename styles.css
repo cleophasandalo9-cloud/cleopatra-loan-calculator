@@ -5,26 +5,7 @@
   box-sizing: border-box;
   font-family: 'Times New Roman', Times, serif;
 }
-/*
-/*UPGRADE: THEME COLOR SYSTEM*
-:root {
-  --bg-color: rgb(245, 247, 250);
-  --card-color: rgb(255, 255, 255);
-  --text-color: rgb(34, 34, 34);
-  --input-bg: rgb(255, 255, 255);
-  --border-color: rgb(221, 221, 221);
-  --primary-color: rgb(76, 175, 80);
-}
 
-body.dark-mode {
-  --bg-color: rgb(18, 18, 18);
-  --card-color: rgb(30, 30, 30);
-  --text-color: rgb(245, 245, 245);
-  --input-bg: rgb(42, 42, 42);
-  --border-color: rgb(68, 68, 68);
-  --primary-color: rgb(102, 187, 106);
-} 
-*/
 
 /*2. BACKGROUND*/
 body {
@@ -34,10 +15,10 @@ body {
   overflow-x: hidden;
   margin-bottom: 2px;
   margin-top: 2px;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+
+  min-height: 100vh;
+  display: block;
+  padding-top: 80px;
 
   background: linear-gradient(135deg, rgb(10, 12, 20), rgb(20, 25, 40));
 
@@ -51,6 +32,7 @@ body {
   max-width: 420px;
   padding: 20px;
   position: relative;
+  margin: auto;
 }
 
 .header {
@@ -60,10 +42,13 @@ body {
 }
 .header h1 {
   font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 .header p {
   font-size: 14px;
   opacity: 0.7;
+  margin-top: 4px;
 }
 
 .calculator-card {
@@ -145,48 +130,6 @@ body {
   border: 1px solid rgb(0, 155, 255);
 }
 
-/*
-.dropdown {
-  position: relative;
-  margin-top: 10px;
-  color: white;
-}
-
-.selected {
-  padding: 12px;
-  background: rgb(30, 35, 70);
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-#searchCurrency {
-  width: 100%;
-  padding: 10px;
-  margin-top: 5px;
-  border-radius: 8px;
-  border: none;
-  background: rgb(20, 25, 60);
-  color: white;
-}
-
-.list {
-  max-height: 200px;
-  overflow-y: auto;
-  background: rgb(20, 25, 60);
-  border-radius: 8px;
-  margin-top: 5px;
-}
-
-.item {
-  padding: 10px;
-  cursor: pointer;
-}
-
-.item:hover {
-  background: rgb(40, 45, 90);
-}
-  */
-  
   /*=====Currency Converter======*/
   /*CURRENCY TOGGLE ICON*/
   .currency-toggle {
@@ -235,38 +178,7 @@ body {
     border: 1px solid transparent;
   }
 
-  /*CONVERTER PANEL*/
-  /*
-  .converter-panel {
-    position: absolute;
-    top: 80px;
-    right: 20px;
-    width: 300px;
-
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-   /* border: 1px solid rgba(255, 255, 255, 0.1); 
-    border-radius: 12px;
-    padding: 15px;
-
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-
-   /* display: none;
-    
-    opacity: 0;
-    transform: translateY(-20px);
-    pointer-events: none;
-
-    transition: all 0.3s ease;
-
-    z-index: 1000;
-  }
-  .converter-panel.active {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-  }
-  */
+ 
   .converter-panel h3 {
     color: white;
     margin-bottom: 10px;
@@ -346,13 +258,13 @@ body {
   background: rgba(0, 0, 255, 0.09);
   border-radius: 10px;
 
-  max-height: 250px; /* controls total visible area */
-  overflow: hidden;
+  max-height: 95vh; /* controls total visible area */
+  overflow: visible;
 }
 
 /* ===== SCROLL AREA ===== */
 .table-scroll {
-  max-height: 200px;
+  max-height: 50vh;
   overflow-y: auto;
 
   margin-top: 10px;
@@ -374,8 +286,6 @@ body {
   border-collapse: collapse;
   font-size: 20px;
   color: white;
-  display: block;
-  max-height: 250px;
 }
 
 #breakdownTable th,
@@ -391,7 +301,7 @@ body {
 }
 
 #breakdownTable th {
-  background: rgb(10, 20, 50);
+  background: rgb(20, 20, 50);
   position: sticky;
   top: 0;
   color: white;
@@ -422,43 +332,6 @@ body {
 .input-error:focus {
   border: 1px solid rgba(255, 80, 80, 0.9) !important;
 }
-/*
-body.dark-mode {
-
-color: rgb(0, 120, 255);
-}
-
-body.dark-mode .calculator-card {
-  background: rgb(240, 240, 240);
-  color: rgb(25, 30, 60);
-}
-
-body.dark-mode input {
-  
-}
-
-body.dark-mode header {
-  
-}
-
-body.dark-mode .theme-toggle {
-  
-}
-
-.theme-toggle {
-  width: 80px;
-  height: 80px;
-  align-content: center;
-  justify-content: center;
-  border-radius: 50%;
-  aspect-ratio: 1 / 1;
-  position: absolute;
-  top: 10px;
-  left: 20px;
-  cursor: pointer;
-  font-size: 40px;
-}
-  */
 
 @media(max-width: 600px) {
   .calculator-card {
@@ -491,60 +364,57 @@ body.dark-mode .theme-toggle {
   }
 }
 
-/*flags dropdown
-.custom-dropdown {
-  position: relative;
-  cursor: pointer;
-}
-
-.slected-currency {
-  padding: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-}
-
-.currency-list {
-  position: absolute;
-  top: 100%;
-  width: 100%;
-  max-height: 200px;
-  overflow-y: auto;
-  background: black;
-  display: none;
-  border-radius: 8px;
-  z-index: 10;
-}
-
-.currency-item {
-  padding: 10px;
-}
-
-.currency-item:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-  */
-
 /*===================== HAMBURGER STYLINGS =====================*/
 /*==========================
 HAMBURGER BUTTON
 ===========================*/
 .menu-toggle {
+  width: 100%;
   position: fixed;
   top: 0;
-  left: 0;
-  font-size: 50px;
-  cursor: pointer;
-  z-index: 1000;
-  background: rgba(0, 0, 0, 0.9);
-  width: 100%;
-  border-bottom: 1px solid rgba(0, 0, 255, 0.2);
-  box-shadow: 0px 0px 60px rgba(0, 0, 255, 0.1);
+  z-index: 999;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+
+
+  padding: 16px 20px;
+
+  background: rgba(15, 23, 42, 0.92);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+
+  margin-bottom: 24px;
 }
 
 .hamburger {
+  width: 46px;
+  height: 23px;
+
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
   color: rgb(5, 118, 163);
-  position: relative;
-  left: 30px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+  left: 50px;
+}
+
+.hamburger:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: scale(1.03);
 }
 
 /*================================
@@ -552,15 +422,20 @@ SIDEBAR
 ================================*/
 .sidebar {
   position: fixed;
-  top: 60px;
-  left: -250px; /*hidden by default*/
-  width: 250px;
-  height: calc(100% - 60px);
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(10px);
-  padding: 60px;
-  transition: left 0.3s ease;
-  z-index: 999;
+  top: 0;
+  left: -300px; /*hidden by default*/
+  width: 300px;
+  height: 100%;
+  background: linear-gradient(180deg, rgb(15, 23, 42), rgb(10, 15, 28));
+
+  box-shadow: 8px 0 40px rgba(0, 0, 0, 0.45);
+
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  overflow-y: auto;
+
+  padding-top: 30px;
+  transition: left 0.35s ease;
+  z-index: 2000;
 }
 
 /*ACTIVE STATE*/
@@ -572,21 +447,57 @@ SIDEBAR
 MENU ITEMS
 ==============================*/
 .menu-item {
-  padding: 15px 20px;
-  font-size: 20px;
+  width: 90%;
+
+  margin: 10px auto;
+  padding: 16px 18px;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: rgba(255, 255, 255, 0.04);
+
   color: white;
+  font-size: 15px;
+  font-weight: 500;
+
   cursor: pointer;
+  transition: all 0.25s ease;
 }
 
 .menu-item:hover {
-  background: rgba(255, 255, 255, 0.09);
+  background: rgba(59, 130, 246, 0.18);
+
+  transform: translateX(4px);
   border-radius: 8px;
+
+  box-shadow: 0 4px 18px rgba(59, 130, 246, 0.18);
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .menu-item:active {
   background: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.sidebar-header {
+  padding: 0 22px 20px;
+}
+
+.sidebar-header h2{
+  color: white;
+  margin: 0;
+  font-size: 22px;
+}
+
+.sidebar-header p{
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 6px;
+  font-size: 13px;
 }
 
 /*SPACING IN DASHBOARD AND AMORTIZATION TABLE SECTIONS*/

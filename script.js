@@ -662,18 +662,12 @@ function saveInputs () {
 //MAIN CALCULATION
 //======================
 function calculateLoan () {
-  //Get inputs
-  //const amountInput = document.getElementById('amount');
-  //const rateInput = document.getElementById('interest');
-  //const timeInput = document/getElementById('time');
 
   //Error elements
   const amountError = document.getElementById('amountError');
   const interestError = document.getElementById('interestError');
   const yearsError = document.getElementById('yearsError');
 
-  //Reset errors
-  //amountError.textContent = "";
   interestError.textContent = "";
   yearsError.textContent = "";
 
@@ -727,22 +721,6 @@ function calculateLoan () {
   //let selectedCurrency = selectedCurrencyCode;
   let selectedCurrency = currencySelect.value;
 
-  currencySelect.addEventListener('change', function () {
-    const selected = currencySelect.value;
-
-    //Sync converter
-    let from = document.getElementById('fromCurrency');
-    let to = document.getElementById('toCurrency');
-
-    from.value = selected;
-
-    //Only change 'to' if it was same before
-    if (to.value === from.value) {
-      to.value = selected === 'USD' ? 'KES':'USD';
-    }
-
-    convertCurrency();
-  })
 
   if (!P || !annualRate || !n) {
     monthlyOutput.innerText = '0';
@@ -761,7 +739,7 @@ function calculateLoan () {
     let t = n / 12;
     interest = P * (annualRate / 100) * t;
     total = P + interest;
-    monthly =total / 12;
+    monthly =total / n;
 
   } else {
     //COMPOUND INTEREST
@@ -772,23 +750,13 @@ function calculateLoan () {
     total = monthly * n;
     interest = total - P;
   }
-/*
-  //convert annual rate to monthly
-  let r = annualRate / 100 / 12;
-
-  //=======CORE FORMULA (BASE CURRENCY - USD)======//
-  let monthly = P * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-
-  let total = monthly * n;
-  let interest = total - P;
-*/
 
   // =====================
   // AMORTIZATION TABLE
   // =====================
 
   let exchangeRate = 1; //Added upgrade
-  //let exchangeRate = exchangeRates[selectedCurrency] || 1;
+
   if (type === 'compound') {
     let r = annualRate / 100 / 12
     
@@ -802,14 +770,15 @@ function calculateLoan () {
     let balance = P;
 
     // limit rows (performance)
-    let maxRows = Math.min(n); // show only 24 months
-
+    let maxRows = Math.min(n, 120);
     for (let i = 1; i <= maxRows; i++) {
 
       let interestPayment = balance * r;
       let principalPayment = monthly - interestPayment;
 
       balance -= principalPayment;
+
+      if (balance < 0) balance = 0;
 
       const row = document.createElement('tr');
 
@@ -825,7 +794,11 @@ function calculateLoan () {
     }
 
   } else {
-    document.querySelector('#breakdownTable tbody').innerHTML = `<tr><td colspan = '5'>Breakdown not available for simple interest</td></tr>`;
+document.querySelector('#breakdownTable tbody').innerHTML = `<tr>
+        <td colspan = '5'>
+        Breakdown not available for simple interest
+        </td>
+    </tr>`;
   }
 
   //======CONVERT RESULTS ONLY======//
@@ -876,16 +849,17 @@ dashboardBtn.addEventListener('click', function () {
 //EVENT LISTENERS
 amortizationBtn.addEventListener('click', function () {
 
+  //Generate table first
+  if (document.getElementById('amount').value) {
+    calculateLoan();
+  }
+
+  //Then show section
   dashboardSection.style.display = 'none';
   amortizationSection.style.display = 'block';
 
-  if(document.getElementById('amount').value) {
-  calculateLoan();
-  }
-
-
   sidebar.classList.remove('active'); //close menu
-})
+});
 //================================================================//
 
 //===================
@@ -908,26 +882,37 @@ amountInput.addEventListener('input', function () {
   isSyncing =false;
 });
 
-//************** *//
-document.getElementById
 
 rateInput.addEventListener('input', debouncedCalculate);
 timeInput.addEventListener('input', debouncedCalculate);
+
 
 currencySelect.addEventListener('change', function () {
   if (isSyncing) return;
 
   isSyncing =true;
 
-  calculateLoan();
+  const selected = currencySelect.value;
 
-  //Sync converter "from" currency**********
-  document.getElementById('fromCurrency').value = currencySelect.value;
+  //Converter dropdown
+    const from = document.getElementById('fromCurrency');
+    const to = document.getElementById('toCurrency');
 
-  //Trigger conversion********8
-  convertCurrency();
+    //Sore previous from
+    const previousFrom = from.value;
 
-  isSyncing =false;
+    //SYNC FROM CURRENCY
+    from.value = selected;
+
+    //Only change 'to' if it was same before
+    if (to.value === previousFrom) {
+      to.value = selected === 'USD' ? 'KES':'USD';
+    }
+
+    calculateLoan();
+    convertCurrency();
+
+    isSyncing =false;
 });
 
 const convertAmountInput = document.getElementById('convertAmount');
@@ -975,3 +960,21 @@ inputs.forEach(input => {
     }
   });
 });
+
+/*
+function initApp() {
+  getRates();
+  calculateLoan();
+  saveInputs();
+  bindEvents();
+}
+
+function bindEvents() {
+
+  amountInput.addEventListener('input', debouncedCalculate);
+  rateInput.addEventListener('input', debouncedCalculate);
+  timeInput.addEventListener('input', debouncedCalculate);
+
+  currencySelect.addEventListener('change', debouncedCalculate);
+}
+*/

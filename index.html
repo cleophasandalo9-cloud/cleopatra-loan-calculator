@@ -4,12 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale = 1.0">
     <title>Loan Calculator</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles_calculator.css">
   </head>
 
   <body>
+
+    <!--==================== HAMBURGER MENU ======================-->
+      <div class="menu-toggle">
+        <span id="menuToggle" class="hamburger">&#9776;</span></div>
+
+      <!--Sidebar Menu-->
+      <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+          <h2>Finance Tools</h2>
+          <p>Smart loan management</p>
+        </div>
+        
+
+        <div class="menu-item" id="dashboardBtn">Dashboard</div>
+
+        <div class="menu-item" id="amortizationBtn">Amortization Table</div>
+
+      </div>
+
     
     <div class="app-container">
+
+      
 
       <!--header-->
       <div class="header">
@@ -20,20 +41,37 @@
 
       <!--currency icon button-->
       <div class="currency-toggle" onclick="toggleConverter()">
-        &#128178
+        &#128178;
       </div>
-<!--==================== HAMBURGER MENU ======================-->
-      <div class="menu-toggle" style="display: none;">
-        <span id="menuToggle" class="hamburger">&#9776</span></div>
 
-      <!--Sidebar Menu-->
-      <div id="sidebar" class="sidebar">
+      <!--==================== AMORTIZATION TABLE =====================-->
+      <div id="amortizationSection" style="display: none;">
 
-        <div class="menu-item" id="dashboardBtn">Dashboard</div>
+        <!--AMORTIZATION TABLE-->
+          <div class="table-container">
+          <h3 class="breakdown-title">Payment Breakdown</h3>
 
-        <div class="menu-item" id="amortizationBtn">Amortization Table</div>
+          <div class="table-scroll">
+          <table id="breakdownTable">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Payment</th>
+                <th>Interest</th>
+                <th>Principal</th>
+                <th>Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- JS will insert rows here -->
+            </tbody>
+          </table>
+          </div>
+          
+          </div>
 
       </div>
+<!--=============================================================-->
 <!--==========================================================-->
 
       <!--calculator card-->
@@ -128,34 +166,6 @@
         </div>
       </div>
 
-<!--==================== AMORTIZATION TABLE =====================-->
-      <div id="amortizationSection" style="display: none;">
-
-        <!--AMORTIZATION TABLE-->
-          <div class="table-container">
-          <h3 class="breakdown-title">Payment Breakdown</h3>
-
-          <div class="table-scroll">
-          <table id="breakdownTable">
-            <thead>
-              <tr>
-                <th>Month</th>
-                <th>Payment</th>
-                <th>Interest</th>
-                <th>Principal</th>
-                <th>Balance</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- JS will insert rows here -->
-            </tbody>
-          </table>
-          </div>
-          
-          </div>
-
-      </div>
-<!--=============================================================-->
       
 
     </div>
@@ -195,5 +205,5 @@
         </div>
 
   </body>
-  <script src="script.js"></script>
+  <script src="script_calculator.js"></script>
 </html>
