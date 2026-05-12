@@ -28,6 +28,7 @@ body {
 
 
 .app-container {
+  margin-top: 50px
   width: 100%;
   max-width: 420px;
   padding: 20px;
@@ -36,7 +37,6 @@ body {
 }
 
 .header {
-  margin-top: 50px;
   text-align: center;
   color: white;
   margin-bottom: 20px;
