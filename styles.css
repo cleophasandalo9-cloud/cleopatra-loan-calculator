@@ -28,7 +28,7 @@ body {
 
 
 .app-container {
-  margin-top: 50px
+  margin-top: 100px
   width: 100%;
   max-width: 420px;
   padding: 20px;
@@ -38,7 +38,7 @@ body {
 
 .header {
   text-align: center;
-  color: white;
+  color: green;
   margin-bottom: 20px;
 }
 .header h1 {
