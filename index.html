@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale = 1.0">
     <title>Loan Calculator</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <link rel="stylesheet" href="styles.css">
   </head>
 
@@ -25,6 +28,15 @@
 
         <div class="menu-item" id="amortizationBtn">Amortization Table</div>
 
+        <div class="menu-item" id="emiChartBtn">EMI Chart</div>
+
+        <div class="menu-item" id="exportScheduleBtn">Export Schedule</div>
+
+        <!--currency icon button-->
+      <div class="currency-toggle" onclick="toggleConverter()">
+        &#128178;
+      </div>
+
       </div>
 
     
@@ -39,10 +51,7 @@
         <!--<div class="theme-toggle" onclick="toggleTheme()">🌙</div>-->
       </div>
 
-      <!--currency icon button-->
-      <div class="currency-toggle" onclick="toggleConverter()">
-        &#128178;
-      </div>
+      
 
       <!--==================== AMORTIZATION TABLE =====================-->
       <div id="amortizationSection" style="display: none;">
@@ -70,6 +79,34 @@
           
           </div>
 
+      </div>
+
+<!--=====================EMI CHART SECTION====================-->
+      <div id="emiChartSection" style="display: none;">
+        <div class="table-container">
+          <h3 class="breakdown-title">Equated Monthly Installment (EMI) Chart</h3>
+          <div id="emiSimpleMsg" class="result-box" style="display: block;">
+            <p style="color:aqua; font-size:14px; text-align:center;">EMI chart is only available for Compound Interest loans.</p>
+          </div>
+          <canvas id="emiChart"></canvas>
+        </div>
+      </div>
+
+<!--==================EXPORT SCHEDULE SECTION================-->
+      <div id="paymentScheduleSection" style="display: none;">
+        <div class="table-container">
+          <h3 class="breakdown-title">Export Schedule</h3>
+
+          <div class="result-box" style="margin-bottom: 15px;">
+            <p style="font-size: 14px; color: rgba(255, 255, 255, 0.7); font-weight: 400px;">Download your full amortization schedule as a CSV file, ready to open in Excel or Google Sheets.</p>
+          </div>
+
+          <div id="exportMsg" class="result-box" style="display: none;">
+            <p style="color: aqua; font-size: 14px; text-align:center;">Export is only available for Compound Interest loans.</p>
+          </div>
+
+          <button id="downloadCsvBtn" class="btn" style="display: none;">&#8595; Download CSV</button>
+        </div>
       </div>
 <!--=============================================================-->
 <!--==========================================================-->
@@ -100,36 +137,16 @@
               <option value="JPY">JPY</option>
             </select>
 
-            <!--<div class="custom-dropdown">
-              <div id="selectedCurrency" class="selected-currency">Select Currency</div>
-              <div id="currencyList" class="currency-list"></div>
-            </div>
-            -->
-            
-            <!--
-            <div class="dropdown">
-
-              <div id="selectedCurrency" class="selected">
-                USD - US Dollar
-              </div>
-
-              <input type="text" id="searchCurrency"      placeholder="Search Currency...">
-
-              <div id="currencyList" class="list"></div>
-
-            </div>
-          </div>
-          -->
           <div class="input-group">
             <label>Interest Rate (%)</label>
             <input type="number" id="rate" placeholder="Enter Interest Rate p.a" step="10">
-            <small class="error-message" id="interestError"></small>
+            <small class="error-message" id="rateError"></small>
           </div>
 
           <div class="input-group">
             <label>Loan Duration (Months)</label>
             <input type="number" id="time" placeholder="Enter Duration" step="10">
-            <small class="error-message" id="yearsError"></small>
+            <small class="error-message" id="timeError"></small>
           </div>
 
           <!--Flex for compund or simple interest-->
@@ -139,9 +156,7 @@
             <option value="simple">Simple Interest</option>
           </select>
 
-          <!--button
-          <button onclick="calculateLoan()" class="btn">Calculate</button>
-        -->
+
           <!--results-->
           <div class="results">
 
@@ -194,9 +209,6 @@
             <label>To</label>
             <select id="toCurrency"></select>
           </div>
-        <!--
-          <button onclick="convertCurrency()" class="btn">Convert</button>
-        -->
 
           <div class="result-box">
             <h3>Result</h3>

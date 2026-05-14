@@ -13,12 +13,9 @@ body {
   padding: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  margin-bottom: 2px;
-  margin-top: 2px;
 
   min-height: 100vh;
   display: block;
-  padding-top: 80px;
 
   background: linear-gradient(135deg, rgb(10, 12, 20), rgb(20, 25, 40));
 
@@ -28,17 +25,16 @@ body {
 
 
 .app-container {
-  margin-top: 100px
   width: 100%;
   max-width: 420px;
   padding: 20px;
   position: relative;
-  margin: auto;
+  margin: 90px auto 20px auto;
 }
 
 .header {
   text-align: center;
-  color: green;
+  color: white;
   margin-bottom: 20px;
 }
 .header h1 {
@@ -154,12 +150,14 @@ body {
   .converter-panel {
     position: fixed;
     top: 0;
-    right: 0;
+    right: -300px; /*hidden by default*/
+    width: 300px;
     height: 100%;
-    width: 350px;
+    background: linear-gradient(180deg, rgb(15, 23, 42), rgb(10, 15, 28));
 
-    background: rgb(30, 35, 50);
-    padding: 20px;
+    box-shadow: 8px 0 40px rgba(0, 0, 0, 0.45);
+
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
 
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 
@@ -171,6 +169,7 @@ body {
   }
 
   .converter-panel.active {
+    right: 0;
     transform: translateX(0);
   }
 
@@ -234,6 +233,14 @@ body {
   margin-top: 10px;
   font-size: 20px;
   color: white;
+}
+
+#emiChartSection.table-container {
+  min-height: 400px;
+}
+
+#emiChartSection canvas {
+  min-height: 300px;
 }
 
 #breakdownTable th,
@@ -347,7 +354,8 @@ body {
 
 @media (max-width: 480px) {
   body {
-    padding: 10px;
+    padding: 14px;
+    margin-top: 85px;
   }
 
   .container {
@@ -371,6 +379,7 @@ HAMBURGER BUTTON
 ===========================*/
 .menu-toggle {
   width: 100%;
+  height: 70px;
   position: fixed;
   top: 0;
   z-index: 999;
@@ -507,3 +516,6 @@ MENU ITEMS
 }
 
 /*==============================================================*/
+
+
+
