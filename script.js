@@ -521,6 +521,7 @@ function filterCurrencies (searchInputId, selectId) {
   if ([...select.options].some(opt => opt.value === currentValue)) {
     select.value = currentValue;
   }
+  debouncedCalculate();
 }
 //======================================
 //CONVERTER CURRENCY
