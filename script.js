@@ -1150,7 +1150,6 @@ function initApp () {
 //LIVE EVENTS
 //===================
 amountInput.addEventListener('input', function () {
-  formatInput(this);
   if (isSyncing) return;
 
   isSyncing =true;
