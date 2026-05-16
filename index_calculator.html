@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale = 1.0">
+    <title>Loan Calculator</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+    <link rel="stylesheet" href="styles_calculator.css">
+  </head>
+
+  <body>
+
+    <!--==================== HAMBURGER MENU ======================-->
+      <div class="menu-toggle">
+        <span id="menuToggle" class="hamburger">&#9776;</span></div>
+
+      <!--Sidebar Menu-->
+      <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+          <h2>Finance Tools</h2>
+          <p>Smart loan management</p>
+        </div>
+        
+
+        <div class="menu-item" id="dashboardBtn">Dashboard</div>
+
+        <div class="menu-item" id="amortizationBtn">Amortization Table</div>
+
+        <div class="menu-item" id="emiChartBtn">EMI Chart</div>
+
+        <div class="menu-item" id="exportScheduleBtn">Export Schedule</div>
+
+        <div class="menu-item" id="loanComparisonBtn">&#9878; Loan Comparison</div>
+
+        <div class="menu-item" id="savingsBtn">&#128200; Savings Calculator</div>
+
+        <div class="menu-item" id="refinanceBtn">&#128259; Refinancing</div>
+
+        <div class="menu-item" id="extraPaymentBtn">&#43; Extra Payment</div>
+
+        <div class="menu-item" id="pdfDownloadBtn">&#128462; Download PDF</div>
+
+        <!--currency icon button-->
+      <div class="currency-toggle" onclick="toggleConverter()">
+        &#128178;
+      </div>
+
+      </div>
+
+    
+    <div class="app-container">
+
+      
+
+      <!--header-->
+      <div class="header">
+        <h1>Loan Calculator</h1>
+        <p>Plan your repayments with clarity</p>
+        <!--<div class="theme-toggle" onclick="toggleTheme()">🌙</div>-->
+      </div>
+
+      
+
+      <!--==================== AMORTIZATION TABLE =====================-->
+      <div id="amortizationSection" style="display: none;">
+
+        <!--AMORTIZATION TABLE-->
+          <div class="table-container">
+          <h3 class="breakdown-title">Payment Breakdown</h3>
+
+          <div class="table-scroll">
+          <table id="breakdownTable">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Payment</th>
+                <th>Interest</th>
+                <th>Principal</th>
+                <th>Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- JS will insert rows here -->
+            </tbody>
+          </table>
+          </div>
+          
+          </div>
+
+      </div>
+
+<!--=====================EMI CHART SECTION====================-->
+      <div id="emiChartSection" style="display: none;">
+        <div class="table-container">
+          <h3 class="breakdown-title">Equated Monthly Installment (EMI) Chart</h3>
+          <div id="emiSimpleMsg" class="result-box" style="display: block;">
+            <p style="color:aqua; font-size:14px; text-align:center;">EMI chart is only available for Compound Interest loans.</p>
+          </div>
+          <canvas id="emiChart"></canvas>
+        </div>
+      </div>
+
+<!--==================EXPORT SCHEDULE SECTION================-->
+      <div id="paymentScheduleSection" style="display: none;">
+        <div class="table-container">
+          <h3 class="breakdown-title">Export Schedule</h3>
+
+          <div class="result-box" style="margin-bottom: 15px;">
+            <p style="font-size: 14px; color: rgba(255, 255, 255, 0.7); font-weight: 400px;">Download your full amortization schedule as a CSV file, ready to open in Excel or Google Sheets.</p>
+          </div>
+
+          <div id="exportMsg" class="result-box" style="display: none;">
+            <p style="color: aqua; font-size: 14px; text-align:center;">Export is only available for Compound Interest loans.</p>
+          </div>
+
+          <button id="downloadCsvBtn" class="btn" style="display: none;">&#8595; Download CSV</button>
+        </div>
+      </div>
+
+
+<!--===================LOAN COMPARISON SECTION================-->
+      <div id="loanComparisonSection" style="display: none;">
+        <div class="table-container">
+          <h3 class="breakdown-title">Loan Comparison</h3>
+
+          <div class="result-box" style="margin-bottom: 15px;">
+            <p style="font-size: 14px; color:rgba(255, 255, 255, 0.7); font-weight: 400;">
+              Compare your current loan against an alternative. Loan A is pulled from your dashboard.
+            </p>
+          </div>
+
+          <div id="comparisonInputError" class="result-box" style="display: none; margin-bottom: 10px;">
+            <p style="color: tomato; font-size: 14px; text-align: center;">Please fill in all fields on the Dashboard first.</p>
+          </div>
+          <div class="input-group">
+            <label>Loan B &mdash; Amount</label>
+            <input type="number" id="compAmount" placeholder="Enter Amount" step="10">
+            <small class="error-message" id="compAmountError"></small>
+          </div>
+
+          <div class="input-group">
+            <label>Loan B &mdash; Interest Rate (%)</label>
+            <input type="number" id="compRate" placeholder="Enter Rate p.a" step="0.1">
+            <small class="error-message" id="compRateError"></small>
+          </div>
+
+          <div class="input-group">
+            <label>Loan B &mdash; Duration (Months)</label>
+            <input type="number" id="compTime" placeholder="Enter Duration" step="1">
+            <small class="error-message" id="compTimeError"></small>
+          </div>
+
+          <div class="input-group">
+            <label>Loan B &mdash; Interest Type</label>
+            <select id="compInterestType">
+              <option value="compound">Compound Interest</option>
+              <option value="simple">Simple Interest</option>
+            </select>
+          </div>
+
+          <button id="runComparisonBtn" class="btn">Compare Loans</button>
+
+          <!--Results table-->
+          <div id="comparisonResults" style="display: none; margin-top: 20px;">
+            <div style="overflow-x: auto;">
+            <table id="comparisonTable">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Loan A (Dashboard)</th>
+                  <th>Loan B (Alternative)</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <!--for js-->
+              </tbody>
+            </table>
+            </div>
+            <div id="comparisonVerdict" class="result-box" style="margin-top: 15px;"></div>
+          </div>
+          
+        </div>
+      </div>
+
+
+<!--=====================SAVINGS CALCULATOR==================-->
+      <div id="savingsSection" style="display: none;">
+        <div class="table-container">
+          <h3 class="breakdown-title">Savings Calculator</h3>
+
+          <div class="result-box" style="margin-bottom: 15px;">
+            <p style="font-size: 14px; color: rgba(255, 255, 255, 0.7); font-weight: 400;">
+              See how your monthly savings grow over time with compound interest.
+            </p>
+          </div>
+
+          <div class="input-group">
+            <label>Monthly Deposit</label>
+            <input type="number" id="savingsAmount" placeholder="Enter monthly deposit" step="10">
+            <small class="error-message" id="savingsAmountError"></small>
+          </div>
+
+          <div class="input-group">
+            <label>Annual Interest Rate (%)</label>
+            <input type="number" id="savingsRate" placeholder="Enter interest rate p.a." step="0.1">
+            <small class="error-message" id="savingsRateError"></small>
+          </div>
+
+          <div class="input-group">
+            <label>Duration (Months)</label>
+            <input type="number" id="savingsTime" placeholder="Enter duration" step="1">
+            <small class="error-message" id="savingsTimeError"></small>
+          </div>
+
+          <button id="calculateSavingsBtn" class="btn">Calculate Savings</button>
+
+        <!-- Results — hidden until calculated -->
+          <div id="savingsResults" style="display: none;">
+
+            <div class="results">
+              <div class="result-box">
+                <h3>Total Deposited</h3>
+                <p id="savingsPrincipal">0</p>
+              </div>
+
+              <div class="result-box">
+                <h3>Interest Earned</h3>
+                <p id="savingsInterest">0</p>
+              </div>
+
+              <div class="result-box">
+                <h3>Final Balance</h3>
+                <p id="savingsFinal">0</p>
+              </div>
+            </div>
+
+            <!-- Year by year growth table -->
+            <div class="table-scroll" style="margin-top: 20px;">
+              <table id="savingsTable">
+                <thead>
+                  <tr>
+                    <th>Year</th>
+                    <th>Deposited</th>
+                    <th>Interest</th>
+                    <th>Balance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- JS fills this -->
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+
+      <!--==================REFINANCING SECTION================-->
+      <div id="refinanceSection" style="display: none;">
+        <div class="table-container">
+          <h3 class="breakdown-title">Refinancing Calculator</h3>
+
+          <div class="result-box" style="margin-bottom: 15px;">
+            <p style="font-size: 14px; color: rgba(255,255,255,0.7); font-weight: 400;">
+              Compare your current loan against a refinanced option and see your real savings.
+            </p>
+          </div>
+
+          <!-- Current Loan -->
+          <p style="color: rgba(255,255,255,0.5); font-size: 12px; margin-bottom: 10px; letter-spacing: 0.5px;">CURRENT LOAN</p>
+
+          <div class="input-group">
+            <label>Remaining Balance</label>
+            <input type="number" id="refiBalance" placeholder="Outstanding loan balance" step="100">
+            <small class="error-message" id="refiBalanceError"></small>
+          </div>
+
+          <div class="input-group">
+            <label>Current Interest Rate (%)</label>
+            <input type="number" id="refiCurrentRate" placeholder="Your current rate p.a." step="0.1">
+            <small class="error-message" id="refiCurrentRateError"></small>
+          </div>
+
+          <div class="input-group">
+            <label>Remaining Months</label>
+            <input type="number" id="refiCurrentMonths" placeholder="Months left on current loan" step="1">
+            <small class="error-message" id="refiCurrentMonthsError"></small>
+          </div>
+
+          <!-- New Loan -->
+          <p style="color: rgba(255,255,255,0.5); font-size: 12px; margin-bottom: 10px; margin-top: 10px; letter-spacing: 0.5px;">NEW LOAN</p>
+
+          <div class="input-group">
+            <label>New Interest Rate (%)</label>
+            <input type="number" id="refiNewRate" placeholder="Proposed new rate p.a." step="0.1">
+            <small class="error-message" id="refiNewRateError"></small>
+          </div>
+
+          <div class="input-group">
+            <label>New Loan Term (Months)</label>
+            <input type="number" id="refiNewMonths" placeholder="New loan duration" step="1">
+            <small class="error-message" id="refiNewMonthsError"></small>
+          </div>
+
+          <div class="input-group">
+            <label>Refinancing Fee (optional)</label>
+            <input type="number" id="refiFee" placeholder="Enter fee or leave 0" step="100">
+          </div>
+
+          <button id="calculateRefiBtn" class="btn">Calculate Savings</button>
+
+          <!-- Results -->
+          <div id="refiResults" style="display: none;">
+
+            <div class="results">
+              <div class="result-box">
+                <h3>Current Monthly Payment</h3>
+                <p id="refiOldPayment">0</p>
+              </div>
+              <div class="result-box">
+                <h3>New Monthly Payment</h3>
+                <p id="refiNewPayment">0</p>
+              </div>
+              <div class="result-box">
+                <h3>Monthly Savings</h3>
+                <p id="refiMonthlySaving">0</p>
+              </div>
+              <div class="result-box">
+                <h3>Interest Savings (after fee)</h3>
+                <p id="refiTotalSaving">0</p>
+              </div>
+            </div>
+
+            <div id="refiVerdict" class="result-box" style="margin-top: 15px;"></div>
+
+          </div>
+
+        </div>
+      </div>
+
+
+
+      <!--==================EXTRA PAYMENT SECTION================-->
+      <div id="extraPaymentSection" style="display: none;">
+        <div class="table-container">
+          <h3 class="breakdown-title">Extra Payment Simulation</h3>
+
+          <div class="result-box" style="margin-bottom: 15px;">
+            <p style="font-size: 14px; color: rgba(255,255,255,0.7); font-weight: 400;">
+              See how paying extra each month reduces your loan term and total interest. Loan details are pulled from your dashboard.
+            </p>
+          </div>
+
+          <div id="extraPaymentDashboardError" class="result-box" style="display: none; margin-bottom: 10px;">
+            <p style="color: tomato; font-size: 14px; text-align: center;">Please fill in your loan details on the Dashboard first.</p>
+          </div>
+
+          <div class="input-group">
+            <label>Extra Monthly Payment</label>
+            <input type="number" id="extraAmount" placeholder="Enter extra amount per month" step="10">
+            <small class="error-message" id="extraAmountError"></small>
+          </div>
+
+          <button id="calculateExtraBtn" class="btn">Simulate</button>
+
+          <!-- Results -->
+        <div id="extraResultsBoxes">
+          <div class="results">
+            <div class="result-box">
+              <h3>Original Term</h3>
+              <p id="extraOriginalTerm">0</p>
+            </div>
+            <div class="result-box">
+              <h3>New Term</h3>
+              <p id="extraNewTerm">0</p>
+            </div>
+            <div class="result-box">
+              <h3>Months Saved</h3>
+              <p id="extraMonthsSaved">0</p>
+            </div>
+            <div class="result-box">
+              <h3>Interest Saved</h3>
+              <p id="extraInterestSaved">0</p>
+            </div>
+          </div>
+        </div>
+
+            <div id="extraVerdict" class="result-box" style="margin-top: 15px;"></div>
+
+            <!-- Year by year comparison table -->
+            <button id="toggleExtraTableBtn" class="btn" style="margin-top: 15px; background: rgba(0,120,255,0.3); border: 1px solid rgba(0,120,255,0.6);">
+            &#9660; Show Balance Comparison
+            </button>
+
+            <div id="extraTableWrapper" style="display: none;">
+              <div class="table-scroll" style="margin-top: 10px;">
+                <div style="overflow-x: auto;">
+                <table id="extraPaymentTable">
+                  <thead>
+                    <tr>
+                      <th>Year</th>
+                      <th>Balance (Normal)</th>
+                      <th>Balance (Extra)</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+
+
+
+
+
+<!--=======================DASHBOARD SECTION========================-->
+
+      <!--calculator card-->
+      <div id="dashboardSection">
+        <div class="calculator-card">
+
+
+          <!--input group-->
+          <div class="input-group">
+            <label>Loan Amount </label>
+            <input type="number" id="amount" placeholder="Enter Amount" step="10">
+            <small class="error-message" id="amountError"></small>
+          </div>
+
+          <div class="input-group">
+            <label>Currency</label>
+            
+            <input type="text" id="currencySearch" placeholder="Search currency...">
+          
+            
+            <select id="currency">
+              <option value="USD">USD</option>
+              <option value="KES">KES</option>
+              <option value="EUR">EUR</option>
+              <option value="GBP">GBP</option>
+              <option value="INR">INR</option>
+              <option value="JPY">JPY</option>
+            </select>
+          </div>
+            
+
+          <div class="input-group">
+            <label>Interest Rate (%)</label>
+            <input type="number" id="rate" placeholder="Enter Interest Rate p.a" step="10">
+            <small class="error-message" id="rateError"></small>
+          </div>
+
+          <div class="input-group">
+            <label>Loan Duration (Months)</label>
+            <input type="number" id="time" placeholder="Enter Duration" step="10">
+            <small class="error-message" id="timeError"></small>
+          </div>
+
+          <!--Flex for compund or simple interest-->
+          <div class="input-group">
+            <label for="interestType">Interest Type</label>
+            <select id="interestType">
+              <option value="compound">Compound Interest</option>
+              <option value="simple">Simple Interest</option>
+            </select>
+          </div>
+
+          
+
+          <!--results-->
+          <div class="results">
+
+            <div class="result-box">
+              <h3>Monthly Payment</h3>
+              <p id="monthly">0</p>
+            </div>
+
+            <div class="result-box">
+              <h3>Total Interest</h3>
+              <p id="interest">0</p>
+            </div>
+
+            <div class="result-box">
+              <h3>Total Payment</h3>
+              <p id="total">0</p>
+            </div>
+
+          </div>
+
+
+        </div>
+      </div>
+
+      
+
+    </div>
+    <!--currency converter panel-->
+    <div class="overlay" id="overlay" onclick="toggleConverter()"></div>
+        <div class="converter-panel" id="converterPanel">
+          <h3>Currency Converter</h3>
+
+          <div class="input-group">
+            <label>Amount</label>
+            <input type="number" id="convertAmount" placeholder="Enter amount">
+          </div>
+      <!--======================================
+        Currency selection in converter panel
+      =======================================-->
+          <input type="text" id="fromSearch" placeholder="Search currency...">
+
+          <div class="input-group">
+            <label>From</label>
+            <select id="fromCurrency"></select>
+          </div>
+
+          <input type="text" id="toSearch" placeholder="Search currency...">
+        
+          <div class="input-group">
+            <label>To</label>
+            <select id="toCurrency"></select>
+          </div>
+
+          <div class="result-box">
+            <h3>Result</h3>
+            <p id="convertResult">0</p>
+          </div>
+        </div>
+
+  </body>
+  <script src="script_calculator.js"></script>
+</html>

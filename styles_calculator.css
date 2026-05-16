@@ -1,0 +1,685 @@
+/*1. RESET*/
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+
+/*2. BACKGROUND*/
+body {
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  min-height: 100vh;
+  display: block;
+
+  background: linear-gradient(135deg, rgb(10, 12, 20), rgb(20, 25, 40));
+
+  user-select: none;
+
+}
+
+
+.app-container {
+  width: 100%;
+  max-width: 420px;
+  padding: 20px;
+  position: relative;
+  margin: 90px auto 20px auto;
+}
+
+.header {
+  text-align: center;
+  color: white;
+  margin-bottom: 20px;
+}
+.header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.header p {
+  font-size: 14px;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+
+.calculator-card {
+  max-height: 100vh;
+  overflow: visible;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(10, 10, 10, 0.4);
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+.input-group label {
+  display: block;
+  color: white;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: rgb(25, 30, 60);
+  color: white;
+  outline: none;
+}
+.input-group input:focus {
+  border: 1px solid rgb(0, 155, 255);
+}
+
+.btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  background: rgb(0, 120, 255);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.3s;
+}
+.btn:hover {
+  background: rgb(0, 150, 255);
+  transform: translateY(-2px);
+}
+
+.results {
+  margin-top: 20px;
+}
+.result-box {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 12px;
+  border-radius: 10px;
+  margin-top: 10px;
+  color: white;
+}
+.result-box p {
+  font-size: 18px;
+  font-weight: bold;
+  color: rgb(0, 200, 80);
+}
+
+.input-group select {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: rgb(25, 30, 60);
+  color: white;
+  outline: none;
+}
+.input-group select:focus {
+  border: 1px solid rgb(0, 155, 255);
+}
+
+  /*=====Currency Converter======*/
+  /*CURRENCY TOGGLE ICON*/
+  .currency-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgb(0, 120, 255);
+    color: white;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transition: 0.3s;
+  }
+  .currency-toggle:hover {
+    background: rgb(0, 150, 255);
+    transform: scale(1.1);
+  }
+
+  .converter-panel {
+    position: fixed;
+    top: 0;
+    right: -300px; /*hidden by default*/
+    width: 300px;
+    height: 100%;
+    background: linear-gradient(180deg, rgb(15, 23, 42), rgb(10, 15, 28));
+
+    box-shadow: 8px 0 40px rgba(0, 0, 0, 0.45);
+
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+
+    z-index: 1001;
+    overflow-y: auto;
+  }
+
+  .converter-panel.active {
+    right: 0;
+    transform: translateX(0);
+  }
+
+  input {
+    outline: none;
+    border: 1px solid transparent;
+  }
+
+ 
+  .converter-panel h3 {
+    color: white;
+    margin-bottom: 10px;
+    font-size: 16px;
+  }
+
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background: rgba(0, 0, 0, 0.5);
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition: 0.3s;
+
+    z-index: 1000;
+  }
+
+  .overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  input[type = 'text'] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    border: none;
+    background: rgb(250, 250, 250);
+    color: black;
+  }
+
+
+  /* ===== AMORTIZATION TABLE ===== */
+
+.breakdown-title {
+  color: rgb(16, 255, 20);
+  font-weight: 500;
+  margin-top: 20px;
+  font-size: 25px;
+}
+
+#breakdownTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 20px;
+  color: white;
+}
+
+#emiChartSection.table-container {
+  min-height: 400px;
+}
+
+#emiChartSection canvas {
+  min-height: 300px;
+}
+
+#breakdownTable th,
+#breakdownTable td {
+  padding: 6px;
+  text-align: center;
+}
+
+#breakdownTable th {
+  background: rgba(255, 255, 255, 0.1);
+  font-weight: 500;
+}
+
+#breakdownTable tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ===== TABLE CONTAINER ===== */
+.table-container {
+  margin-top: 20px;
+  padding: 15px;
+
+  background: rgba(0, 0, 255, 0.09);
+  border-radius: 10px;
+
+  max-height: 95vh; /* controls total visible area */
+  overflow: visible;
+}
+
+/* ===== SCROLL AREA ===== */
+.table-scroll {
+  max-height: 50vh;
+  overflow-y: auto;
+
+  margin-top: 10px;
+}
+
+/* ===== SCROLLBAR (optional nice look) ===== */
+.table-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.table-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+}
+
+/* ===== TABLE STYLING ===== */
+#breakdownTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 20px;
+  color: white;
+}
+
+#breakdownTable th,
+#breakdownTable td {
+  padding: 6px;
+  text-align: center;
+}
+
+#breakdownTable td  {
+  font-size: 20px;
+  font-weight: 500;
+  color: aqua;
+}
+
+#breakdownTable th {
+  background: rgb(20, 20, 50);
+  position: sticky;
+  top: 0;
+  color: white;
+  z-index: 2;
+}
+
+#breakdownTable tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+#interestType {
+  font-weight: 300;
+  font-size: 16px;
+}
+
+.error-message {
+  color: red;
+  font-size: 12px;
+  opacity: 0;
+  height: 0;
+  transition: opacity 0.3s ease;
+}
+
+.input-error {
+  border: 1px solid rgba(255, 80, 80, 0.6) !important;
+}
+
+.input-error:focus {
+  border: 1px solid rgba(255, 80, 80, 0.9) !important;
+}
+
+@media(max-width: 600px) {
+  .calculator-card {
+    width: 95%;
+    padding: 10px;
+  }
+
+  #breakdownTable {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 14px;
+    margin-top: 85px;
+  }
+
+  .container {
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  h2, h3 {
+    font-size: 18px;
+  }
+
+  input, select {
+    font-size: 16px;
+    padding: 10px;
+  }
+}
+
+/*===================== HAMBURGER STYLINGS =====================*/
+/*==========================
+HAMBURGER BUTTON
+===========================*/
+.menu-toggle {
+  width: 100%;
+  height: 70px;
+  position: fixed;
+  top: 0;
+  z-index: 999;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+
+
+  padding: 16px 20px;
+
+  background: rgba(15, 23, 42, 0.92);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+
+  margin-bottom: 24px;
+}
+
+.hamburger {
+  width: 46px;
+  height: 23px;
+
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: rgb(5, 118, 163);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+  left: 50px;
+}
+
+.hamburger:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: scale(1.03);
+}
+
+/*================================
+SIDEBAR
+================================*/
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -300px; /*hidden by default*/
+  width: 300px;
+  height: 100%;
+  background: linear-gradient(180deg, rgb(15, 23, 42), rgb(10, 15, 28));
+
+  box-shadow: 8px 0 40px rgba(0, 0, 0, 0.45);
+
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  overflow-y: auto;
+
+  padding-top: 30px;
+  transition: left 0.35s ease;
+  z-index: 2000;
+}
+
+/*ACTIVE STATE*/
+.sidebar.active {
+  left: 0;
+}
+
+/*==============================
+MENU ITEMS
+==============================*/
+.menu-item {
+  width: 90%;
+
+  margin: 10px auto;
+  padding: 16px 18px;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: rgba(255, 255, 255, 0.04);
+
+  color: white;
+  font-size: 15px;
+  font-weight: 500;
+
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.menu-item:hover {
+  background: rgba(59, 130, 246, 0.18);
+
+  transform: translateX(4px);
+  border-radius: 8px;
+
+  box-shadow: 0 4px 18px rgba(59, 130, 246, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.menu-item:active {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.sidebar-header {
+  padding: 0 22px 20px;
+}
+
+.sidebar-header h2{
+  color: white;
+  margin: 0;
+  font-size: 22px;
+}
+
+.sidebar-header p{
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+/*SPACING IN DASHBOARD AND AMORTIZATION TABLE SECTIONS*/
+#dashboardSection, #amortizationSection {
+  padding: 20px;
+}
+
+
+/*===========LOAN COMPARISON TABLE============*/
+#comparisonTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  color: white;
+  font-size: 14px;
+  table-layout: fixed;
+  word-break: break-word;
+}
+
+#comparisonTable th {
+  background: rgb(20, 20, 50);
+  padding: 10px 8px;
+  text-align: center;
+  color: white;
+  font-weight: 600;
+}
+
+#comparisonTable td {
+  padding: 10px 8px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+#comparisonTable td:first-child {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  text-align: left;
+}
+
+/*Winner cell - green */
+#comparisonTable td.comp-winner {
+  color: rgb(0, 200, 80);
+  font-weight: bold;
+}
+
+/*Loser cell - muted red */
+#comparisonTable td.comp-loser {
+  color: rgb(255, 90, 90);
+}
+
+/*Tie cell */
+#comparisonTable td.comp-tie {
+  color: aqua;
+}
+
+#comparisonTable tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+
+/* ===== SAVINGS TABLE ===== */
+#savingsTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  color: white;
+  table-layout: fixed;
+  word-break: break-word;
+}
+
+#savingsTable th {
+  background: rgb(20, 20, 50);
+  padding: 8px 6px;
+  text-align: center;
+  color: white;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+#savingsTable td {
+  padding: 8px 6px;
+  text-align: center;
+  color: aqua;
+  font-size: 13px;
+}
+
+#savingsTable tr:nth-child(even) {
+  background: rgba(255,255,255,0.04);
+}
+
+
+/* ===== REFINANCING ===== */
+.refi-positive {
+  color: rgb(0, 200, 80) !important;
+}
+
+.refi-negative {
+  color: rgb(255, 90, 90) !important;
+}
+
+
+/* ===== EXTRA PAYMENT TABLE ===== */
+#extraPaymentTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  color: white;
+  table-layout: fixed;
+  word-break: break-word;
+}
+
+#extraPaymentTable th {
+  background: rgb(20, 20, 50);
+  padding: 8px 6px;
+  text-align: center;
+  color: white;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+#extraPaymentTable td {
+  padding: 8px 6px;
+  text-align: center;
+  font-size: 13px;
+}
+
+#extraPaymentTable td:first-child {
+  color: rgba(255,255,255,0.6);
+}
+
+#extraPaymentTable td.extra-normal {
+  color: aqua;
+}
+
+#extraPaymentTable td.extra-faster {
+  color: rgb(0, 200, 80);
+}
+
+#extraPaymentTable tr:nth-child(even) {
+  background: rgba(255,255,255,0.04);
+}
+
+
+
+
+
+/* ===== DESKTOP LAYOUT ===== */
+@media (min-width: 768px) {
+  .app-container {
+    max-width: 640px;
+  }
+
+  .calculator-card {
+    padding: 30px;
+  }
+
+  #dashboardSection,
+  #amortizationSection,
+  #savingsSection,
+  #refinanceSection,
+  #loanComparisonSection,
+  #extraPaymentSection,
+  #emiChartSection,
+  #paymentScheduleSection {
+    padding: 10px 0;
+  }
+}
+/*==============================================================*/
+
+
+
