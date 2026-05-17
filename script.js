@@ -1,10 +1,12 @@
-
-  //===========================================
+//===========================================
 //APP STATE MODULE
 //===========================================
 let isSyncing = false;
 let selectedCurrencyCode = "USD";
 let exchangeRates = {};
+const animationFrames = {};
+
+const POPULAR_CURRENCIES = ['USD', 'EUR', 'KES', 'GBP', 'INR', 'JPY', 'AUD', 'CAD', 'AED', 'ZAR', 'NGN', 'KWD'];
 
 
 
@@ -91,7 +93,13 @@ const debouncedCalculate = debounce (function () {
 //ANIMATION FUNCTION
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 function animateValue (element, start, end, duration, currency = ' ') {
-  
+  const key = element.id;
+
+  // Cancel any animation already running on this element
+  if (animationFrames[key]) {
+    cancelAnimationFrame(animationFrames[key]);
+  }
+
   let startTime = null;
 
   function animation (currentTime) {
@@ -103,11 +111,13 @@ function animateValue (element, start, end, duration, currency = ' ') {
     element.innerText = formatNumber(value, currency);
 
     if (progress < 1) {
-      requestAnimationFrame(animation);
+      animationFrames[key] = requestAnimationFrame(animation);
+    } else {
+      delete animationFrames[key]; // clean up once done
     }
   }
 
-  requestAnimationFrame(animation);
+  animationFrames[key] = requestAnimationFrame(animation);
 }
 
 
@@ -397,21 +407,28 @@ const currencyFlags = {
 
 async function getRates() {
   try {
-    const response = await
-    fetch('https://open.er-api.com/v6/latest/USD');
+    const response = await fetch('https://open.er-api.com/v6/latest/USD');
+
+    // Guard 1: HTTP-level failure (429 rate limit, 500 server error, etc.)
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
     const data = await response.json();
+
+    // Guard 2: API returned 200 but payload is wrong or rates missing
+    if (!data.rates || typeof data.rates !== 'object') {
+      throw new Error('Invalid API payload');
+    }
+
     exchangeRates = data.rates;
     console.log('Online mode 😎 \nRates Loaded');
-    populateCurrencies(); //added upgrade
-    populateConverterCurrencies(); //added upgrade
-  } catch (error) {
-    console.log('Offline mode 👾👾😁 \nNo rates loaded');
-    
-    //alert("You're offline. Using limited currency data.")
-    exchangeRates = fallbackRates;
+    populateCurrencies();
+    populateConverterCurrencies();
 
-    populateCurrencies(); //added upgrade
-    populateConverterCurrencies(); //added uprade
+  } catch (error) {
+    console.warn('Rates unavailable — using fallback:', error.message);
+    exchangeRates = fallbackRates;
+    populateCurrencies();
+    populateConverterCurrencies();
   }
 }
 
@@ -500,35 +517,37 @@ document.getElementById("searchCurrency").addEventListener("input", function () 
     ZAR: 'R'
   }
 */
-function filterCurrencies (searchInputId, selectId) {
-  const searchValue = document.getElementById(searchInputId).value.toLowerCase();
-  const select = document.getElementById(selectId);
-  
+
+
+function filterCurrencies(searchInputId, selectId) {
+  const searchValue = document.getElementById(searchInputId).value.toLowerCase().trim();
+  const select      = document.getElementById(selectId);
   const currentValue = select.value;
 
-  select.innerHTML = '';
 
+  let firstVisible = null;
 
-  for (let code in exchangeRates) {
-    const name = currencyNames[code] || code;
+  Array.from(select.options).forEach(opt => {
+    const text = opt.textContent.toLowerCase();
+    const match = text.includes(searchValue);
 
-    const fullText = `${code} - ${name}`.toLowerCase();
+    opt.hidden   = !match;
+    opt.disabled = !match;
 
-    if (fullText.includes(searchValue)) {
-      const option = document.createElement('option');
-      option.value = code;
-      option.textContent = `${code} - ${name}`;
+    if (match && !firstVisible) firstVisible = opt.value;
+  });
 
-      select.appendChild(option);
-    }
-  }
+  // Restore previous selection if it's still visible, else pick first visible
+  const stillVisible = [...select.options].some(
+    opt => opt.value === currentValue && !opt.hidden
+  );
 
-  if ([...select.options].some(opt => opt.value === currentValue)) {
-    select.value = currentValue;
+  select.value = stillVisible ? currentValue : (firstVisible || '');
 
-    debouncedCalculate();
-  }
+  debouncedCalculate();
 }
+
+
 //======================================
 //CONVERTER CURRENCY
 //======================================
@@ -549,42 +568,46 @@ function toggleConverter () {
 }
 
 //CONNECT DROPDOWNS TO API
-function populateConverterCurrencies () {
-    console.log('Exchange Rates:', exchangeRates);
+function populateConverterCurrencies() {
   const from = document.getElementById('fromCurrency');
-  const to = document.getElementById('toCurrency');
-  
+  const to   = document.getElementById('toCurrency');
 
-  //stop if element is not found
-  if (!from || !to) {
-    console.log('Converter elements not found');
-    return;
+  if (!from || !to) { console.warn('Converter elements not found'); return; }
+
+  // Build grouped options for a given <select>
+  function buildGrouped(selectEl) {
+    selectEl.innerHTML = '';
+
+    const popularGroup = document.createElement('optgroup');
+    popularGroup.label = '⭐ Popular';
+
+    const allGroup = document.createElement('optgroup');
+    allGroup.label = 'All Currencies';
+
+    for (let code in exchangeRates) {
+      const name = currencyNames[code] || code;
+      const opt  = document.createElement('option');
+      opt.value  = code;
+      opt.textContent = `${code} - ${name}`;
+
+      if (POPULAR_CURRENCIES.includes(code)) {
+        popularGroup.appendChild(opt);
+      } else {
+        allGroup.appendChild(opt);
+      }
+    }
+
+    selectEl.appendChild(popularGroup);
+    selectEl.appendChild(allGroup);
   }
-  
 
-  from.innerHTML = '';
-  to.innerHTML = '';
-
-  for (let code in exchangeRates) {
-    let name = currencyNames[code] || code;
-
-    let option1 = document.createElement('option');
-    option1.value = code;
-    option1.textContent = code + '-' + name;
-
-    let option2 = document.createElement('option');
-    option2.value = code;
-    option2.textContent = code + '-' + name;
-
-    from.appendChild(option1);
-    to.appendChild(option2);
-  }
+  buildGrouped(from);
+  buildGrouped(to);
 
   from.value = currencySelect.value;
-  to.value = currencySelect.value;
-
-
+  to.value   = currencySelect.value;
 }
+
 
 //CONVERSION LOGIC
 function convertCurrency () {
@@ -617,17 +640,28 @@ function convertCurrency () {
 function populateCurrencies() {
   currencySelect.innerHTML = '';
 
+  const popularGroup = document.createElement('optgroup');
+  popularGroup.label = '⭐ Popular';
+
+  const allGroup = document.createElement('optgroup');
+  allGroup.label = 'All Currencies';
+
   for (let code in exchangeRates) {
-    let option = document.createElement('option');
+    const name = currencyNames[code] || code;
+    const option = document.createElement('option');
     option.value = code;
-    let name = currencyNames[code] || code;
-    option.textContent = code + ' - ' + name;
-    currencySelect.appendChild(option);
+    option.textContent = `${code} - ${name}`;
+
+    if (POPULAR_CURRENCIES.includes(code)) {
+      popularGroup.appendChild(option);
+    } else {
+      allGroup.appendChild(option);
+    }
   }
 
-  currencySelect.value = 'USD'; //default
-
-  // somewhere to be put....option.textContent = code + 'Currency';
+  currencySelect.appendChild(popularGroup);
+  currencySelect.appendChild(allGroup);
+  currencySelect.value = 'USD';
 }
 
 
@@ -912,7 +946,8 @@ const menuToggle = document.getElementById('menuToggle');
 const sidebar = document.getElementById('sidebar');
 
 menuToggle.addEventListener('click', function () {
-  sidebar.classList.toggle('active');
+  const isOpen = sidebar.classList.toggle('active');
+  menuToggle.setAttribute('aria-expanded', isOpen);
 });
 
 
@@ -1919,7 +1954,7 @@ function generatePDF () {
 
   doc.setTextColor(180, 180, 180);
   doc.setFontSize(10);
-  doc.setFont('helvitica', 'normal');
+  doc.setFont('helvetica', 'normal'); // Bug 4 fixed: was 'helvitica'
   doc.text(`Generated: ${new Date().toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'})}`, 14, 28);
   doc.text(`Currency: ${loanData.currency} | Interest Type: ${loanData.interestType}`, 14, 35);
 
@@ -1940,7 +1975,7 @@ function generatePDF () {
     ['Loan Interest', `${loanData.rate}% p.a.`],
     ['Loan Duration', `${loanData.months} months`],
     ['Monthly Payment', formatNumber(loanResult.monthly, loanData.currency)],
-    ['Toal Interest', formatNumber(loanResult.interest, loanData.currency)],
+    ['Total Interest', formatNumber(loanResult.interest, loanData.currency)], // Bug 5 fixed: was 'Toal Interest'
     ['Total Payment', formatNumber(loanResult.total, loanData.currency)],
   ];
 
@@ -2006,14 +2041,20 @@ pdfDownloadBtn.addEventListener('click', function () {
 
   const exportMsg = document.getElementById('exportMsg');
 
-  if (!validation.isValid || loanData.interestType === 'simple') {
+  // Bug 1 fixed: 'downloaCsvBtn' → 'downloadCsvBtn'
+  // Bug 2 fixed: simple interest now returns early instead of falling through to generatePDF()
+  if (!validation.isValid) {
+    showSection('paymentScheduleSection');
+    exportMsg.style.display = 'block';
+    document.getElementById('downloadCsvBtn').style.display = 'none';
+    return;
+  }
 
-    if (!validation.isValid) {
-      showSection('paymentScheduleSection');
-      exportMsg.style.display = 'block';
-      document.getElementById('downloaCsvBtn').style.display = 'none';
-      return;
-    }
+  if (loanData.interestType === 'simple') {
+    showSection('paymentScheduleSection');
+    exportMsg.style.display = 'block';
+    document.getElementById('downloadCsvBtn').style.display = 'none';
+    return;
   }
 
   generatePDF();
@@ -2065,14 +2106,20 @@ amortizationBtn.addEventListener('click', function () {
 //LOAD SAVED INPUTS
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>
 function loadSavedInputs () {
+  // Parse and validate — only load if the stored value is a finite positive number
+  const sanitize = (key) => {
+    const raw = localStorage.getItem(key);
+    const parsed = parseFloat(raw);
+    return isFinite(parsed) && parsed > 0 ? parsed : null;
+  };
 
-  const loanAmount = localStorage.getItem('amount');
-  const interestRate = localStorage.getItem('rate');
-  const loanTerm = localStorage.getItem('time');
+  const loanAmount  = sanitize('amount');
+  const interestRate = sanitize('rate');
+  const loanTerm    = sanitize('time');
 
-  if (loanAmount) amountInput.value = loanAmount;
-  if (interestRate) rateInput.value = interestRate;
-  if (loanTerm) timeInput.value = loanTerm;
+  if (loanAmount)   amountInput.value  = loanAmount;
+  if (interestRate) rateInput.value    = interestRate;
+  if (loanTerm)     timeInput.value    = loanTerm;
 }
 
 

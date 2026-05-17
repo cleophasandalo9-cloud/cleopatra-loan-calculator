@@ -18,7 +18,8 @@
 
     <!--==================== HAMBURGER MENU ======================-->
       <div class="menu-toggle">
-        <span id="menuToggle" class="hamburger">&#9776;</span></div>
+        <button id="menuToggle" class="hamburger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="sidebar">&#9776;</button>
+      </div>
 
       <!--Sidebar Menu-->
       <div id="sidebar" class="sidebar">
@@ -47,9 +48,9 @@
         <div class="menu-item" id="pdfDownloadBtn">&#128462; Download PDF</div>
 
         <!--currency icon button-->
-      <div class="currency-toggle" onclick="toggleConverter()">
-        &#128178;
-      </div>
+        <button class="currency-toggle" onclick="toggleConverter()" aria-label="Open currency converter" aria-expanded="false" aria-controls="converterPanel">
+          &#128178;
+        </button>
 
       </div>
 
@@ -102,7 +103,7 @@
           <div id="emiSimpleMsg" class="result-box" style="display: block;">
             <p style="color:aqua; font-size:14px; text-align:center;">EMI chart is only available for Compound Interest loans.</p>
           </div>
-          <canvas id="emiChart"></canvas>
+          <canvas id="emiChart" role="img" aria-label="EMI chart showing principal vs interest payment breakdown per month"></canvas>
         </div>
       </div>
 
@@ -139,25 +140,25 @@
             <p style="color: tomato; font-size: 14px; text-align: center;">Please fill in all fields on the Dashboard first.</p>
           </div>
           <div class="input-group">
-            <label>Loan B &mdash; Amount</label>
-            <input type="number" id="compAmount" placeholder="Enter Amount" step="10">
-            <small class="error-message" id="compAmountError"></small>
+            <label for="compAmount">Loan B &mdash; Amount</label>
+            <input type="number" id="compAmount" aria-describedby="compAmountError" placeholder="Enter Amount" step="10">
+            <small class="error-message" id="compAmountError" role="alert"></small>
           </div>
 
           <div class="input-group">
-            <label>Loan B &mdash; Interest Rate (%)</label>
-            <input type="number" id="compRate" placeholder="Enter Rate p.a" step="0.1">
-            <small class="error-message" id="compRateError"></small>
+            <label for="compRate">Loan B &mdash; Interest Rate (%)</label>
+            <input type="number" id="compRate" aria-describedby="compRateError" placeholder="Enter Rate p.a" step="0.1">
+            <small class="error-message" id="compRateError" role="alert"></small>
           </div>
 
           <div class="input-group">
-            <label>Loan B &mdash; Duration (Months)</label>
-            <input type="number" id="compTime" placeholder="Enter Duration" step="1">
-            <small class="error-message" id="compTimeError"></small>
+            <label for="compTime">Loan B &mdash; Duration (Months)</label>
+            <input type="number" id="compTime" aria-describedby="compTimeError" placeholder="Enter Duration" step="1">
+            <small class="error-message" id="compTimeError" role="alert"></small>
           </div>
 
           <div class="input-group">
-            <label>Loan B &mdash; Interest Type</label>
+            <label for="compInterestType">Loan B &mdash; Interest Type</label>
             <select id="compInterestType">
               <option value="compound">Compound Interest</option>
               <option value="simple">Simple Interest</option>
@@ -202,21 +203,21 @@
           </div>
 
           <div class="input-group">
-            <label>Monthly Deposit</label>
-            <input type="number" id="savingsAmount" placeholder="Enter monthly deposit" step="10">
-            <small class="error-message" id="savingsAmountError"></small>
+            <label for="savingsAmount">Monthly Deposit</label>
+            <input type="number" id="savingsAmount" aria-describedby="savingsAmountError" placeholder="Enter monthly deposit" step="10">
+            <small class="error-message" id="savingsAmountError" role="alert"></small>
           </div>
 
           <div class="input-group">
-            <label>Annual Interest Rate (%)</label>
-            <input type="number" id="savingsRate" placeholder="Enter interest rate p.a." step="0.1">
-            <small class="error-message" id="savingsRateError"></small>
+            <label for="savingsRate">Annual Interest Rate (%)</label>
+            <input type="number" id="savingsRate" aria-describedby="savingsRateError" placeholder="Enter interest rate p.a." step="0.1">
+            <small class="error-message" id="savingsRateError" role="alert"></small>
           </div>
 
           <div class="input-group">
-            <label>Duration (Months)</label>
-            <input type="number" id="savingsTime" placeholder="Enter duration" step="1">
-            <small class="error-message" id="savingsTimeError"></small>
+            <label for="savingsTime">Duration (Months)</label>
+            <input type="number" id="savingsTime" aria-describedby="savingsTimeError" placeholder="Enter duration" step="1">
+            <small class="error-message" id="savingsTimeError" role="alert"></small>
           </div>
 
           <button id="calculateSavingsBtn" class="btn">Calculate Savings</button>
@@ -279,40 +280,40 @@
           <p style="color: rgba(255,255,255,0.5); font-size: 12px; margin-bottom: 10px; letter-spacing: 0.5px;">CURRENT LOAN</p>
 
           <div class="input-group">
-            <label>Remaining Balance</label>
-            <input type="number" id="refiBalance" placeholder="Outstanding loan balance" step="100">
-            <small class="error-message" id="refiBalanceError"></small>
+            <label for="refiBalance">Remaining Balance</label>
+            <input type="number" id="refiBalance" aria-describedby="refiBalanceError" placeholder="Outstanding loan balance" step="100">
+            <small class="error-message" id="refiBalanceError" role="alert"></small>
           </div>
 
           <div class="input-group">
-            <label>Current Interest Rate (%)</label>
-            <input type="number" id="refiCurrentRate" placeholder="Your current rate p.a." step="0.1">
-            <small class="error-message" id="refiCurrentRateError"></small>
+            <label for="refiCurrentRate">Current Interest Rate (%)</label>
+            <input type="number" id="refiCurrentRate" aria-describedby="refiCurrentRateError" placeholder="Your current rate p.a." step="0.1">
+            <small class="error-message" id="refiCurrentRateError" role="alert"></small>
           </div>
 
           <div class="input-group">
-            <label>Remaining Months</label>
-            <input type="number" id="refiCurrentMonths" placeholder="Months left on current loan" step="1">
-            <small class="error-message" id="refiCurrentMonthsError"></small>
+            <label for="refiCurrentMonths">Remaining Months</label>
+            <input type="number" id="refiCurrentMonths" aria-describedby="refiCurrentMonthsError" placeholder="Months left on current loan" step="1">
+            <small class="error-message" id="refiCurrentMonthsError" role="alert"></small>
           </div>
 
           <!-- New Loan -->
           <p style="color: rgba(255,255,255,0.5); font-size: 12px; margin-bottom: 10px; margin-top: 10px; letter-spacing: 0.5px;">NEW LOAN</p>
 
           <div class="input-group">
-            <label>New Interest Rate (%)</label>
-            <input type="number" id="refiNewRate" placeholder="Proposed new rate p.a." step="0.1">
-            <small class="error-message" id="refiNewRateError"></small>
+            <label for="refiNewRate">New Interest Rate (%)</label>
+            <input type="number" id="refiNewRate" aria-describedby="refiNewRateError" placeholder="Proposed new rate p.a." step="0.1">
+            <small class="error-message" id="refiNewRateError" role="alert"></small>
           </div>
 
           <div class="input-group">
-            <label>New Loan Term (Months)</label>
-            <input type="number" id="refiNewMonths" placeholder="New loan duration" step="1">
-            <small class="error-message" id="refiNewMonthsError"></small>
+            <label for="refiNewMonths">New Loan Term (Months)</label>
+            <input type="number" id="refiNewMonths" aria-describedby="refiNewMonthsError" placeholder="New loan duration" step="1">
+            <small class="error-message" id="refiNewMonthsError" role="alert"></small>
           </div>
 
           <div class="input-group">
-            <label>Refinancing Fee (optional)</label>
+            <label for="refiFee">Refinancing Fee (optional)</label>
             <input type="number" id="refiFee" placeholder="Enter fee or leave 0" step="100">
           </div>
 
@@ -365,14 +366,15 @@
           </div>
 
           <div class="input-group">
-            <label>Extra Monthly Payment</label>
-            <input type="number" id="extraAmount" placeholder="Enter extra amount per month" step="10">
-            <small class="error-message" id="extraAmountError"></small>
+            <label for="extraAmount">Extra Monthly Payment</label>
+            <input type="number" id="extraAmount" aria-describedby="extraAmountError" placeholder="Enter extra amount per month" step="10">
+            <small class="error-message" id="extraAmountError" role="alert"></small>
           </div>
 
           <button id="calculateExtraBtn" class="btn">Simulate</button>
 
-          <!-- Results -->
+          <!-- Bug 3 fixed: added id="extraPaymentResults" wrapper that JS references -->
+          <div id="extraPaymentResults">
         <div id="extraResultsBoxes">
           <div class="results">
             <div class="result-box">
@@ -395,6 +397,7 @@
         </div>
 
             <div id="extraVerdict" class="result-box" style="margin-top: 15px;"></div>
+          </div><!-- end #extraPaymentResults -->
 
             <!-- Year by year comparison table -->
             <button id="toggleExtraTableBtn" class="btn" style="margin-top: 15px; background: rgba(0,120,255,0.3); border: 1px solid rgba(0,120,255,0.6);">
@@ -433,13 +436,13 @@
 
           <!--input group-->
           <div class="input-group">
-            <label>Loan Amount </label>
-            <input type="number" id="amount" placeholder="Enter Amount" step="10">
-            <small class="error-message" id="amountError"></small>
+            <label for="amount">Loan Amount </label>
+            <input type="number" id="amount" aria-describedby="amountError" placeholder="Enter Amount" step="10">
+            <small class="error-message" id="amountError" role="alert"></small>
           </div>
 
           <div class="input-group">
-            <label>Currency</label>
+            <label for="currencySearch">Currency</label>
             
             <input type="text" id="currencySearch" placeholder="Search currency...">
           
@@ -456,15 +459,15 @@
             
 
           <div class="input-group">
-            <label>Interest Rate (%)</label>
-            <input type="number" id="rate" placeholder="Enter Interest Rate p.a" step="10">
-            <small class="error-message" id="rateError"></small>
+            <label for="rate">Interest Rate (%)</label>
+            <input type="number" id="rate" aria-describedby="rateError" placeholder="Enter Interest Rate p.a" step="10">
+            <small class="error-message" id="rateError" role="alert"></small>
           </div>
 
           <div class="input-group">
-            <label>Loan Duration (Months)</label>
-            <input type="number" id="time" placeholder="Enter Duration" step="10">
-            <small class="error-message" id="timeError"></small>
+            <label for="time">Loan Duration (Months)</label>
+            <input type="number" id="time" aria-describedby="timeError" placeholder="Enter Duration" step="10">
+            <small class="error-message" id="timeError" role="alert"></small>
           </div>
 
           <!--Flex for compund or simple interest-->
@@ -511,7 +514,7 @@
           <h3>Currency Converter</h3>
 
           <div class="input-group">
-            <label>Amount</label>
+            <label for="convertAmount">Amount</label>
             <input type="number" id="convertAmount" placeholder="Enter amount">
           </div>
       <!--======================================
@@ -520,14 +523,14 @@
           <input type="text" id="fromSearch" placeholder="Search currency...">
 
           <div class="input-group">
-            <label>From</label>
+            <label for="fromCurrency">From</label>
             <select id="fromCurrency"></select>
           </div>
 
           <input type="text" id="toSearch" placeholder="Search currency...">
         
           <div class="input-group">
-            <label>To</label>
+            <label for="toCurrency">To</label>
             <select id="toCurrency"></select>
           </div>
 

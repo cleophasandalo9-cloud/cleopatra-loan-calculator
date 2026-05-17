@@ -134,6 +134,8 @@ body {
     top: 20px;
     right: 20px;
     background: rgb(0, 120, 255);
+    outline: none;
+    border: none;
     color: white;
     padding: 10px;
     border-radius: 50%;
@@ -680,6 +682,3 @@ MENU ITEMS
   }
 }
 /*==============================================================*/
-
-
-
