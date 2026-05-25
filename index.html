@@ -5,52 +5,141 @@
     <meta name="viewport" content="width=device-width, initial-scale = 1.0">
     <title>Loan Calculator</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js" defer></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-
+    
     <link rel="stylesheet" href="styles.css">
   </head>
 
   <body>
 
-    <!--==================== HAMBURGER MENU ======================-->
+      <!-- ================== AUTH OVERLAY ================== -->
+      <div id="authOverlay" class="auth-overlay" style="display: none;">
+
+        <div class="auth-card">
+
+          <!-- App branding inside the auth card -->
+          <div class="auth-brand">
+            <h1>Loan Calculator</h1>
+            <p>Sign in to save and sync your data</p>
+          </div>
+
+          <!-- Tab switcher — Login / Register -->
+          <div class="auth-tabs">
+            <button class="auth-tab active" id="loginTabBtn">Login</button>
+            <button class="auth-tab" id="registerTabBtn">Register</button>
+          </div>
+
+          <!-- ── LOGIN FORM ── -->
+          <div id="loginForm" class="auth-form">
+
+            <div class="input-group">
+              <label for="loginEmail">Email</label>
+              <input type="email" id="loginEmail" placeholder="Enter your email">
+              <small class="error-message" id="loginEmailError" role="alert"></small>
+            </div>
+
+            <div class="input-group">
+              <label for="loginPassword">Password</label>
+              <input type="password" id="loginPassword" placeholder="Enter your password">
+              <small class="error-message" id="loginPasswordError" role="alert"></small>
+            </div>
+
+            <!-- General auth error (wrong password, user not found, etc.) -->
+            <div id="loginError" class="auth-error-box" style="display:none;"></div>
+
+            <button class="btn" id="loginSubmitBtn">Login</button>
+
+          </div>
+
+          <!-- ── REGISTER FORM ── -->
+          <div id="registerForm" class="auth-form" style="display:none;">
+
+            <div class="input-group">
+              <label for="registerEmail">Email</label>
+              <input type="email" id="registerEmail" placeholder="Enter your email">
+              <small class="error-message" id="registerEmailError" role="alert"></small>
+            </div>
+
+            <div class="input-group">
+              <label for="registerPassword">Password</label>
+              <input type="password" id="registerPassword" placeholder="Create a password (min 6 characters)">
+              <small class="error-message" id="registerPasswordError" role="alert"></small>
+            </div>
+
+            <div class="input-group">
+              <label for="registerConfirm">Confirm Password</label>
+              <input type="password" id="registerConfirm" placeholder="Repeat your password">
+              <small class="error-message" id="registerConfirmError" role="alert"></small>
+            </div>
+
+            <!-- General auth error -->
+            <div id="registerError" class="auth-error-box" style="display:none;"></div>
+
+            <button class="btn" id="registerSubmitBtn">Create Account</button>
+
+          </div>
+
+        </div>
+
+      </div>
+      <!-- ================ END AUTH OVERLAY ================ -->
+
+  <!-- ==================== LOADING SCREEN ================== -->
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loading-content">
+      <p class="loading-app-name">Loan Calculator</p>
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Loading...</p>
+    </div>
+  </div>
+  <!-- ================ END LOADING SCREEN ================== -->
+
+    <!--================== HAMBURGER MENU ====================-->
       <div class="menu-toggle">
         <button id="menuToggle" class="hamburger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="sidebar">&#9776;</button>
       </div>
 
       <!--Sidebar Menu-->
-      <div id="sidebar" class="sidebar">
+      <div id="sidebar" class="sidebar" inert>
         <div class="sidebar-header">
           <h2>Finance Tools</h2>
           <p>Smart loan management</p>
         </div>
         
 
-        <div class="menu-item" id="dashboardBtn">Dashboard</div>
+        <!-- data-role="free"  → visible to all users         -->
+        <!-- data-role="admin" → visible to admin users only  -->
 
-        <div class="menu-item" id="amortizationBtn">Amortization Table</div>
+        <button class="menu-item" id="dashboardBtn"      data-role="free">Dashboard</button>
 
-        <div class="menu-item" id="emiChartBtn">EMI Chart</div>
+        <button class="menu-item" id="amortizationBtn"   data-role="free">Amortization Table</button>
 
-        <div class="menu-item" id="exportScheduleBtn">Export Schedule</div>
+        <button class="menu-item" id="emiChartBtn"       data-role="admin">&#9999; EMI Chart</button>
 
-        <div class="menu-item" id="loanComparisonBtn">&#9878; Loan Comparison</div>
+        <button class="menu-item" id="exportScheduleBtn" data-role="admin">&#128190; Export Schedule</button>
 
-        <div class="menu-item" id="savingsBtn">&#128200; Savings Calculator</div>
+        <button class="menu-item" id="loanComparisonBtn" data-role="admin">&#9878; Loan Comparison</button>
 
-        <div class="menu-item" id="refinanceBtn">&#128259; Refinancing</div>
+        <button class="menu-item" id="savingsBtn"        data-role="admin">&#128200; Savings Calculator</button>
 
-        <div class="menu-item" id="extraPaymentBtn">&#43; Extra Payment</div>
+        <button class="menu-item" id="refinanceBtn"      data-role="admin">&#128259; Refinancing</button>
 
-        <div class="menu-item" id="pdfDownloadBtn">&#128462; Download PDF</div>
+        <button class="menu-item" id="extraPaymentBtn"   data-role="admin">&#43; Extra Payment</button>
+
+        <button class="menu-item" id="pdfDownloadBtn"    data-role="admin">&#128462; Download PDF</button>
 
         <!--currency icon button-->
         <button class="currency-toggle" onclick="toggleConverter()" aria-label="Open currency converter" aria-expanded="false" aria-controls="converterPanel">
           &#128178;
         </button>
+
+        <!-- ── USER INFO + LOGOUT ── -->
+        <div id="userInfoPanel" class="user-info-panel"     style="display:none;">
+          <p id="userEmailDisplay" class="user-email">user@email.com</p>
+          <p id="userRoleDisplay" class="user-role">Free Account</p>
+          <button class="menu-item logout-btn" id="logoutBtn">&#x2192; Logout</button>
+        </div>
 
       </div>
 
@@ -75,7 +164,7 @@
           <div class="table-container">
           <h3 class="breakdown-title">Payment Breakdown</h3>
 
-          <div class="table-scroll">
+          <div class="table-scroll" id="amortizationScroll">
           <table id="breakdownTable">
             <thead>
               <tr>
@@ -113,11 +202,15 @@
           <h3 class="breakdown-title">Export Schedule</h3>
 
           <div class="result-box" style="margin-bottom: 15px;">
-            <p style="font-size: 14px; color: rgba(255, 255, 255, 0.7); font-weight: 400px;">Download your full amortization schedule as a CSV file, ready to open in Excel or Google Sheets.</p>
+            <p style="font-size: 14px; color: rgba(255, 255, 255, 0.7); font-weight: 400;">Download your full amortization schedule as a CSV file, ready to open in Excel or Google Sheets.</p>
           </div>
 
           <div id="exportMsg" class="result-box" style="display: none;">
             <p style="color: aqua; font-size: 14px; text-align:center;">Export is only available for Compound Interest loans.</p>
+          </div>
+
+          <div id="pdfErrorMsg" class="result-box" style="display: none;">
+            <p style="color: tomato; font-size: 14px; text-align:center;">PDF download requires valid <strong>Compound Interest loan</strong> details on the Dashboard.</p>
           </div>
 
           <button id="downloadCsvBtn" class="btn" style="display: none;">&#8595; Download CSV</button>
@@ -540,6 +633,59 @@
           </div>
         </div>
 
+
+        <!-- ===================== FIREBASE SDK ===================== -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    import { getFirestore, doc, setDoc, getDoc }
+    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+    import { getAnalytics, logEvent } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js';
+    import { getRemoteConfig, fetchAndActivate, getValue }
+    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-remote-config.js';
+
+    // ── CONFIG ──────────────────────────────────────────────
+    const firebaseConfig = {
+      apiKey:            "AIzaSyDv5rtQe-w87uwOc0tOueZlJIRBAjNHoNA",
+      authDomain:       "loancalculator-ce7d4.firebaseapp.com",
+      projectId:        "loancalculator-ce7d4",
+      storageBucket:    "loancalculator-ce7d4.firebasestorage.app",
+      messagingSenderId: "84689676435",
+      appId:            "1:84689676435:web:0e77339e77fdf633eec566",
+      measurementId: "G-VWS1VCGW0R"
+    };
+
+    // ── INITIALIZE ───────────────────────────────────────────
+    const app          = initializeApp(firebaseConfig);
+    const auth         = getAuth(app);
+    const db           = getFirestore(app);
+    const analytics    = getAnalytics(app);
+    const remoteConfig = getRemoteConfig(app);
+
+    remoteConfig.settings.minimumFetchIntervalMillis = 0;
+
+    window._firebase = {
+      auth,
+      db,
+      analytics,
+      remoteConfig,
+
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged,
+      doc,
+      setDoc,
+      getDoc,
+      logEvent,
+      fetchAndActivate,
+      getValue
+    };
+
+    window.dispatchEvent(new Event('firebaseReady'));
+  </script>
+
   </body>
-  <script src="script.js"></script>
+
 </html>
