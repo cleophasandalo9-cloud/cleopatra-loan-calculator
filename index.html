@@ -155,6 +155,11 @@
         <!--<div class="theme-toggle" onclick="toggleTheme()">🌙</div>-->
       </div>
 
+      <!-- Remote Config notice banner — hidden until RC sets a message -->
+      <div id="appNotice" class="app-notice" style="display:none;">
+        <p id="appNoticeText"></p>
+      </div>
+
       
 
       <!--==================== AMORTIZATION TABLE =====================-->
@@ -663,7 +668,7 @@
     const analytics    = getAnalytics(app);
     const remoteConfig = getRemoteConfig(app);
 
-    remoteConfig.settings.minimumFetchIntervalMillis = 0;
+    remoteConfig.settings.minimumFetchIntervalMillis = 3600000;
 
     window._firebase = {
       auth,

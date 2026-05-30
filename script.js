@@ -17,30 +17,41 @@ const CDN_AUTOTABLE = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.
 //===========================================
 //DOM REFERENCES MODULE
 //===========================================
-//>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 // INPUTS
-//>>>>>>>>>>>>>>>>>>>>>>>>>>
-const amountInput = document.getElementById('amount');
-const rateInput = document.getElementById('rate');
-const timeInput = document.getElementById('time');
-const currencySelect = document.getElementById('currency');
-const interestType = document.getElementById('interestType');
+let amountInput;
+let rateInput;
+let timeInput;
+let currencySelect;
+let interestType;
 
-//>>>>>>>>>>>>>>>>>>>>>>>>>>
 // OUTPUTS
-//>>>>>>>>>>>>>>>>>>>>>>>>>>
-const monthlyOutput = document.getElementById('monthly');
-const interestOutput = document.getElementById('interest');
-const totalOutput = document.getElementById('total');
+let monthlyOutput;
+let interestOutput;
+let totalOutput;
 
+// ERROR ELEMENTS
+let amountError;
+let rateError;
+let timeError;
 
-//>>>>>>>>>>>>>>>>>>>>>>>>
-//ERROR ELEMENTS
-//>>>>>>>>>>>>>>>>>>>>>>>>
-const amountError = document.getElementById('amountError');
-const rateError = document.getElementById('rateError');
-const timeError = document.getElementById('timeError');
+function initDOMReferences () {
+  amountInput    = document.getElementById('amount');
+  rateInput      = document.getElementById('rate');
+  timeInput      = document.getElementById('time');
+  currencySelect = document.getElementById('currency');
+  interestType   = document.getElementById('interestType');
 
+  monthlyOutput  = document.getElementById('monthly');
+  interestOutput = document.getElementById('interest');
+  totalOutput    = document.getElementById('total');
+
+  amountError    = document.getElementById('amountError');
+  rateError      = document.getElementById('rateError');
+  timeError      = document.getElementById('timeError');
+
+  bindInputEvents();
+}
 
 
 
@@ -2263,11 +2274,10 @@ function loadSavedInputs () {
 
 
 function initApp () {
-
-  loadSavedInputs ();
+  initDOMReferences();
+  loadSavedInputs();
   getRates();
   calculateLoan();
-
 }
 
 
@@ -2285,44 +2295,33 @@ function initApp () {
 //===================
 //LIVE EVENTS
 //===================
-amountInput.addEventListener('input', function () {
 
-  if (isSyncing) return;
+function bindInputEvents () {
 
-  isSyncing =true;
+  amountInput.addEventListener('input', function () {
+    if (isSyncing) return;
+    isSyncing = true;
+    document.getElementById('convertAmount').value = this.value;
+    debouncedCalculate();
+    isSyncing = false;
+  });
 
-  document.getElementById('convertAmount').value = this.value;
+  rateInput.addEventListener('input', debouncedCalculate);
+  timeInput.addEventListener('input', debouncedCalculate);
 
-  debouncedCalculate();
+  currencySelect.addEventListener('change', function () {
+    if (isSyncing) return;
+    isSyncing = true;
 
-  isSyncing =false;
-});
-
-
-rateInput.addEventListener('input', debouncedCalculate);
-timeInput.addEventListener('input', debouncedCalculate);
-
-
-currencySelect.addEventListener('change', function () {
-  if (isSyncing) return;
-
-  isSyncing =true;
-
-  const selected = currencySelect.value;
-
-  //Converter dropdown
-    const from = document.getElementById('fromCurrency');
-    const to = document.getElementById('toCurrency');
-
-    //Sore previous from
+    const selected = currencySelect.value;
+    const from     = document.getElementById('fromCurrency');
+    const to       = document.getElementById('toCurrency');
     const previousFrom = from.value;
 
-    //SYNC FROM CURRENCY
     from.value = selected;
 
-    //Only change 'to' if it was same before
     if (to.value === previousFrom) {
-      to.value = selected === 'USD' ? 'KES':'USD';
+      to.value = selected === 'USD' ? 'KES' : 'USD';
     }
 
     calculateLoan();
@@ -2330,59 +2329,55 @@ currencySelect.addEventListener('change', function () {
     saveInputs();
     trackEvent('currency_selected', { currency_code: currencySelect.value });
 
-    isSyncing =false;
-});
-
-const convertAmountInput = document.getElementById('convertAmount');
-const fromCurrencySelect = document.getElementById('fromCurrency');
-const toCurrencySelect = document.getElementById('toCurrency');
-
-convertAmountInput.addEventListener('input', convertCurrency);
-
-fromCurrencySelect.addEventListener('change', convertCurrency);
-
-toCurrencySelect.addEventListener('change', function () {
-  convertCurrency();
-
-  //sync calculator currency
-  currencySelect.value = this.value;
-
-  //Recalculate loan
-  calculateLoan();
-});
-
-//simple/compound interest
-
-interestType.addEventListener('change', function () {
-  calculateLoan();
-  saveInputs();
-  trackEvent('interest_type_selected', { type: interestType.value });
-});
-
-//**************Loan Calculator search*****************
-document.getElementById('currencySearch').addEventListener('input', debounce(()=> filterCurrencies('currencySearch', 'currency'), 200));
-
-//Converter search
-document.getElementById('fromSearch').addEventListener('input', debounce(() => filterCurrencies('fromSearch', 'fromCurrency'), 200));
-document.getElementById('toSearch').addEventListener('input', debounce(() => filterCurrencies('toSearch', 'toCurrency'), 200));
-
-//REMOVE ERROR WHEN USER TYPES
-const inputs = document.querySelectorAll('#amount, #rate, #time');
-
-inputs.forEach(input => {
-  input.addEventListener('input', () => {
-    input.classList.remove('input-error');
-
-    const error = document.getElementById(input.id + 'Error');
-
-    if (error) {
-      error.textContent = "";
-      error.style.opacity = "0";
-      error.style.height = "0";
-    }
+    isSyncing = false;
   });
-});
 
+  const convertAmountInput = document.getElementById('convertAmount');
+  const fromCurrencySelect = document.getElementById('fromCurrency');
+  const toCurrencySelect   = document.getElementById('toCurrency');
+
+  convertAmountInput.addEventListener('input', convertCurrency);
+  fromCurrencySelect.addEventListener('change', convertCurrency);
+
+  toCurrencySelect.addEventListener('change', function () {
+    convertCurrency();
+    currencySelect.value = this.value;
+    calculateLoan();
+    saveInputs();
+  });
+
+  interestType.addEventListener('change', function () {
+    calculateLoan();
+    saveInputs();
+    trackEvent('interest_type_selected', { type: interestType.value });
+  });
+
+  document.getElementById('currencySearch').addEventListener('input',
+    debounce(() => filterCurrencies('currencySearch', 'currency'), 200)
+  );
+
+  document.getElementById('fromSearch').addEventListener('input',
+    debounce(() => filterCurrencies('fromSearch', 'fromCurrency'), 200)
+  );
+
+  document.getElementById('toSearch').addEventListener('input',
+    debounce(() => filterCurrencies('toSearch', 'toCurrency'), 200)
+  );
+
+  // Clear validation errors as the user types
+  const inputs = document.querySelectorAll('#amount, #rate, #time');
+  inputs.forEach(input => {
+    input.addEventListener('input', () => {
+      input.classList.remove('input-error');
+      const error = document.getElementById(input.id + 'Error');
+      if (error) {
+        error.textContent  = '';
+        error.style.opacity = '0';
+        error.style.height  = '0';
+      }
+    });
+  });
+}
 
 
 //===========================================
@@ -2629,8 +2624,12 @@ onAuthStateChanged(auth, function (user) {
       document.getElementById('userInfoPanel').style.display  = 'block';
       document.getElementById('userEmailDisplay').textContent = user.email;
 
-      //Fetch role from Firestore and apply to sidebar immediately.
+      // Fetch role from Firestore and apply to sidebar immediately.
       fetchAndApplyRole(user.uid);
+
+      // Fetch Remote Config flags and apply feature visibility.
+      // Runs in parallel — no need to await either of these.
+      initRemoteConfig();
 
       // Start the app
       initApp();
@@ -2666,6 +2665,105 @@ onAuthStateChanged(auth, function (user) {
     document.getElementById('registerError').style.display = 'none';
   });
 });
+
+
+
+
+//===========================================
+// REMOTE CONFIG MODULE
+//===========================================
+
+// ── APPLY REMOTE CONFIG FLAGS ───────────────────────────────
+
+function applyRemoteConfig () {
+  if (!window._firebase) return;
+
+  const { remoteConfig, getValue } = window._firebase;
+
+  // ── FEATURE FLAGS ──────────────────────────────────────────
+
+  const featureFlags = [
+    { key: 'show_savings',        btnId: 'savingsBtn'        },
+    { key: 'show_refinancing',    btnId: 'refinanceBtn'      },
+    { key: 'show_extra_payment',  btnId: 'extraPaymentBtn'   },
+    { key: 'show_loan_comparison',btnId: 'loanComparisonBtn' },
+    { key: 'show_emi_chart',      btnId: 'emiChartBtn'       },
+    { key: 'show_export_schedule',btnId: 'exportScheduleBtn' },
+    { key: 'show_pdf_download',   btnId: 'pdfDownloadBtn'    },
+  ];
+
+  featureFlags.forEach(({ key, btnId }) => {
+    const isEnabled = getValue(remoteConfig, key).asBoolean();
+    const btn       = document.getElementById(btnId);
+
+    if (!btn) return;
+
+    if (!isEnabled) {
+      // RC says feature is off — hide completely regardless of role
+      btn.style.display = 'none';
+    }
+    // If isEnabled is true, we do NOT force display:flex here.
+    // The role system already controls visibility for enabled features.
+    // Forcing display here would break role-based hiding for free users.
+  });
+
+  // ── APP NOTICE ─────────────────────────────────────────────
+  // If the app_notice string is non-empty, show the banner.
+  // To show a notice: set app_notice to your message in the console.
+  // To hide it: set app_notice back to empty string.
+  const notice     = getValue(remoteConfig, 'app_notice').asString().trim();
+  const noticeDiv  = document.getElementById('appNotice');
+  const noticeText = document.getElementById('appNoticeText');
+
+  if (notice && noticeDiv && noticeText) {
+    noticeText.textContent  = notice;
+    noticeDiv.style.display = 'block';
+  } else if (noticeDiv) {
+    noticeDiv.style.display = 'none';
+  }
+}
+
+
+// ── FETCH AND APPLY REMOTE CONFIG ───────────────────────────
+// fetchAndActivate does two things in one call:
+//   1. fetch  — downloads the latest config from Firebase servers
+//   2. activate — makes the fetched values available via getValue()
+// After it resolves, we call applyRemoteConfig to use the values.
+
+async function initRemoteConfig () {
+  if (!window._firebase) return;
+
+  const { remoteConfig, fetchAndActivate, getValue } = window._firebase;
+
+  // ── IN-APP DEFAULTS ────────────────────────────────────────
+  // These are fallback values used if:
+  //   - The fetch fails (offline, timeout)
+  //   - A key exists in code but not yet in the Firebase Console
+  // Always define defaults for every key you use.
+  remoteConfig.defaultConfig = {
+    show_savings:         true,
+    show_refinancing:     true,
+    show_extra_payment:   true,
+    show_loan_comparison: true,
+    show_emi_chart:       true,
+    show_export_schedule: true,
+    show_pdf_download:    true,
+    app_notice:           ''
+  };
+
+  try {
+    await fetchAndActivate(remoteConfig);
+    console.log('Remote Config fetched successfully');
+  } catch (err) {
+    // Non-blocking — if fetch fails, defaultConfig values are used.
+    // The app continues normally with all features enabled by default.
+    console.warn('Remote Config fetch failed — using defaults:', err.message);
+  }
+
+  // Apply regardless of whether fetch succeeded or failed.
+  // If fetch failed, getValue returns the defaultConfig values.
+  applyRemoteConfig();
+}
 
 
 
