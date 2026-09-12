@@ -19,7 +19,7 @@ const animationFrames = {};
 const POPULAR_CURRENCIES = ['USD', 'EUR', 'KES', 'GBP', 'INR', 'JPY', 'AUD', 'CAD', 'AED', 'ZAR', 'NGN', 'KWD'];
 // ── STRIPE CONFIG ────────────────────────────────────────────
 const STRIPE_PUBLISHABLE_KEY = 'pk_test_51UDjJLRvHL4nitcrQWwDeYY8QcSutzZMruKKn0x0ORbI2RFyLzQ12n6glGMi4FSYXJEcgyWicBram8Qmcv8LQwYM00RAZkc1JR';
-const STRIPE_PRICE_ID        = 'prod_VF6iH3XCL2Daj0';
+const STRIPE_PRICE_ID        = 'price_1UEcVURvHL4nitcrAgrgNo5p';
 const CDN_STRIPE             = 'https://js.stripe.com/v3/';
 
 const CDN_CHARTJS = 'https://cdn.jsdelivr.net/npm/chart.js';
