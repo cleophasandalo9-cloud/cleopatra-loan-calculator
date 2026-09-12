@@ -1141,53 +1141,20 @@ document.getElementById('upgradeBtn').addEventListener('click', function () {
 });
 
 // ── STRIPE CHECKOUT ─────────────────────────────────────────
-document.getElementById('upgradePayBtn').addEventListener('click', async function () {
+document.getElementById('upgradePayBtn').addEventListener('click', function () {
 
-  const btn = this;
-  btn.disabled    = true;
-  btn.textContent = 'Redirecting to Stripe...';
-
-  // Get the current user's email to pre-fill Stripe's form
   const user = window._firebase?.auth?.currentUser;
 
   if (!user) {
-    btn.disabled    = false;
-    btn.textContent = 'Pay with Stripe — $4.99';
     alert('Please log in before upgrading.');
     return;
   }
 
-  try {
+  // Append user email to the payment link so we can identify them after payment
+  const paymentUrl = 'https://buy.stripe.com/test_28E00lfFb8TA3oc7xq1wY00' + '?prefilled_email=' + encodeURIComponent(user.email);
 
-    // Call our Netlify function to create a checkout session
-    const response = await fetch(
-      'https://singular-entremet-9431cd.netlify.app/.netlify/functions/createCheckout',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          uid:     user.uid,
-          email:   user.email,
-          priceId: STRIPE_PRICE_ID
-        })
-      }
-    );
-
-    const data = await response.json();
-
-    if (data.url) {
-      // Redirect to Stripe's hosted checkout page
-      window.location.href = data.url;
-    } else {
-      throw new Error(data.error || 'No checkout URL returned');
-    }
-
-  } catch (err) {
-    console.error('Stripe load error:', err);
-    btn.disabled    = false;
-    btn.textContent = 'Pay with Stripe — $4.99';
-    alert('Something went wrong. Please try again.');
-  }
+  // Redirect directly to Stripe's hosted payment page
+  window.location.href = paymentUrl;
 });
 
 
@@ -1214,10 +1181,19 @@ function handleStripeReturn () {
     window.history.replaceState({}, '', window.location.pathname);
 
     // Re-fetch the role after 4 seconds (gives webhook time to run)
-    setTimeout(() => {
+        // Upgrade user role directly after successful payment
+    setTimeout(async () => {
       const user = window._firebase?.auth?.currentUser;
-      if (user) fetchAndApplyRole(user.uid);
-    }, 4000);
+      if (user) {
+        const { db, doc, setDoc } = window._firebase;
+        await setDoc(
+          doc(db, 'users', user.uid),
+          { role: 'admin' },
+          { merge: true }
+        );
+        fetchAndApplyRole(user.uid);
+      }
+    }, 2000);
 
     setTimeout(() => {
       toast.style.opacity = '0';
