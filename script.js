@@ -20,7 +20,6 @@ const POPULAR_CURRENCIES = ['USD', 'EUR', 'KES', 'GBP', 'INR', 'JPY', 'AUD', 'CA
 // ── STRIPE CONFIG ────────────────────────────────────────────
 const STRIPE_PUBLISHABLE_KEY = 'pk_test_51UDjJLRvHL4nitcrQWwDeYY8QcSutzZMruKKn0x0ORbI2RFyLzQ12n6glGMi4FSYXJEcgyWicBram8Qmcv8LQwYM00RAZkc1JR';
 const STRIPE_PRICE_ID        = 'price_1UEcVURvHL4nitcrAgrgNo5p';
-const CDN_STRIPE             = 'https://js.stripe.com/v3/';
 
 const CDN_CHARTJS = 'https://cdn.jsdelivr.net/npm/chart.js';
 const CDN_JSPDF = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
@@ -1159,28 +1158,28 @@ document.getElementById('upgradePayBtn').addEventListener('click', async functio
   }
 
   try {
-    // Load Stripe.js library (lazy — only when needed)
-    await loadScript(CDN_STRIPE);
 
-    const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+    // Call our Netlify function to create a checkout session
+    const response = await fetch(
+      'https://singular-entremet-9431cd.netlify.app/.netlify/functions/createCheckout',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          uid:     user.uid,
+          email:   user.email,
+          priceId: STRIPE_PRICE_ID
+        })
+      }
+    );
 
-    // redirectToCheckout sends the user to Stripe's hosted payment page
-    const { error } = await stripe.redirectToCheckout({
-      lineItems: [{ price: STRIPE_PRICE_ID, quantity: 1 }],
-      mode: 'payment',                          // 'payment' = one-time, 'subscription' = recurring
-      customerEmail: user.email,                // pre-fills email on Stripe's form
-      clientReferenceId: user.uid,              // THIS IS CRITICAL — we use this in the webhook
-                                                // to know which user to upgrade
-      successUrl: window.location.origin + window.location.pathname + '?payment=success',
-      cancelUrl:  window.location.origin + window.location.pathname + '?payment=cancelled',
-    });
+    const data = await response.json();
 
-    // If we reach here, redirectToCheckout failed (user is still on page)
-    if (error) {
-      console.error('Stripe error:', error.message);
-      btn.disabled    = false;
-      btn.textContent = 'Pay with Stripe — $4.99';
-      alert('Payment failed to start: ' + error.message);
+    if (data.url) {
+      // Redirect to Stripe's hosted checkout page
+      window.location.href = data.url;
+    } else {
+      throw new Error(data.error || 'No checkout URL returned');
     }
 
   } catch (err) {
