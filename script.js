@@ -1,3 +1,13 @@
+/*
+ * ── KEYBOARD SHORTCUTS ──────────────────────────────────
+ *  Escape       Close sidebar
+ *  /            Focus loan amount input (from anywhere)
+ *  Alt + D      Jump to Dashboard
+ *  Alt + A      Jump to Amortization Table
+ *  Enter        Submit login / register form
+ * ─────────────────────────────────────────────────────────
+ */
+
 //===========================================
 //APP STATE MODULE
 //===========================================
@@ -7,6 +17,10 @@ let exchangeRates = {};
 const animationFrames = {};
 
 const POPULAR_CURRENCIES = ['USD', 'EUR', 'KES', 'GBP', 'INR', 'JPY', 'AUD', 'CAD', 'AED', 'ZAR', 'NGN', 'KWD'];
+// ── STRIPE CONFIG ────────────────────────────────────────────
+const STRIPE_PUBLISHABLE_KEY = 'pk_test_51UDjJLRvHL4nitcrQWwDeYY8QcSutzZMruKKn0x0ORbI2RFyLzQ12n6glGMi4FSYXJEcgyWicBram8Qmcv8LQwYM00RAZkc1JR';
+const STRIPE_PRICE_ID        = 'prod_VF6iH3XCL2Daj0';
+const CDN_STRIPE             = 'https://js.stripe.com/v3/';
 
 const CDN_CHARTJS = 'https://cdn.jsdelivr.net/npm/chart.js';
 const CDN_JSPDF = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
@@ -187,6 +201,27 @@ function showSection (sectionId) {
   });
 
   document.getElementById(sectionId).style.display = 'block';
+
+  // Remove active highlight from all sidebar buttons
+  document.querySelectorAll('.menu-item[data-role]').forEach(btn => {
+    btn.classList.remove('active-section');
+  });
+
+  // Find the button whose ID matches this section and highlight it
+  const sectionToBtn = {
+    'dashboardSection':      'dashboardBtn',
+    'amortizationSection':   'amortizationBtn',
+    'emiChartSection':       'emiChartBtn',
+    'paymentScheduleSection':'exportScheduleBtn',
+    'loanComparisonSection': 'loanComparisonBtn',
+    'savingsSection':        'savingsBtn',
+    'refinanceSection':      'refinanceBtn',
+    'extraPaymentSection':   'extraPaymentBtn'
+  };
+
+  const activeBtn = document.getElementById(sectionToBtn[sectionId]);
+  if (activeBtn) activeBtn.classList.add('active-section');
+
   sidebar.classList.remove('active');
   menuToggle.focus();
   sidebar.inert = true;
@@ -853,7 +888,7 @@ function renderAmortizationTable (schedule, currency) {
     topSpacer = document.createElement('tr');
     topSpacer.id = 'vt-top-spacer';
     const tdTop = document.createElement('td');
-    tdTop.colspan = 5;
+    tdTop.setAttribute('colspan', 5);
     tdTop.style.padding = '0';
     tdTop.style.border = 'none';
     topSpacer.appendChild(tdTop);
@@ -862,7 +897,7 @@ function renderAmortizationTable (schedule, currency) {
     bottomSpacer = document.createElement('tr');
     bottomSpacer.id = 'vt-bottom-spacer';
     const tdBottom = document.createElement('td');
-    tdBottom.colspan = 5;
+    tdBottom.setAttribute('colspan', 5);
     tdBottom.style.padding = '0';
     tdBottom.style.border = 'none';
     bottomSpacer.appendChild(tdBottom);
@@ -871,8 +906,8 @@ function renderAmortizationTable (schedule, currency) {
 
   _renderVisibleRows(scrollEl, tbody, topSpacer, bottomSpacer);
 
-  if (scrollEl._vtScrollHandler) {
-    scrollEl.removeEventListener('scroll', _vtScrollHandler);
+  if (_vtScrollHandler) {
+  scrollEl.removeEventListener('scroll', _vtScrollHandler);
   }
 
   _vtScrollHandler = function () {
@@ -1017,6 +1052,199 @@ menuToggle.addEventListener('click', function () {
   }
 });
 
+document.addEventListener('keydown', function (e) {
+
+  // --- Shortcut 1: Escape — close sidebar (already existed) ---
+  if (e.key === 'Escape' && sidebar.classList.contains('active')) {
+    sidebar.classList.remove('active');
+    menuToggle.setAttribute('aria-expanded', 'false');
+    menuToggle.focus();
+    sidebar.inert = true;
+    return;
+  }
+
+  // --- Guard: do NOT fire shortcuts when user is typing ---
+  // If focus is inside an input, textarea, or select, bail out.
+  const tag = document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
+  // --- Shortcut 2: "/" — focus the loan amount input ---
+  if (e.key === '/') {
+    e.preventDefault(); // stops "/" being typed into the field
+    const amountField = document.getElementById('amount');
+    if (amountField) {
+      showSection('dashboardSection');
+      amountField.focus();
+    }
+    return;
+  }
+
+  // --- Shortcuts 3-4: Alt + key — jump to sections ---
+  if (e.altKey) {
+    switch (e.key) {
+
+      case 'd': // Alt+D — Dashboard
+      case 'D':
+        e.preventDefault();
+        showSection('dashboardSection');
+        document.getElementById('dashboardBtn').focus();
+        break;
+
+      case 'a': // Alt+A — Amortization Table
+      case 'A':
+        e.preventDefault();
+        showSection('amortizationSection');
+        document.getElementById('amortizationBtn').focus();
+        break;
+
+    }
+  }
+
+});
+
+
+//=========================================
+// UPGRADE / PREMIUM MODULE
+//=========================================
+
+// ── SHOW / HIDE MODAL ───────────────────────────────────────
+function showUpgradeModal () {
+  document.getElementById('upgradeModal').style.display = 'flex';
+}
+
+function hideUpgradeModal () {
+  document.getElementById('upgradeModal').style.display = 'none';
+}
+
+// Close modal when X button is clicked
+document.getElementById('upgradeModalClose').addEventListener('click', hideUpgradeModal);
+
+// Close modal when user clicks the dark overlay behind the card
+document.getElementById('upgradeModal').addEventListener('click', function (e) {
+  // e.target is what was actually clicked
+  // if it's the overlay itself (not the card inside), close
+  if (e.target === this) hideUpgradeModal();
+});
+
+// Close modal with Escape key — add this case to the existing
+// keyboard listener above if you want, or handle it here:
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') hideUpgradeModal();
+});
+
+// ── UPGRADE BUTTON IN SIDEBAR ───────────────────────────────
+document.getElementById('upgradeBtn').addEventListener('click', function () {
+  // Close sidebar first, then show modal
+  sidebar.classList.remove('active');
+  sidebar.inert = true;
+  menuToggle.setAttribute('aria-expanded', 'false');
+  showUpgradeModal();
+});
+
+// ── STRIPE CHECKOUT ─────────────────────────────────────────
+document.getElementById('upgradePayBtn').addEventListener('click', async function () {
+
+  const btn = this;
+  btn.disabled    = true;
+  btn.textContent = 'Redirecting to Stripe...';
+
+  // Get the current user's email to pre-fill Stripe's form
+  const user = window._firebase?.auth?.currentUser;
+
+  if (!user) {
+    btn.disabled    = false;
+    btn.textContent = 'Pay with Stripe — $4.99';
+    alert('Please log in before upgrading.');
+    return;
+  }
+
+  try {
+    // Load Stripe.js library (lazy — only when needed)
+    await loadScript(CDN_STRIPE);
+
+    const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+
+    // redirectToCheckout sends the user to Stripe's hosted payment page
+    const { error } = await stripe.redirectToCheckout({
+      lineItems: [{ price: STRIPE_PRICE_ID, quantity: 1 }],
+      mode: 'payment',                          // 'payment' = one-time, 'subscription' = recurring
+      customerEmail: user.email,                // pre-fills email on Stripe's form
+      clientReferenceId: user.uid,              // THIS IS CRITICAL — we use this in the webhook
+                                                // to know which user to upgrade
+      successUrl: window.location.origin + window.location.pathname + '?payment=success',
+      cancelUrl:  window.location.origin + window.location.pathname + '?payment=cancelled',
+    });
+
+    // If we reach here, redirectToCheckout failed (user is still on page)
+    if (error) {
+      console.error('Stripe error:', error.message);
+      btn.disabled    = false;
+      btn.textContent = 'Pay with Stripe — $4.99';
+      alert('Payment failed to start: ' + error.message);
+    }
+
+  } catch (err) {
+    console.error('Stripe load error:', err);
+    btn.disabled    = false;
+    btn.textContent = 'Pay with Stripe — $4.99';
+    alert('Something went wrong. Please try again.');
+  }
+});
+
+
+// ── HANDLE RETURN FROM STRIPE ────────────────────────────────
+// When Stripe redirects back to your app after payment,
+// it adds ?payment=success or ?payment=cancelled to the URL.
+// We read that and show an appropriate message.
+
+function handleStripeReturn () {
+  const params  = new URLSearchParams(window.location.search);
+  const payment = params.get('payment');
+
+  if (payment === 'success') {
+    // Show a success message — role update happens via webhook (may take a few seconds)
+    const toast = document.createElement('div');
+    toast.className     = 'access-toast';
+    toast.style.opacity = '1';
+    toast.style.bottom  = '30px';
+    toast.style.background = 'rgba(0, 180, 80, 0.95)';
+    toast.textContent   = '🎉 Payment successful! Your account is being upgraded...';
+    document.body.appendChild(toast);
+
+    // Clean the URL so the message doesn't show on every refresh
+    window.history.replaceState({}, '', window.location.pathname);
+
+    // Re-fetch the role after 4 seconds (gives webhook time to run)
+    setTimeout(() => {
+      const user = window._firebase?.auth?.currentUser;
+      if (user) fetchAndApplyRole(user.uid);
+    }, 4000);
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+    }, 5000);
+
+  } else if (payment === 'cancelled') {
+    const toast = document.createElement('div');
+    toast.className     = 'access-toast';
+    toast.style.opacity = '1';
+    toast.style.bottom  = '30px';
+    toast.textContent   = 'Payment cancelled. You can upgrade any time.';
+    document.body.appendChild(toast);
+
+    window.history.replaceState({}, '', window.location.pathname);
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+    }, 4000);
+  }
+}
+
+
+// ── WIRE UPGRADE BUTTON VISIBILITY INTO ROLE SYSTEM ─────────
+// We need to update applyRoleToUI to show/hide the upgrade button.
+// Find applyRoleToUI in the ROLES MODULE and add these two lines
+// inside it — instructions follow below.
 
 //=========================================
 //EMI CHART MODULE
@@ -1284,7 +1512,7 @@ function renderComparisonTable (loanA, loanAData, loanB, loanBData) {
       preFormatted: true
     },
     {
-      label: 'Monthyl Payment',
+      label: 'Monthly Payment',
       a: loanA.monthly,
       b: loanB.monthly,
       lowerIsBetter: true
@@ -2009,6 +2237,7 @@ const pdfDownloadBtn = document.getElementById('pdfDownloadBtn');
 function generatePDF () {
   const loanData = getLoanInputs();
   const validation = validateLoanInputs(loanData);
+  if (!validation.isValid || loanData.interestType === 'simple') return;
 
   //jsPDF attaches to window when loaded via UMD CDN
   const {jsPDF} = window.jspdf;
@@ -2377,6 +2606,40 @@ function bindInputEvents () {
       }
     });
   });
+
+  document.getElementById('resetBtn').addEventListener('click', function () {
+    // Clear input fields
+    amountInput.value  = '';
+    rateInput.value    = '';
+    timeInput.value    = '';
+    currencySelect.value   = 'USD';
+    interestType.value     = 'compound';
+
+    // Reset output displays
+    monthlyOutput.textContent  = '0';
+    interestOutput.textContent = '0';
+    totalOutput.textContent    = '0';
+
+    // Clear validation errors
+    clearValidationErrors();
+
+    // Clear local storage
+    localStorage.removeItem('amount');
+    localStorage.removeItem('rate');
+    localStorage.removeItem('time');
+    localStorage.removeItem('currency');
+    localStorage.removeItem('interestType');
+
+    // Clear the amortization table bodyu8
+    const tbody = document.querySelector('#breakdownTable tbody');
+    if (tbody) tbody.innerHTML = '';
+
+    // Return to dashboard
+    showSection('dashboardSection');
+
+    // Refocus the amount field for immediate re-entry
+    amountInput.focus();
+  });
 }
 
 
@@ -2485,6 +2748,14 @@ function translateAuthError (code) {
 
 
 // ── LOGIN ───────────────────────────────────────────────────
+document.getElementById('loginPassword').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') loginSubmitBtn.click();
+});
+
+document.getElementById('loginEmail').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') loginSubmitBtn.click();
+});
+
 document.getElementById('loginSubmitBtn').addEventListener('click', async function () {
 
   // Step 1 — read values
@@ -2535,6 +2806,18 @@ document.getElementById('loginSubmitBtn').addEventListener('click', async functi
 
 
 // ── REGISTER ────────────────────────────────────────────────
+document.getElementById('registerEmail').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') registerSubmitBtn.click();
+});
+
+document.getElementById('registerPassword').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') registerSubmitBtn.click();
+});
+
+document.getElementById('registerConfirm').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') registerSubmitBtn.click();
+});
+
 document.getElementById('registerSubmitBtn').addEventListener('click', async function () {
 
   const email    = document.getElementById('registerEmail').value.trim();
@@ -2821,6 +3104,10 @@ function applyRoleToUI (role) {
     roleDisplay.textContent  = isAdmin ? 'Admin'        : 'Free Account';
     roleDisplay.style.color  = isAdmin ? 'rgb(255,200,0)' : 'rgb(0,200,80)';
   }
+
+    // Show upgrade button only to free users
+  const upgradeBtn = document.getElementById('upgradeBtn');
+  if (upgradeBtn) upgradeBtn.style.display = isAdmin ? 'none' : 'flex';
 }
 
 
@@ -2912,4 +3199,5 @@ function showAccessDenied () {
 
 window.addEventListener('firebaseReady', function () {
   initAuthListener();
+  handleStripeReturn();
 });

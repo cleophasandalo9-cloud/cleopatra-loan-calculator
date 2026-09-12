@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale = 1.0">
-    <title>Loan Calculator</title>
+    <title>LoanIQ — Smart Loan Calculator</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
 
     <script src="script.js" defer></script>
 
@@ -20,7 +21,7 @@
 
           <!-- App branding inside the auth card -->
           <div class="auth-brand">
-            <h1>Loan Calculator</h1>
+            <h1>LoanIQ</h1>
             <p>Sign in to save and sync your data</p>
           </div>
 
@@ -85,10 +86,46 @@
       </div>
       <!-- ================ END AUTH OVERLAY ================ -->
 
+      <!-- ================== UPGRADE MODAL ================== -->
+<div id="upgradeModal" class="upgrade-modal-overlay" style="display:none;">
+  <div class="upgrade-modal-card">
+
+    <button class="upgrade-modal-close" id="upgradeModalClose">&#x2715;</button>
+
+    <div class="upgrade-modal-header">
+      <h2>⚡ LoanIQ Premium</h2>
+      <p>Unlock the full power of LoanIQ</p>
+    </div>
+
+    <ul class="upgrade-feature-list">
+      <li>&#9989; EMI Chart — visualise your payments</li>
+      <li>&#9989; Loan Comparison — compare two loans side by side</li>
+      <li>&#9989; Export Schedule — download as CSV for Excel</li>
+      <li>&#9989; PDF Report — professional loan summary</li>
+      <li>&#9989; Savings Calculator</li>
+      <li>&#9989; Refinancing Calculator</li>
+      <li>&#9989; Extra Payment Simulator</li>
+    </ul>
+
+    <div class="upgrade-price-display">
+      <span class="upgrade-price-amount">$4.99</span>
+      <span class="upgrade-price-label">one-time payment · lifetime access</span>
+    </div>
+
+    <button class="btn upgrade-pay-btn" id="upgradePayBtn">
+      Pay with Stripe — $4.99
+    </button>
+
+    <p class="upgrade-secure-note">&#128274; Secure payment powered by Stripe</p>
+
+  </div>
+</div>
+<!-- ================ END UPGRADE MODAL ================ -->
+
   <!-- ==================== LOADING SCREEN ================== -->
   <div id="loadingScreen" class="loading-screen">
     <div class="loading-content">
-      <p class="loading-app-name">Loan Calculator</p>
+      <p class="loading-app-name">LoanIQ</p>
       <div class="loading-spinner"></div>
       <p class="loading-text">Loading...</p>
     </div>
@@ -103,8 +140,8 @@
       <!--Sidebar Menu-->
       <div id="sidebar" class="sidebar" inert>
         <div class="sidebar-header">
-          <h2>Finance Tools</h2>
-          <p>Smart loan management</p>
+          <h2>LoanIQ</h2>
+          <p>Your financial toolkit</p>
         </div>
         
 
@@ -135,10 +172,11 @@
         </button>
 
         <!-- ── USER INFO + LOGOUT ── -->
-        <div id="userInfoPanel" class="user-info-panel"     style="display:none;">
+        <div id="userInfoPanel" class="user-info-panel" style="display:none;">
           <p id="userEmailDisplay" class="user-email">user@email.com</p>
           <p id="userRoleDisplay" class="user-role">Free Account</p>
-          <button class="menu-item logout-btn" id="logoutBtn">&#x2192; Logout</button>
+          <button class="menu-item upgrade-btn" id="upgradeBtn"   style="display:none;">⚡ Upgrade to Premium</button>
+          <button class="menu-item logout-btn" id="logoutBtn">&#x2192;  Logout</button>
         </div>
 
       </div>
@@ -150,8 +188,8 @@
 
       <!--header-->
       <div class="header">
-        <h1>Loan Calculator</h1>
-        <p>Plan your repayments with clarity</p>
+        <h1>LoanIQ</h1>
+        <p>Smart loan planning, made simple</p>
         <!--<div class="theme-toggle" onclick="toggleTheme()">🌙</div>-->
       </div>
 
@@ -598,6 +636,8 @@
             </div>
 
           </div>
+
+          <button class="btn" id="resetBtn" style="margin-top: 10px; background: rgba(255, 60, 60, 0.15); border: 1px solid rgba(255, 60, 60, 0.3); color: rgb(255, 120, 120);">&#x21BA; Reset</button>
 
 
         </div>
