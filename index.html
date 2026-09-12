@@ -42,8 +42,12 @@
 
             <div class="input-group">
               <label for="loginPassword">Password</label>
-              <input type="password" id="loginPassword" placeholder="Enter your password">
+              <div class="password-wrapper">
+                <input type="password" id="loginPassword" placeholder="Enter your password">
+                <button type="button" class="password-toggle" id="loginPasswordToggle" aria-label="Show password">&#128065;</button>
+              </div>
               <small class="error-message" id="loginPasswordError" role="alert"></small>
+              <button type="button" class="forgot-password-btn" id="forgotPasswordBtn">Forgot password?</button>
             </div>
 
             <!-- General auth error (wrong password, user not found, etc.) -->
@@ -64,7 +68,26 @@
 
             <div class="input-group">
               <label for="registerPassword">Password</label>
-              <input type="password" id="registerPassword" placeholder="Create a password (min 6 characters)">
+              <div class="password-wrapper">
+                <input type="password" id="registerPassword" placeholder="Create a strong password">
+                <button type="button" class="password-toggle" id="registerPasswordToggle" aria-label="Show password">&#128065;</button>
+              </div>
+
+                            <!-- Live password strength indicator -->
+              <div class="password-strength-wrapper" id="passwordStrengthWrapper" style="display:none;">
+                <div class="strength-bar-track">
+                  <div class="strength-bar-fill" id="strengthBarFill"></div>
+                </div>
+                <p class="strength-label" id="strengthLabel">Weak</p>
+                <ul class="strength-checklist">
+                  <li id="check-length">   <span class="check-icon">&#x25CB;</span> Minimum 8 characters</li>
+                  <li id="check-upper">    <span class="check-icon">&#x25CB;</span> Contains uppercase letter</li>
+                  <li id="check-lower">    <span class="check-icon">&#x25CB;</span> Contains lowercase letter</li>
+                  <li id="check-number">   <span class="check-icon">&#x25CB;</span> Contains a number</li>
+                  <li id="check-special">  <span class="check-icon">&#x25CB;</span> Contains a special character (!@#$...)</li>
+                </ul>
+              </div>
+
               <small class="error-message" id="registerPasswordError" role="alert"></small>
             </div>
 
@@ -84,6 +107,22 @@
         </div>
 
       </div>
+
+                <!-- ── FORGOT PASSWORD FORM ── -->
+          <div id="forgotPasswordForm" class="auth-form" style="display:none;">
+            <p style="color: rgba(255,255,255,0.7); font-size: 14px; margin-bottom: 16px; text-align: center;">
+              Enter your email and we'll send you a reset link.
+            </p>
+            <div class="input-group">
+              <label for="forgotEmail">Email</label>
+              <input type="email" id="forgotEmail" placeholder="Enter your email">
+              <small class="error-message" id="forgotEmailError" role="alert"></small>
+            </div>
+            <div id="forgotSuccessMsg" style="display:none; color: rgb(0,200,80); font-size:14px; text-align:center; margin-bottom:12px;"></div>
+            <div id="forgotError" class="auth-error-box" style="display:none;"></div>
+            <button class="btn" id="forgotSubmitBtn">Send Reset Link</button>
+            <button type="button" class="forgot-password-btn" id="backToLoginBtn" style="margin-top: 12px;">&#8592; Back to Login</button>
+          </div>
       <!-- ================ END AUTH OVERLAY ================ -->
 
       <!-- ================== UPGRADE MODAL ================== -->

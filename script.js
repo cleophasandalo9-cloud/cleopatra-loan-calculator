@@ -2721,8 +2721,176 @@ function translateAuthError (code) {
   return map[code] || 'Something went wrong. Please try again.';
 }
 
+// ── PASSWORD STRENGTH CHECKER ────────────────────────────────
+
+function checkPasswordStrength (password) {
+  const checks = {
+    length:  password.length >= 8,
+    upper:   /[A-Z]/.test(password),
+    lower:   /[a-z]/.test(password),
+    number:  /\d/.test(password),
+    special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+  };
+
+  // Count how many checks pass
+  const passed = Object.values(checks).filter(Boolean).length;
+
+  return { checks, passed };
+}
+
+function updateStrengthUI (password) {
+  const wrapper  = document.getElementById('passwordStrengthWrapper');
+  const barFill  = document.getElementById('strengthBarFill');
+  const label    = document.getElementById('strengthLabel');
+
+  // Show wrapper only when user starts typing
+  if (password.length === 0) {
+    wrapper.style.display = 'none';
+    return;
+  }
+
+  wrapper.style.display = 'block';
+
+  const { checks, passed } = checkPasswordStrength(password);
+
+  // Update each checklist item
+  const checkMap = {
+    'check-length':  checks.length,
+    'check-upper':   checks.upper,
+    'check-lower':   checks.lower,
+    'check-number':  checks.number,
+    'check-special': checks.special
+  };
+
+  Object.entries(checkMap).forEach(([id, isPassed]) => {
+    const li   = document.getElementById(id);
+    const icon = li.querySelector('.check-icon');
+
+    if (isPassed) {
+      li.classList.add('passed');
+      icon.innerHTML = '&#x2713;'; // checkmark
+    } else {
+      li.classList.remove('passed');
+      icon.innerHTML = '&#x25CB;'; // empty circle
+    }
+  });
+
+  // Update strength bar width and color
+  const strengthLevels = [
+    { minPassed: 0, width: '0%',   color: 'rgb(255, 60, 60)',   text: '',          textColor: 'rgb(255,60,60)'    },
+    { minPassed: 1, width: '20%',  color: 'rgb(255, 60, 60)',   text: 'Very Weak', textColor: 'rgb(255,60,60)'    },
+    { minPassed: 2, width: '40%',  color: 'rgb(255, 140, 0)',   text: 'Weak',      textColor: 'rgb(255,140,0)'    },
+    { minPassed: 3, width: '60%',  color: 'rgb(255, 200, 0)',   text: 'Fair',      textColor: 'rgb(255,200,0)'    },
+    { minPassed: 4, width: '80%',  color: 'rgb(100, 200, 0)',   text: 'Strong',    textColor: 'rgb(100,200,0)'    },
+    { minPassed: 5, width: '100%', color: 'rgb(0, 200, 80)',    text: 'Very Strong', textColor: 'rgb(0,200,80)'   }
+  ];
+
+  const level = strengthLevels[passed];
+
+  barFill.style.width      = level.width;
+  barFill.style.background = level.color;
+  label.textContent        = level.text;
+  label.style.color        = level.textColor;
+}
+
+// Wire the strength checker to the register password input
+document.getElementById('registerPassword').addEventListener('input', function () {
+  updateStrengthUI(this.value);
+});
+
+// ── PASSWORD VISIBILITY TOGGLES ─────────────────────────────
+function setupPasswordToggle (inputId, toggleId) {
+  const input  = document.getElementById(inputId);
+  const toggle = document.getElementById(toggleId);
+
+  toggle.addEventListener('click', function () {
+    const isPassword = input.type === 'password';
+    input.type       = isPassword ? 'text' : 'password';
+    // Switch icon between open eye and closed eye
+    toggle.innerHTML = isPassword ? '&#128064;' : '&#128065;';
+    toggle.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+  });
+}
+
+setupPasswordToggle('loginPassword',    'loginPasswordToggle');
+setupPasswordToggle('registerPassword', 'registerPasswordToggle');
+
+
+// ── FORGOT PASSWORD ──────────────────────────────────────────
+function showForgotForm () {
+  document.getElementById('loginForm').style.display        = 'none';
+  document.getElementById('registerForm').style.display     = 'none';
+  document.getElementById('forgotPasswordForm').style.display = 'block';
+  document.querySelector('.auth-tabs').style.display        = 'none';
+}
+
+function hideForgotForm () {
+  document.getElementById('forgotPasswordForm').style.display = 'none';
+  document.getElementById('loginForm').style.display          = 'block';
+  document.querySelector('.auth-tabs').style.display          = 'flex';
+  document.getElementById('forgotEmail').value                = '';
+  document.getElementById('forgotEmailError').textContent     = '';
+  document.getElementById('forgotSuccessMsg').style.display   = 'none';
+  document.getElementById('forgotError').style.display        = 'none';
+}
+
+document.getElementById('forgotPasswordBtn').addEventListener('click', showForgotForm);
+document.getElementById('backToLoginBtn').addEventListener('click', hideForgotForm);
+
+document.getElementById('forgotSubmitBtn').addEventListener('click', async function () {
+
+  const email = document.getElementById('forgotEmail').value.trim();
+  const errorEl   = document.getElementById('forgotEmailError');
+  const successEl = document.getElementById('forgotSuccessMsg');
+  const errorBox  = document.getElementById('forgotError');
+
+  // Clear previous messages
+  errorEl.textContent        = '';
+  successEl.style.display    = 'none';
+  errorBox.style.display     = 'none';
+
+  if (!email) {
+    errorEl.textContent  = 'Email is required.';
+    errorEl.style.opacity = '1';
+    return;
+  }
+
+  if (!email.includes('@')) {
+    errorEl.textContent  = 'Enter a valid email address.';
+    errorEl.style.opacity = '1';
+    return;
+  }
+
+  this.disabled    = true;
+  this.textContent = 'Sending...';
+
+  try {
+    const { auth } = window._firebase;
+
+    // Import sendPasswordResetEmail dynamically
+    // We need to import it from Firebase Auth
+    const { sendPasswordResetEmail } = await import(
+      'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js'
+    );
+
+    await sendPasswordResetEmail(auth, email);
+
+    // Show success — don't reveal if email exists or not (security best practice)
+    successEl.textContent  = `If an account exists for ${email}, a reset link has been sent. Check your inbox.`;
+    successEl.style.display = 'block';
+
+  } catch (err) {
+    errorBox.textContent   = translateAuthError(err.code);
+    errorBox.style.display = 'block';
+
+  } finally {
+    this.disabled    = false;
+    this.textContent = 'Send Reset Link';
+  }
+});
 
 // ── LOGIN ───────────────────────────────────────────────────
+
 document.getElementById('loginPassword').addEventListener('keydown', function (e) {
   if (e.key === 'Enter') loginSubmitBtn.click();
 });
@@ -2811,12 +2979,27 @@ document.getElementById('registerSubmitBtn').addEventListener('click', async fun
     hasError = true;
   }
 
-  if (!password) {
+    if (!password) {
     showFieldError('registerPassword', 'registerPasswordError', 'Password is required.');
     hasError = true;
-  } else if (password.length < 6) {
-    showFieldError('registerPassword', 'registerPasswordError', 'Password must be at least 6 characters.');
-    hasError = true;
+  } else {
+    const { checks } = checkPasswordStrength(password);
+    if (!checks.length) {
+      showFieldError('registerPassword', 'registerPasswordError', 'Password must be at least 8 characters.');
+      hasError = true;
+    } else if (!checks.upper) {
+      showFieldError('registerPassword', 'registerPasswordError', 'Password must include at least one uppercase letter.');
+      hasError = true;
+    } else if (!checks.lower) {
+      showFieldError('registerPassword', 'registerPasswordError', 'Password must include at least one lowercase letter.');
+      hasError = true;
+    } else if (!checks.number) {
+      showFieldError('registerPassword', 'registerPasswordError', 'Password must include at least one number.');
+      hasError = true;
+    } else if (!checks.special) {
+      showFieldError('registerPassword', 'registerPasswordError', 'Password must include at least one special character (!@#$...).');
+      hasError = true;
+    }
   }
 
   if (!confirm) {
