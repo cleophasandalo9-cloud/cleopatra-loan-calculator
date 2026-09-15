@@ -1,0 +1,1238 @@
+/*1. RESET*/
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+
+/*2. BACKGROUND*/
+body {
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  min-height: 100vh;
+  display: block;
+
+  background: linear-gradient(135deg, rgb(10, 12, 20), rgb(20, 25, 40));
+
+  user-select: none;
+
+}
+
+
+.app-container {
+  width: 100%;
+  max-width: 420px;
+  padding: 20px;
+  position: relative;
+  margin: 90px auto 20px auto;
+}
+
+.header {
+  text-align: center;
+  color: white;
+  margin-bottom: 20px;
+}
+.header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.header p {
+  font-size: 14px;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+
+.calculator-card {
+  max-height: 100vh;
+  overflow: visible;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(10, 10, 10, 0.4);
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+.input-group label {
+  display: block;
+  color: white;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: rgb(25, 30, 60);
+  color: white;
+  outline: none;
+}
+.input-group input:focus {
+  border: 1px solid rgb(0, 155, 255);
+}
+
+.btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  background: rgb(0, 120, 255);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.3s;
+}
+.btn:hover {
+  background: rgb(0, 150, 255);
+  transform: translateY(-2px);
+}
+
+.results {
+  margin-top: 20px;
+}
+.result-box {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 12px;
+  border-radius: 10px;
+  margin-top: 10px;
+  color: white;
+}
+.result-box p {
+  font-size: 18px;
+  font-weight: bold;
+  color: rgb(0, 200, 80);
+}
+
+.input-group select {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: rgb(25, 30, 60);
+  color: white;
+  outline: none;
+}
+.input-group select:focus {
+  border: 1px solid rgb(0, 155, 255);
+}
+
+  /*=====Currency Converter======*/
+  /*CURRENCY TOGGLE ICON*/
+  .currency-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgb(0, 120, 255);
+    outline: none;
+    border: none;
+    color: white;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 30px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transition: 0.3s;
+  }
+  .currency-toggle:hover {
+    background: rgb(0, 150, 255);
+    transform: scale(1.1);
+  }
+
+  .converter-panel {
+    position: fixed;
+    top: 0;
+    right: -300px; /*hidden by default*/
+    width: 300px;
+    height: 100%;
+    background: linear-gradient(180deg, rgb(15, 23, 42), rgb(10, 15, 28));
+
+    box-shadow: 8px 0 40px rgba(0, 0, 0, 0.45);
+
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+
+    z-index: 1001;
+    overflow-y: auto;
+  }
+
+  .converter-panel.active {
+    right: 0;
+    transform: translateX(0);
+  }
+
+  input {
+    outline: none;
+    border: 1px solid transparent;
+  }
+
+ 
+  .converter-panel h3 {
+    color: white;
+    margin-bottom: 10px;
+    font-size: 16px;
+  }
+
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background: rgba(0, 0, 0, 0.5);
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition: 0.3s;
+
+    z-index: 1000;
+  }
+
+  .overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  input[type = 'text'] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    border: none;
+    background: rgb(250, 250, 250);
+    color: black;
+  }
+
+
+  /* ===== AMORTIZATION TABLE ===== */
+
+.breakdown-title {
+  color: rgb(16, 255, 20);
+  font-weight: 500;
+  margin-top: 20px;
+  font-size: 25px;
+}
+
+#breakdownTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 20px;
+  color: white;
+}
+
+#emiChartSection.table-container {
+  min-height: 400px;
+}
+
+#emiChartSection canvas {
+  min-height: 300px;
+}
+
+#breakdownTable th,
+#breakdownTable td {
+  padding: 6px;
+  text-align: center;
+}
+
+#breakdownTable th {
+  background: rgba(255, 255, 255, 0.1);
+  font-weight: 500;
+}
+
+#breakdownTable tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ===== TABLE CONTAINER ===== */
+.table-container {
+  margin-top: 20px;
+  padding: 15px;
+
+  background: rgba(0, 0, 255, 0.09);
+  border-radius: 10px;
+
+  max-height: 95vh; /* controls total visible area */
+  overflow: visible;
+}
+
+/* ===== SCROLL AREA ===== */
+.table-scroll {
+  max-height: 50vh;
+  height: 50vh;
+  overflow-y: auto;
+
+  margin-top: 10px;
+}
+
+/* ===== SCROLLBAR (optional nice look) ===== */
+.table-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.table-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+}
+
+/* ===== TABLE STYLING ===== */
+#breakdownTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 20px;
+  color: white;
+}
+
+#breakdownTable th,
+#breakdownTable td {
+  padding: 6px;
+  text-align: center;
+}
+
+#breakdownTable td  {
+  font-size: 20px;
+  font-weight: 500;
+  color: aqua;
+}
+
+#breakdownTable th {
+  background: rgb(20, 20, 50);
+  position: sticky;
+  top: 0;
+  color: white;
+  z-index: 2;
+}
+
+#breakdownTable tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+#interestType {
+  font-weight: 300;
+  font-size: 16px;
+}
+
+.error-message {
+  color: red;
+  font-size: 12px;
+  opacity: 0;
+  height: 0;
+  transition: opacity 0.3s ease;
+}
+
+.input-error {
+  border: 1px solid rgba(255, 80, 80, 0.6) !important;
+}
+
+.input-error:focus {
+  border: 1px solid rgba(255, 80, 80, 0.9) !important;
+}
+
+@media(max-width: 600px) {
+  .calculator-card {
+    width: 95%;
+    padding: 10px;
+  }
+
+  #breakdownTable {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 14px;
+    margin-top: 85px;
+  }
+
+  .container {
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  h2, h3 {
+    font-size: 18px;
+  }
+
+  input, select {
+    font-size: 16px;
+    padding: 10px;
+  }
+}
+
+/*===================== HAMBURGER STYLINGS =====================*/
+/*==========================
+HAMBURGER BUTTON
+===========================*/
+.menu-toggle {
+  width: 100%;
+  height: 70px;
+  position: fixed;
+  top: 0;
+  z-index: 999;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+
+
+  padding: 16px 20px;
+
+  background: rgba(15, 23, 42, 0.92);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+
+  margin-bottom: 24px;
+}
+
+.hamburger {
+  width: 46px;
+  height: 23px;
+
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: rgb(5, 118, 163);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+  left: 50px;
+}
+
+.hamburger:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: scale(1.03);
+}
+
+/*================================
+SIDEBAR
+================================*/
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -300px; /*hidden by default*/
+  width: 300px;
+  height: 100%;
+  background: linear-gradient(180deg, rgb(15, 23, 42), rgb(10, 15, 28));
+
+  box-shadow: 8px 0 40px rgba(0, 0, 0, 0.45);
+
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  overflow-y: auto;
+
+  padding-top: 30px;
+  transition: left 0.35s ease;
+  z-index: 2000;
+}
+
+/*ACTIVE STATE*/
+.sidebar.active {
+  left: 0;
+}
+
+/*==============================
+MENU ITEMS
+==============================*/
+.menu-item {
+  width: 90%;
+
+  margin: 10px auto;
+  padding: 16px 18px;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: rgba(255, 255, 255, 0.04);
+
+  color: white;
+  font-size: 15px;
+  font-weight: 500;
+
+  text-align: left;
+  font-family: inherit;
+
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.menu-item:hover {
+  background: rgba(59, 130, 246, 0.18);
+
+  transform: translateX(4px);
+  border-radius: 8px;
+
+  box-shadow: 0 4px 18px rgba(59, 130, 246, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.menu-item:active {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.menu-item.active-section {
+  background: rgba(59, 130, 246, 0.25);
+  border: 1px solid rgba(59, 130, 246, 0.5);
+  color: rgb(147, 197, 253);
+}
+
+.upgrade-btn {
+  background: linear-gradient(135deg, rgba(255, 180, 0, 0.2), rgba(255, 100, 0, 0.2)) !important;
+  border: 1px solid rgba(255, 180, 0, 0.5) !important;
+  color: rgb(255, 200, 80) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.3px;
+}
+
+.upgrade-btn:hover {
+  background: linear-gradient(135deg, rgba(255, 180, 0, 0.35), rgba(255, 100, 0, 0.35)) !important;
+  border-color: rgba(255, 180, 0, 0.8) !important;
+  box-shadow: 0 0 16px rgba(255, 180, 0, 0.3);
+}
+
+.sidebar-header {
+  padding: 0 22px 20px;
+}
+
+.sidebar-header h2{
+  color: white;
+  margin: 0;
+  font-size: 22px;
+}
+
+.sidebar-header p{
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+/*SPACING IN DASHBOARD AND AMORTIZATION TABLE SECTIONS*/
+#dashboardSection, #amortizationSection {
+  padding: 20px;
+}
+
+
+/*===========LOAN COMPARISON TABLE============*/
+#comparisonTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  color: white;
+  font-size: 14px;
+  table-layout: fixed;
+  word-break: break-word;
+}
+
+#comparisonTable th {
+  background: rgb(20, 20, 50);
+  padding: 10px 8px;
+  text-align: center;
+  color: white;
+  font-weight: 600;
+}
+
+#comparisonTable td {
+  padding: 10px 8px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+#comparisonTable td:first-child {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  text-align: left;
+}
+
+/*Winner cell - green */
+#comparisonTable td.comp-winner {
+  color: rgb(0, 200, 80);
+  font-weight: bold;
+}
+
+/*Loser cell - muted red */
+#comparisonTable td.comp-loser {
+  color: rgb(255, 90, 90);
+}
+
+/*Tie cell */
+#comparisonTable td.comp-tie {
+  color: aqua;
+}
+
+#comparisonTable tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+
+/* ===== SAVINGS TABLE ===== */
+#savingsTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  color: white;
+  table-layout: fixed;
+  word-break: break-word;
+}
+
+#savingsTable th {
+  background: rgb(20, 20, 50);
+  padding: 8px 6px;
+  text-align: center;
+  color: white;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+#savingsTable td {
+  padding: 8px 6px;
+  text-align: center;
+  color: aqua;
+  font-size: 13px;
+}
+
+#savingsTable tr:nth-child(even) {
+  background: rgba(255,255,255,0.04);
+}
+
+
+/* ===== REFINANCING ===== */
+.refi-positive {
+  color: rgb(0, 200, 80) !important;
+}
+
+.refi-negative {
+  color: rgb(255, 90, 90) !important;
+}
+
+
+/* ===== EXTRA PAYMENT TABLE ===== */
+#extraPaymentTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  color: white;
+  table-layout: fixed;
+  word-break: break-word;
+}
+
+#extraPaymentTable th {
+  background: rgb(20, 20, 50);
+  padding: 8px 6px;
+  text-align: center;
+  color: white;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+#extraPaymentTable td {
+  padding: 8px 6px;
+  text-align: center;
+  font-size: 13px;
+}
+
+#extraPaymentTable td:first-child {
+  color: rgba(255,255,255,0.6);
+}
+
+#extraPaymentTable td.extra-normal {
+  color: aqua;
+}
+
+#extraPaymentTable td.extra-faster {
+  color: rgb(0, 200, 80);
+}
+
+#extraPaymentTable tr:nth-child(even) {
+  background: rgba(255,255,255,0.04);
+}
+
+
+
+
+
+/* ===== DESKTOP LAYOUT ===== */
+@media (min-width: 768px) {
+  .app-container {
+    max-width: 640px;
+  }
+
+  .calculator-card {
+    padding: 30px;
+  }
+
+  #dashboardSection,
+  #amortizationSection,
+  #savingsSection,
+  #refinanceSection,
+  #loanComparisonSection,
+  #extraPaymentSection,
+  #emiChartSection,
+  #paymentScheduleSection {
+    padding: 10px 0;
+  }
+}
+/*==============================================================*/
+
+/* ===================== AUTH OVERLAY ===================== */
+
+/* Full screen overlay — sits on top of everything */
+.auth-overlay {
+  position: fixed;
+  inset: 0; /* shorthand for top:0; right:0; bottom:0; left:0 */
+  background: linear-gradient(135deg, rgb(10, 12, 20), rgb(20, 25, 40));
+  z-index: 9999; /* above sidebar (2000) and converter panel (1001) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* The white-ish card in the center */
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 30px 24px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Branding at the top of the card */
+.auth-brand {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.auth-brand h1 {
+  color: white;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.auth-brand p {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+/* Tab switcher */
+.auth-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 4px;
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: inherit;
+}
+
+.auth-tab.active {
+  background: rgb(0, 120, 255);
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 120, 255, 0.4);
+}
+
+/* Each form — login or register */
+.auth-form .input-group {
+  margin-bottom: 14px;
+}
+
+/* Error box for Firebase error messages */
+.auth-error-box {
+  background: rgba(255, 80, 80, 0.1);
+  border: 1px solid rgba(255, 80, 80, 0.3);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: rgb(255, 120, 120);
+  font-size: 13px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+/* ===================== USER INFO PANEL ===================== */
+
+.user-info-panel {
+  margin: 12px 10px 0 10px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.user-email {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 2px;
+  word-break: break-all; /* long emails won't overflow */
+}
+
+.user-role {
+  color: rgb(0, 200, 80);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.logout-btn {
+  width: 100%;
+  background: rgba(255, 60, 60, 0.12);
+  border: 1px solid rgba(255, 60, 60, 0.25);
+  color: rgb(255, 120, 120);
+  font-size: 13px;
+  padding: 10px;
+  margin: 0;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 60, 60, 0.25);
+  border-color: rgba(255, 60, 60, 0.5);
+  color: white;
+  transform: none; /* override the translateX from .menu-item:hover */
+}
+/* ========================================================== */
+
+/* ===================== LOADING SCREEN ===================== */
+
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, rgb(10, 12, 20), rgb(20, 25, 40));
+  z-index: 99999; /* above everything including auth overlay (9999) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.loading-app-name {
+  color: white;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: rgb(0, 120, 255);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 13px;
+}
+
+/* ========================================================== */
+
+/* ===================== ACCESS TOAST ======================= */
+
+.access-toast {
+  position: fixed;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(30, 30, 60, 0.95);
+  border: 1px solid rgba(255, 200, 0, 0.3);
+  color: rgb(255, 200, 0);
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  z-index: 99998;
+  opacity: 0;
+  transition: opacity 0.3s ease, bottom 0.3s ease;
+  pointer-events: none;
+  max-width: 320px;
+  width: 90%;
+}
+
+/* ========================================================== */
+
+
+/* ===================== APP NOTICE BANNER ================== */
+
+.app-notice {
+  background: rgba(255, 200, 0, 0.08);
+  border: 1px solid rgba(255, 200, 0, 0.25);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.app-notice p {
+  color: rgb(255, 200, 0);
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.5;
+}
+
+
+/* ── UPGRADE MODAL ─────────────────────────────────────────── */
+.upgrade-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.upgrade-modal-card {
+  background: linear-gradient(145deg, rgba(15, 25, 50, 0.98), rgba(10, 20, 40, 0.98));
+  border: 1px solid rgba(255, 180, 0, 0.3);
+  border-radius: 20px;
+  padding: 36px 32px;
+  max-width: 420px;
+  width: 100%;
+  position: relative;
+  box-shadow: 0 0 60px rgba(255, 180, 0, 0.15);
+}
+
+.upgrade-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255,255,255,0.08);
+  border: none;
+  color: rgba(255,255,255,0.6);
+  font-size: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upgrade-modal-close:hover {
+  background: rgba(255,255,255,0.15);
+  color: white;
+}
+
+.upgrade-modal-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.upgrade-modal-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: rgb(255, 200, 80);
+  margin-bottom: 6px;
+}
+
+.upgrade-modal-header p {
+  color: rgba(255,255,255,0.6);
+  font-size: 14px;
+}
+
+.upgrade-feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.upgrade-feature-list li {
+  color: rgba(255,255,255,0.85);
+  font-size: 14px;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.07);
+}
+
+.upgrade-price-display {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.upgrade-price-amount {
+  font-size: 42px;
+  font-weight: 700;
+  color: rgb(255, 200, 80);
+  display: block;
+}
+
+.upgrade-price-label {
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+}
+
+.upgrade-pay-btn {
+  width: 100%;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  background: linear-gradient(135deg, rgb(255,180,0), rgb(255,100,0)) !important;
+  border: none !important;
+  color: white !important;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-bottom: 12px;
+  letter-spacing: 0.3px;
+}
+
+.upgrade-pay-btn:hover {
+  opacity: 0.9;
+  box-shadow: 0 6px 24px rgba(255, 150, 0, 0.4);
+}
+
+.upgrade-pay-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.upgrade-secure-note {
+  text-align: center;
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+}
+
+
+/* ── PASSWORD TOGGLE ───────────────────────────────────────── */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 44px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: rgba(255,255,255,0.5);
+  padding: 4px;
+  line-height: 1;
+}
+
+.password-toggle:hover {
+  color: rgba(255,255,255,0.9);
+}
+
+/* ── FORGOT PASSWORD BUTTON ────────────────────────────────── */
+.forgot-password-btn {
+  background: none;
+  border: none;
+  color: rgba(100, 180, 255, 0.9);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 0;
+  margin-top: 6px;
+  text-align: right;
+  width: 100%;
+  display: block;
+}
+
+.forgot-password-btn:hover {
+  color: rgb(100, 180, 255);
+  text-decoration: underline;
+}
+
+/* ── PASSWORD STRENGTH INDICATOR ───────────────────────────── */
+.password-strength-wrapper {
+  margin-top: 10px;
+}
+
+.strength-bar-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.strength-bar-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 3px;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+.strength-label {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  transition: color 0.3s ease;
+}
+
+.strength-checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.strength-checklist li {
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s ease;
+}
+
+.strength-checklist li.passed {
+  color: rgb(0, 200, 80);
+}
+
+.strength-checklist li.passed .check-icon {
+  color: rgb(0, 200, 80);
+}
+
+.check-icon {
+  font-size: 14px;
+  color: rgba(255,255,255,0.25);
+  flex-shrink: 0;
+}
+
+/* ── AUTH SWITCH TEXT ───────────────────────────────────────── */
+.auth-switch-text {
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  margin-top: 16px;
+}
+
+.auth-switch-btn {
+  background: none;
+  border: none;
+  color: rgb(100, 180, 255);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  font-weight: 600;
+}
+
+.auth-switch-btn:hover {
+  text-decoration: underline;
+}
+
+/* ── BILLING TOGGLE ─────────────────────────────────────────── */
+.billing-toggle-wrapper {
+  display: flex;
+  gap: 8px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 20px;
+}
+
+.billing-toggle-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: rgba(255,255,255,0.5);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.billing-toggle-btn.active {
+  background: rgba(255,180,0,0.2);
+  color: rgb(255,200,80);
+  border: 1px solid rgba(255,180,0,0.4);
+}
+
+.save-badge {
+  background: rgb(0,200,80);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.3px;
+}
+/* ========================================================== */

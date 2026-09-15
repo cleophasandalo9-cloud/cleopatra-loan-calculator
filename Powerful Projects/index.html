@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale = 1.0">
+    <title>LoanIQ — Smart Loan Calculator</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+    <script src="script.js" defer></script>
+
+    
+    <link rel="stylesheet" href="styles.css">
+  </head>
+
+  <body>
+
+      <!-- ================== AUTH OVERLAY ================== -->
+      <div id="authOverlay" class="auth-overlay" style="display: none;">
+
+        <div class="auth-card">
+
+          <!-- App branding inside the auth card -->
+          <div class="auth-brand">
+            <h1>LoanIQ</h1>
+            <p>Sign in to save and sync your data</p>
+          </div>
+
+          <!-- Tab switcher — Login / Register -->
+          <div class="auth-tabs">
+            <button class="auth-tab active" id="loginTabBtn">Login</button>
+            <button class="auth-tab" id="registerTabBtn">Register</button>
+          </div>
+
+          <!-- ── LOGIN FORM ── -->
+          <div id="loginForm" class="auth-form">
+
+            <div class="input-group">
+              <label for="loginEmail">Email</label>
+              <input type="email" id="loginEmail" placeholder="Enter your email">
+              <small class="error-message" id="loginEmailError" role="alert"></small>
+            </div>
+
+            <div class="input-group">
+              <label for="loginPassword">Password</label>
+              <div class="password-wrapper">
+                <input type="password" id="loginPassword" placeholder="Enter your password">
+                <button type="button" class="password-toggle" id="loginPasswordToggle" aria-label="Show password">&#128065;</button>
+              </div>
+              <small class="error-message" id="loginPasswordError" role="alert"></small>
+              <button type="button" class="forgot-password-btn" id="forgotPasswordBtn">Forgot password?</button>
+            </div>
+
+            <!-- General auth error (wrong password, user not found, etc.) -->
+            <div id="loginError" class="auth-error-box" style="display:none;"></div>
+
+            <button class="btn" id="loginSubmitBtn">Login</button>
+
+            <p class="auth-switch-text">Don't have an account? <button type="button" class="auth-switch-btn" id="switchToRegisterBtn">Sign up</button></p>
+
+          </div>
+
+          <!-- ── REGISTER FORM ── -->
+          <div id="registerForm" class="auth-form" style="display:none;">
+
+            <div class="input-group">
+              <label for="registerEmail">Email</label>
+              <input type="email" id="registerEmail" placeholder="Enter your email">
+              <small class="error-message" id="registerEmailError" role="alert"></small>
+            </div>
+
+            <div class="input-group">
+              <label for="registerPassword">Password</label>
+              <div class="password-wrapper">
+                <input type="password" id="registerPassword" placeholder="Create a strong password">
+                <button type="button" class="password-toggle" id="registerPasswordToggle" aria-label="Show password">&#128065;</button>
+              </div>
+
+              <!-- Live password strength indicator -->
+              <div class="password-strength-wrapper" id="passwordStrengthWrapper" style="display:none;">
+                <div class="strength-bar-track">
+                  <div class="strength-bar-fill" id="strengthBarFill"></div>
+                </div>
+                <p class="strength-label" id="strengthLabel">Weak</p>
+                <ul class="strength-checklist">
+                  <li id="check-length">   <span class="check-icon">&#x25CB;</span> Minimum 8 characters</li>
+                  <li id="check-upper">    <span class="check-icon">&#x25CB;</span> Contains uppercase letter</li>
+                  <li id="check-lower">    <span class="check-icon">&#x25CB;</span> Contains lowercase letter</li>
+                  <li id="check-number">   <span class="check-icon">&#x25CB;</span> Contains a number</li>
+                  <li id="check-special">  <span class="check-icon">&#x25CB;</span> Contains a special character (!@#$...)</li>
+                </ul>
+              </div>
+
+              <small class="error-message" id="registerPasswordError" role="alert"></small>
+            </div>
+
+            <div class="input-group">
+              <label for="registerConfirm">Confirm Password</label>
+              <input type="password" id="registerConfirm" placeholder="Repeat your password">
+              <small class="error-message" id="registerConfirmError" role="alert"></small>
+            </div>
+
+            <!-- General auth error -->
+            <div id="registerError" class="auth-error-box" style="display:none;"></div>
+
+            <button class="btn" id="registerSubmitBtn">Create Account</button>
+
+            <p class="auth-switch-text">Already have an account? <button type="button" class="auth-switch-btn" id="switchToLoginBtn">Log in</button></p>
+
+            </div>
+
+          </div>
+
+          <!-- ── FORGOT PASSWORD FORM ── -->
+          <div id="forgotPasswordForm" class="auth-form" style="display:none;">
+            <p style="color: rgba(255,255,255,0.7); font-size: 14px; margin-bottom: 16px; text-align: center;">
+              Enter your email and we'll send you a reset link.
+            </p>
+            <div class="input-group">
+              <label for="forgotEmail">Email</label>
+              <input type="email" id="forgotEmail" placeholder="Enter your email">
+              <small class="error-message" id="forgotEmailError" role="alert"></small>
+            </div>
+            <div id="forgotSuccessMsg" style="display:none; color: rgb(0,200,80); font-size:14px; text-align:center; margin-bottom:12px;"></div>
+            <div id="forgotError" class="auth-error-box" style="display:none;"></div>
+            <button class="btn" id="forgotSubmitBtn">Send Reset Link</button>
+            <button type="button" class="forgot-password-btn" id="backToLoginBtn" style="margin-top: 12px;">&#8592; Back to Login</button>
+          </div>
+
+        </div>
+
+      </div>
+
+        </div>
+
+      </div>
+
+      
+      <!-- ================== UPGRADE MODAL ================== -->
+<div id="upgradeModal" class="upgrade-modal-overlay" style="display:none;">
+  <div class="upgrade-modal-card">
+
+    <button class="upgrade-modal-close" id="upgradeModalClose">&#x2715;</button>
+
+    <div class="upgrade-modal-header">
+      <h2>⚡ LoanIQ Premium</h2>
+      <p>Unlock the full power of LoanIQ</p>
+    </div>
+
+    <ul class="upgrade-feature-list">
+      <li>&#9989; EMI Chart — visualise your payments</li>
+      <li>&#9989; Loan Comparison — compare two loans side by side</li>
+      <li>&#9989; Export Schedule — download as CSV for Excel</li>
+      <li>&#9989; PDF Report — professional loan summary</li>
+      <li>&#9989; Savings Calculator</li>
+      <li>&#9989; Refinancing Calculator</li>
+      <li>&#9989; Extra Payment Simulator</li>
+    </ul>
+
+        <!-- Billing toggle -->
+    <div class="billing-toggle-wrapper">
+      <button class="billing-toggle-btn" id="weeklyToggleBtn">Weekly</button>
+      <button class="billing-toggle-btn active" id="monthlyToggleBtn">Monthly</button>
+      <button class="billing-toggle-btn" id="yearlyToggleBtn">
+        Yearly <span class="save-badge">Best Value</span>
+      </button>
+    </div>
+
+    <!-- Weekly pricing -->
+    <div class="upgrade-price-display" id="weeklyPricing" style="display:none;">
+      <span class="upgrade-price-amount">$1.50</span>
+      <span class="upgrade-price-label">per week · cancel anytime</span>
+    </div>
+
+    <!-- Monthly pricing -->
+    <div class="upgrade-price-display" id="monthlyPricing">
+      <span class="upgrade-price-amount">$4.99</span>
+      <span class="upgrade-price-label">per month · cancel anytime</span>
+    </div>
+
+    <!-- Yearly pricing -->
+    <div class="upgrade-price-display" id="yearlyPricing" style="display:none;">
+      <span class="upgrade-price-amount">$50</span>
+      <span class="upgrade-price-label">per year · save $9.88 vs monthly</span>
+    </div>
+
+    <button class="btn upgrade-pay-btn" id="upgradePayBtn">
+      Get Premium — $4.99/month
+    </button>
+
+    <p class="upgrade-secure-note">&#128274; Secure payment powered by Stripe</p>
+
+  </div>
+</div>
+<!-- ================ END UPGRADE MODAL ================ -->
+
+  <!-- ==================== LOADING SCREEN ================== -->
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loading-content">
+      <p class="loading-app-name">LoanIQ</p>
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Loading...</p>
+    </div>
+  </div>
+  <!-- ================ END LOADING SCREEN ================== -->
+
+    <!--================== HAMBURGER MENU ====================-->
+      <div class="menu-toggle">
+        <button id="menuToggle" class="hamburger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="sidebar">&#9776;</button>
+      </div>
+
+      <!--Sidebar Menu-->
+      <div id="sidebar" class="sidebar" inert>
+        <div class="sidebar-header">
+          <h2>LoanIQ</h2>
+          <p>Your financial toolkit</p>
+        </div>
+        
+
+        <!-- data-role="free"  → visible to all users         -->
+        <!-- data-role="admin" → visible to admin users only  -->
+
+        <button class="menu-item" id="dashboardBtn"      data-role="free">Dashboard</button>
+
+        <button class="menu-item" id="amortizationBtn"   data-role="free">Amortization Table</button>
+
+        <button class="menu-item" id="emiChartBtn"       data-role="admin">&#9999; EMI Chart</button>
+
+        <button class="menu-item" id="exportScheduleBtn" data-role="admin">&#128190; Export Schedule</button>
+
+        <button class="menu-item" id="loanComparisonBtn" data-role="admin">&#9878; Loan Comparison</button>
+
+        <button class="menu-item" id="savingsBtn"        data-role="admin">&#128200; Savings Calculator</button>
+
+        <button class="menu-item" id="refinanceBtn"      data-role="admin">&#128259; Refinancing</button>
+
+        <button class="menu-item" id="extraPaymentBtn"   data-role="admin">&#43; Extra Payment</button>
+
+        <button class="menu-item" id="pdfDownloadBtn"    data-role="admin">&#128462; Download PDF</button>
+
+        <!--currency icon button-->
+        <button class="currency-toggle" onclick="toggleConverter()" aria-label="Open currency converter" aria-expanded="false" aria-controls="converterPanel">
+          &#128178;
+        </button>
+
+        <!-- ── USER INFO + LOGOUT ── -->
+        <div id="userInfoPanel" class="user-info-panel" style="display:none;">
+          <p id="userEmailDisplay" class="user-email">user@email.com</p>
+          <p id="userRoleDisplay" class="user-role">Free Account</p>
+          <button class="menu-item upgrade-btn" id="upgradeBtn"   style="display:none;">⚡ Upgrade to Premium</button>
+          <button class="menu-item logout-btn" id="logoutBtn">&#x2192;  Logout</button>
+        </div>
+
+      </div>
+
+    
+    <div class="app-container">
+
+      
+
+      <!--header-->
+      <div class="header">
+        <h1>LoanIQ</h1>
+        <p>Smart loan planning, made simple</p>
+        <!--<div class="theme-toggle" onclick="toggleTheme()">🌙</div>-->
+      </div>
+
+      <!-- Remote Config notice banner — hidden until RC sets a message -->
+      <div id="appNotice" class="app-notice" style="display:none;">
+        <p id="appNoticeText"></p>
+      </div>
+
+      
+
+      <!--==================== AMORTIZATION TABLE =====================-->
+      <div id="amortizationSection" style="display: none;">
+
+        <!--AMORTIZATION TABLE-->
+          <div class="table-container">
+          <h3 class="breakdown-title">Payment Breakdown</h3>
+
+          <div class="table-scroll" id="amortizationScroll">
+          <table id="breakdownTable">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Payment</th>
+                <th>Interest</th>
+                <th>Principal</th>
+                <th>Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- JS will insert rows here -->
+            </tbody>
+          </table>
+          </div>
+          
+          </div>
+
+      </div>
+
+<!--=====================EMI CHART SECTION====================-->
+      <div id="emiChartSection" style="display: none;">
+        <div class="table-container">
+          <h3 class="breakdown-title">Equated Monthly Installment (EMI) Chart</h3>
+          <div id="emiSimpleMsg" class="result-box" style="display: block;">
+            <p style="color:aqua; font-size:14px; text-align:center;">EMI chart is only available for Compound Interest loans.</p>
+          </div>
+          <canvas id="emiChart" role="img" aria-label="EMI chart showing principal vs interest payment breakdown per month"></canvas>
+        </div>
+      </div>
+
+<!--==================EXPORT SCHEDULE SECTION================-->
+      <div id="paymentScheduleSection" style="display: none;">
+        <div class="table-container">
+          <h3 class="breakdown-title">Export Schedule</h3>
+
+          <div class="result-box" style="margin-bottom: 15px;">
+            <p style="font-size: 14px; color: rgba(255, 255, 255, 0.7); font-weight: 400;">Download your full amortization schedule as a CSV file, ready to open in Excel or Google Sheets.</p>
+          </div>
+
+          <div id="exportMsg" class="result-box" style="display: none;">
+            <p style="color: aqua; font-size: 14px; text-align:center;">Export is only available for Compound Interest loans.</p>
+          </div>
+
+          <div id="pdfErrorMsg" class="result-box" style="display: none;">
+            <p style="color: tomato; font-size: 14px; text-align:center;">PDF download requires valid <strong>Compound Interest loan</strong> details on the Dashboard.</p>
+          </div>
+
+          <button id="downloadCsvBtn" class="btn" style="display: none;">&#8595; Download CSV</button>
+        </div>
+      </div>
+
+
+<!--===================LOAN COMPARISON SECTION================-->
+      <div id="loanComparisonSection" style="display: none;">
+        <div class="table-container">
+          <h3 class="breakdown-title">Loan Comparison</h3>
+
+          <div class="result-box" style="margin-bottom: 15px;">
+            <p style="font-size: 14px; color:rgba(255, 255, 255, 0.7); font-weight: 400;">
+              Compare your current loan against an alternative. Loan A is pulled from your dashboard.
+            </p>
+          </div>
+
+          <div id="comparisonInputError" class="result-box" style="display: none; margin-bottom: 10px;">
+            <p style="color: tomato; font-size: 14px; text-align: center;">Please fill in all fields on the Dashboard first.</p>
+          </div>
+          <div class="input-group">
+            <label for="compAmount">Loan B &mdash; Amount</label>
+            <input type="number" id="compAmount" aria-describedby="compAmountError" placeholder="Enter Amount" step="10">
+            <small class="error-message" id="compAmountError" role="alert"></small>
+          </div>
+
+          <div class="input-group">
+            <label for="compRate">Loan B &mdash; Interest Rate (%)</label>
+            <input type="number" id="compRate" aria-describedby="compRateError" placeholder="Enter Rate p.a" step="0.1">
+            <small class="error-message" id="compRateError" role="alert"></small>
+          </div>
+
+          <div class="input-group">
+            <label for="compTime">Loan B &mdash; Duration (Months)</label>
+            <input type="number" id="compTime" aria-describedby="compTimeError" placeholder="Enter Duration" step="1">
+            <small class="error-message" id="compTimeError" role="alert"></small>
+          </div>
+
+          <div class="input-group">
+            <label for="compInterestType">Loan B &mdash; Interest Type</label>
+            <select id="compInterestType">
+              <option value="compound">Compound Interest</option>
+              <option value="simple">Simple Interest</option>
+            </select>
+          </div>
+
+          <button id="runComparisonBtn" class="btn">Compare Loans</button>
+
+          <!--Results table-->
+          <div id="comparisonResults" style="display: none; margin-top: 20px;">
+            <div style="overflow-x: auto;">
+            <table id="comparisonTable">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Loan A (Dashboard)</th>
+                  <th>Loan B (Alternative)</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <!--for js-->
+              </tbody>
+            </table>
+            </div>
+            <div id="comparisonVerdict" class="result-box" style="margin-top: 15px;"></div>
+          </div>
+          
+        </div>
+      </div>
+
+
+<!--=====================SAVINGS CALCULATOR==================-->
+      <div id="savingsSection" style="display: none;">
+        <div class="table-container">
+          <h3 class="breakdown-title">Savings Calculator</h3>
+
+          <div class="result-box" style="margin-bottom: 15px;">
+            <p style="font-size: 14px; color: rgba(255, 255, 255, 0.7); font-weight: 400;">
+              See how your monthly savings grow over time with compound interest.
+            </p>
+          </div>
+
+          <div class="input-group">
+            <label for="savingsAmount">Monthly Deposit</label>
+            <input type="number" id="savingsAmount" aria-describedby="savingsAmountError" placeholder="Enter monthly deposit" step="10">
+            <small class="error-message" id="savingsAmountError" role="alert"></small>
+          </div>
+
+          <div class="input-group">
+            <label for="savingsRate">Annual Interest Rate (%)</label>
+            <input type="number" id="savingsRate" aria-describedby="savingsRateError" placeholder="Enter interest rate p.a." step="0.1">
+            <small class="error-message" id="savingsRateError" role="alert"></small>
+          </div>
+
+          <div class="input-group">
+            <label for="savingsTime">Duration (Months)</label>
+            <input type="number" id="savingsTime" aria-describedby="savingsTimeError" placeholder="Enter duration" step="1">
+            <small class="error-message" id="savingsTimeError" role="alert"></small>
+          </div>
+
+          <button id="calculateSavingsBtn" class="btn">Calculate Savings</button>
+
+        <!-- Results — hidden until calculated -->
+          <div id="savingsResults" style="display: none;">
+
+            <div class="results">
+              <div class="result-box">
+                <h3>Total Deposited</h3>
+                <p id="savingsPrincipal">0</p>
+              </div>
+
+              <div class="result-box">
+                <h3>Interest Earned</h3>
+                <p id="savingsInterest">0</p>
+              </div>
+
+              <div class="result-box">
+                <h3>Final Balance</h3>
+                <p id="savingsFinal">0</p>
+              </div>
+            </div>
+
+            <!-- Year by year growth table -->
+            <div class="table-scroll" style="margin-top: 20px;">
+              <table id="savingsTable">
+                <thead>
+                  <tr>
+                    <th>Year</th>
+                    <th>Deposited</th>
+                    <th>Interest</th>
+                    <th>Balance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- JS fills this -->
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+
+      <!--==================REFINANCING SECTION================-->
+      <div id="refinanceSection" style="display: none;">
+        <div class="table-container">
+          <h3 class="breakdown-title">Refinancing Calculator</h3>
+
+          <div class="result-box" style="margin-bottom: 15px;">
+            <p style="font-size: 14px; color: rgba(255,255,255,0.7); font-weight: 400;">
+              Compare your current loan against a refinanced option and see your real savings.
+            </p>
+          </div>
+
+          <!-- Current Loan -->
+          <p style="color: rgba(255,255,255,0.5); font-size: 12px; margin-bottom: 10px; letter-spacing: 0.5px;">CURRENT LOAN</p>
+
+          <div class="input-group">
+            <label for="refiBalance">Remaining Balance</label>
+            <input type="number" id="refiBalance" aria-describedby="refiBalanceError" placeholder="Outstanding loan balance" step="100">
+            <small class="error-message" id="refiBalanceError" role="alert"></small>
+          </div>
+
+          <div class="input-group">
+            <label for="refiCurrentRate">Current Interest Rate (%)</label>
+            <input type="number" id="refiCurrentRate" aria-describedby="refiCurrentRateError" placeholder="Your current rate p.a." step="0.1">
+            <small class="error-message" id="refiCurrentRateError" role="alert"></small>
+          </div>
+
+          <div class="input-group">
+            <label for="refiCurrentMonths">Remaining Months</label>
+            <input type="number" id="refiCurrentMonths" aria-describedby="refiCurrentMonthsError" placeholder="Months left on current loan" step="1">
+            <small class="error-message" id="refiCurrentMonthsError" role="alert"></small>
+          </div>
+
+          <!-- New Loan -->
+          <p style="color: rgba(255,255,255,0.5); font-size: 12px; margin-bottom: 10px; margin-top: 10px; letter-spacing: 0.5px;">NEW LOAN</p>
+
+          <div class="input-group">
+            <label for="refiNewRate">New Interest Rate (%)</label>
+            <input type="number" id="refiNewRate" aria-describedby="refiNewRateError" placeholder="Proposed new rate p.a." step="0.1">
+            <small class="error-message" id="refiNewRateError" role="alert"></small>
+          </div>
+
+          <div class="input-group">
+            <label for="refiNewMonths">New Loan Term (Months)</label>
+            <input type="number" id="refiNewMonths" aria-describedby="refiNewMonthsError" placeholder="New loan duration" step="1">
+            <small class="error-message" id="refiNewMonthsError" role="alert"></small>
+          </div>
+
+          <div class="input-group">
+            <label for="refiFee">Refinancing Fee (optional)</label>
+            <input type="number" id="refiFee" placeholder="Enter fee or leave 0" step="100">
+          </div>
+
+          <button id="calculateRefiBtn" class="btn">Calculate Savings</button>
+
+          <!-- Results -->
+          <div id="refiResults" style="display: none;">
+
+            <div class="results">
+              <div class="result-box">
+                <h3>Current Monthly Payment</h3>
+                <p id="refiOldPayment">0</p>
+              </div>
+              <div class="result-box">
+                <h3>New Monthly Payment</h3>
+                <p id="refiNewPayment">0</p>
+              </div>
+              <div class="result-box">
+                <h3>Monthly Savings</h3>
+                <p id="refiMonthlySaving">0</p>
+              </div>
+              <div class="result-box">
+                <h3>Interest Savings (after fee)</h3>
+                <p id="refiTotalSaving">0</p>
+              </div>
+            </div>
+
+            <div id="refiVerdict" class="result-box" style="margin-top: 15px;"></div>
+
+          </div>
+
+        </div>
+      </div>
+
+
+
+      <!--==================EXTRA PAYMENT SECTION================-->
+      <div id="extraPaymentSection" style="display: none;">
+        <div class="table-container">
+          <h3 class="breakdown-title">Extra Payment Simulation</h3>
+
+          <div class="result-box" style="margin-bottom: 15px;">
+            <p style="font-size: 14px; color: rgba(255,255,255,0.7); font-weight: 400;">
+              See how paying extra each month reduces your loan term and total interest. Loan details are pulled from your dashboard.
+            </p>
+          </div>
+
+          <div id="extraPaymentDashboardError" class="result-box" style="display: none; margin-bottom: 10px;">
+            <p style="color: tomato; font-size: 14px; text-align: center;">Please fill in your loan details on the Dashboard first.</p>
+          </div>
+
+          <div class="input-group">
+            <label for="extraAmount">Extra Monthly Payment</label>
+            <input type="number" id="extraAmount" aria-describedby="extraAmountError" placeholder="Enter extra amount per month" step="10">
+            <small class="error-message" id="extraAmountError" role="alert"></small>
+          </div>
+
+          <button id="calculateExtraBtn" class="btn">Simulate</button>
+
+          <!-- Bug 3 fixed: added id="extraPaymentResults" wrapper that JS references -->
+          <div id="extraPaymentResults">
+        <div id="extraResultsBoxes">
+          <div class="results">
+            <div class="result-box">
+              <h3>Original Term</h3>
+              <p id="extraOriginalTerm">0</p>
+            </div>
+            <div class="result-box">
+              <h3>New Term</h3>
+              <p id="extraNewTerm">0</p>
+            </div>
+            <div class="result-box">
+              <h3>Months Saved</h3>
+              <p id="extraMonthsSaved">0</p>
+            </div>
+            <div class="result-box">
+              <h3>Interest Saved</h3>
+              <p id="extraInterestSaved">0</p>
+            </div>
+          </div>
+        </div>
+
+            <div id="extraVerdict" class="result-box" style="margin-top: 15px;"></div>
+          </div><!-- end #extraPaymentResults -->
+
+            <!-- Year by year comparison table -->
+            <button id="toggleExtraTableBtn" class="btn" style="margin-top: 15px; background: rgba(0,120,255,0.3); border: 1px solid rgba(0,120,255,0.6);">
+            &#9660; Show Balance Comparison
+            </button>
+
+            <div id="extraTableWrapper" style="display: none;">
+              <div class="table-scroll" style="margin-top: 10px;">
+                <div style="overflow-x: auto;">
+                <table id="extraPaymentTable">
+                  <thead>
+                    <tr>
+                      <th>Year</th>
+                      <th>Balance (Normal)</th>
+                      <th>Balance (Extra)</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+
+
+
+
+
+<!--=======================DASHBOARD SECTION========================-->
+
+      <!--calculator card-->
+      <div id="dashboardSection">
+        <div class="calculator-card">
+
+
+          <!--input group-->
+          <div class="input-group">
+            <label for="amount">Loan Amount </label>
+            <input type="number" id="amount" aria-describedby="amountError" placeholder="Enter Loan Amount" min="1">
+            <small class="error-message" id="amountError" role="alert"></small>
+          </div>
+
+          <div class="input-group">
+            <label for="currencySearch">Currency</label>
+            
+            <input type="text" id="currencySearch" placeholder="Search currency...">
+          
+            
+            <select id="currency">
+              <option value="USD">USD</option>
+              <option value="KES">KES</option>
+              <option value="EUR">EUR</option>
+              <option value="GBP">GBP</option>
+              <option value="INR">INR</option>
+              <option value="JPY">JPY</option>
+            </select>
+          </div>
+            
+
+          <div class="input-group">
+            <label for="rate">Interest Rate (%)</label>
+            <input type="number" id="rate" aria-describedby="rateError" placeholder="Enter Interest Rate" min="0.1" step="0.1">
+            <small class="error-message" id="rateError" role="alert"></small>
+          </div>
+
+          <div class="input-group">
+            <label for="time">Loan Duration (Months)</label>
+            <input type="number" id="time" aria-describedby="timeError" placeholder="Enter Duration" min="1" step="1">
+            <small class="error-message" id="timeError" role="alert"></small>
+          </div>
+
+          <!--Flex for compund or simple interest-->
+          <div class="input-group">
+            <label for="interestType">Interest Type</label>
+            <select id="interestType">
+              <option value="compound">Compound Interest</option>
+              <option value="simple">Simple Interest</option>
+            </select>
+          </div>
+
+          
+
+          <!--results-->
+          <div class="results">
+
+            <div class="result-box">
+              <h3>Monthly Payment</h3>
+              <p id="monthly">0</p>
+            </div>
+
+            <div class="result-box">
+              <h3>Total Interest</h3>
+              <p id="interest">0</p>
+            </div>
+
+            <div class="result-box">
+              <h3>Total Payment</h3>
+              <p id="total">0</p>
+            </div>
+
+          </div>
+
+          <button class="btn" id="resetBtn" style="margin-top: 10px; background: rgba(255, 60, 60, 0.15); border: 1px solid rgba(255, 60, 60, 0.3); color: rgb(255, 120, 120);">&#x21BA; Reset</button>
+
+
+        </div>
+      </div>
+
+      
+
+    </div>
+    <!--currency converter panel-->
+    <div class="overlay" id="overlay" onclick="toggleConverter()"></div>
+        <div class="converter-panel" id="converterPanel">
+          <h3>Currency Converter</h3>
+
+          <div class="input-group">
+            <label for="convertAmount">Amount</label>
+            <input type="number" id="convertAmount" placeholder="Enter amount">
+          </div>
+      <!--======================================
+        Currency selection in converter panel
+      =======================================-->
+          <input type="text" id="fromSearch" placeholder="Search currency...">
+
+          <div class="input-group">
+            <label for="fromCurrency">From</label>
+            <select id="fromCurrency"></select>
+          </div>
+
+          <input type="text" id="toSearch" placeholder="Search currency...">
+        
+          <div class="input-group">
+            <label for="toCurrency">To</label>
+            <select id="toCurrency"></select>
+          </div>
+
+          <div class="result-box">
+            <h3>Result</h3>
+            <p id="convertResult">0</p>
+          </div>
+        </div>
+
+
+        <!-- ===================== FIREBASE SDK ===================== -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    import { getFirestore, doc, setDoc, getDoc }
+    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+    import { getAnalytics, logEvent } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js';
+    import { getRemoteConfig, fetchAndActivate, getValue }
+    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-remote-config.js';
+
+    // ── CONFIG ──────────────────────────────────────────────
+    const firebaseConfig = {
+      apiKey:            "AIzaSyDv5rtQe-w87uwOc0tOueZlJIRBAjNHoNA",
+      authDomain:       "loancalculator-ce7d4.firebaseapp.com",
+      projectId:        "loancalculator-ce7d4",
+      storageBucket:    "loancalculator-ce7d4.firebasestorage.app",
+      messagingSenderId: "84689676435",
+      appId:            "1:84689676435:web:0e77339e77fdf633eec566",
+      measurementId: "G-VWS1VCGW0R"
+    };
+
+    // ── INITIALIZE ───────────────────────────────────────────
+    const app          = initializeApp(firebaseConfig);
+    const auth         = getAuth(app);
+    const db           = getFirestore(app);
+    const analytics    = getAnalytics(app);
+    const remoteConfig = getRemoteConfig(app);
+
+    remoteConfig.settings.minimumFetchIntervalMillis = 3600000;
+
+    window._firebase = {
+      auth,
+      db,
+      analytics,
+      remoteConfig,
+
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged,
+      doc,
+      setDoc,
+      getDoc,
+      logEvent,
+      fetchAndActivate,
+      getValue
+    };
+
+    window.dispatchEvent(new Event('firebaseReady'));
+  </script>
+
+  </body>
+
+</html>
