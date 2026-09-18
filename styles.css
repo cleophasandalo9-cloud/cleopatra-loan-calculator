@@ -1170,4 +1170,69 @@ MENU ITEMS
   color: rgba(255,255,255,0.25);
   flex-shrink: 0;
 }
+
+/* ── AUTH SWITCH TEXT ───────────────────────────────────────── */
+.auth-switch-text {
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  margin-top: 16px;
+}
+
+.auth-switch-btn {
+  background: none;
+  border: none;
+  color: rgb(100, 180, 255);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  font-weight: 600;
+}
+
+.auth-switch-btn:hover {
+  text-decoration: underline;
+}
+
+/* ── BILLING TOGGLE ─────────────────────────────────────────── */
+.billing-toggle-wrapper {
+  display: flex;
+  gap: 8px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 20px;
+}
+
+.billing-toggle-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: rgba(255,255,255,0.5);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.billing-toggle-btn.active {
+  background: rgba(255,180,0,0.2);
+  color: rgb(255,200,80);
+  border: 1px solid rgba(255,180,0,0.4);
+}
+
+.save-badge {
+  background: rgb(0,200,80);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.3px;
+}
 /* ========================================================== */

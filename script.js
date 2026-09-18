@@ -19,7 +19,12 @@ const animationFrames = {};
 const POPULAR_CURRENCIES = ['USD', 'EUR', 'KES', 'GBP', 'INR', 'JPY', 'AUD', 'CAD', 'AED', 'ZAR', 'NGN', 'KWD'];
 // ── STRIPE CONFIG ────────────────────────────────────────────
 const STRIPE_PUBLISHABLE_KEY = 'pk_test_51UDjJLRvHL4nitcrQWwDeYY8QcSutzZMruKKn0x0ORbI2RFyLzQ12n6glGMi4FSYXJEcgyWicBram8Qmcv8LQwYM00RAZkc1JR';
-const STRIPE_PRICE_ID        = 'price_1UEcVURvHL4nitcrAgrgNo5p';
+const STRIPE_PRICE_WEEKLY   = 'price_1UEukmRvHL4nitcr9ir9IaUC';
+const STRIPE_PRICE_MONTHLY  = 'price_1UEukmRvHL4nitcrDt6GlO2i';
+const STRIPE_PRICE_YEARLY   = 'price_1UEukmRvHL4nitcr3bGJgPQY';
+const STRIPE_LINK_WEEKLY    = 'https://buy.stripe.com/test_fZucN750x9XEaQE8Bu1wY03';
+const STRIPE_LINK_MONTHLY   = 'https://buy.stripe.com/test_7sY5kFakRb1I6Ao3ha1wY01';
+const STRIPE_LINK_YEARLY    = 'https://buy.stripe.com/test_dRmbJ3fFb6Ls0c09Fy1wY02';
 
 const CDN_CHARTJS = 'https://cdn.jsdelivr.net/npm/chart.js';
 const CDN_JSPDF = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
@@ -1141,6 +1146,67 @@ document.getElementById('upgradeBtn').addEventListener('click', function () {
 });
 
 // ── STRIPE CHECKOUT ─────────────────────────────────────────
+// Track which billing period is selected — default is monthly
+let selectedBillingPeriod = 'monthly';
+
+// ── BILLING CONFIG MAP ───────────────────────────────────────
+// Central map — all pricing info in one place
+// If you ever change prices, change them here only
+const BILLING_CONFIG = {
+  weekly: {
+    link:        STRIPE_LINK_WEEKLY,
+    priceId:     STRIPE_PRICE_WEEKLY,
+    label:       'Get Premium — $1.50/week',
+    amount:      150   // in cents — used to identify plan in webhook
+  },
+  monthly: {
+    link:        STRIPE_LINK_MONTHLY,
+    priceId:     STRIPE_PRICE_MONTHLY,
+    label:       'Get Premium — $4.99/month',
+    amount:      499
+  },
+  yearly: {
+    link:        STRIPE_LINK_YEARLY,
+    priceId:     STRIPE_PRICE_YEARLY,
+    label:       'Get Premium — $50/year',
+    amount:      5000
+  }
+};
+
+// ── BILLING TOGGLE HELPER ────────────────────────────────────
+// Single function handles all three toggle buttons
+// Teaching moment: instead of writing three separate click handlers
+// that do almost the same thing, we write one function that takes
+// the period as a parameter — this is called DRY (Don't Repeat Yourself)
+function selectBillingPeriod (period) {
+  selectedBillingPeriod = period;
+
+  // Remove active from all toggle buttons
+  document.querySelectorAll('.billing-toggle-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+
+  // Add active to the clicked one
+  document.getElementById(period + 'ToggleBtn').classList.add('active');
+
+  // Hide all pricing displays
+  document.getElementById('weeklyPricing').style.display  = 'none';
+  document.getElementById('monthlyPricing').style.display = 'none';
+  document.getElementById('yearlyPricing').style.display  = 'none';
+
+  // Show the selected one
+  document.getElementById(period + 'Pricing').style.display = 'block';
+
+  // Update pay button label
+  document.getElementById('upgradePayBtn').textContent = BILLING_CONFIG[period].label;
+}
+
+// Wire up the three toggle buttons
+document.getElementById('weeklyToggleBtn').addEventListener('click',  () => selectBillingPeriod('weekly'));
+document.getElementById('monthlyToggleBtn').addEventListener('click', () => selectBillingPeriod('monthly'));
+document.getElementById('yearlyToggleBtn').addEventListener('click',  () => selectBillingPeriod('yearly'));
+
+// ── PAY BUTTON ───────────────────────────────────────────────
 document.getElementById('upgradePayBtn').addEventListener('click', function () {
 
   const user = window._firebase?.auth?.currentUser;
@@ -1150,10 +1216,10 @@ document.getElementById('upgradePayBtn').addEventListener('click', function () {
     return;
   }
 
-  // Append user email to the payment link so we can identify them after payment
-  const paymentUrl = 'https://buy.stripe.com/test_28E00lfFb8TA3oc7xq1wY00' + '?prefilled_email=' + encodeURIComponent(user.email);
+  // Get the right payment link for the selected period
+  const config     = BILLING_CONFIG[selectedBillingPeriod];
+  const paymentUrl = config.link + '?prefilled_email=' + encodeURIComponent(user.email);
 
-  // Redirect directly to Stripe's hosted payment page
   window.location.href = paymentUrl;
 });
 
@@ -2702,6 +2768,10 @@ function clearAuthErrors () {
   document.getElementById('registerError').style.display = 'none';
 }
 
+// ── EMAIL VALIDATOR ──────────────────────────────────────────
+function isValidEmail (email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+}
 
 // ── FIREBASE ERROR CODE TRANSLATOR ─────────────────────────
 
@@ -2824,6 +2894,16 @@ function showForgotForm () {
   document.querySelector('.auth-tabs').style.display        = 'none';
 }
 
+// ── AUTH FORM SWITCHERS ──────────────────────────────────────
+document.getElementById('switchToRegisterBtn').addEventListener('click', function () {
+  document.getElementById('loginTabBtn').click();
+  document.getElementById('registerTabBtn').click();
+});
+
+document.getElementById('switchToLoginBtn').addEventListener('click', function () {
+  document.getElementById('loginTabBtn').click();
+});
+
 function hideForgotForm () {
   document.getElementById('forgotPasswordForm').style.display = 'none';
   document.getElementById('loginForm').style.display          = 'block';
@@ -2855,8 +2935,8 @@ document.getElementById('forgotSubmitBtn').addEventListener('click', async funct
     return;
   }
 
-  if (!email.includes('@')) {
-    errorEl.textContent  = 'Enter a valid email address.';
+    if (!isValidEmail(email)) {
+    errorEl.textContent   = 'Enter a valid email address (e.g. archer@gmail.com).';
     errorEl.style.opacity = '1';
     return;
   }
@@ -2911,11 +2991,11 @@ document.getElementById('loginSubmitBtn').addEventListener('click', async functi
   // Step 3 — client-side validation (before hitting Firebase)
   let hasError = false;
 
-  if (!email) {
+    if (!email) {
     showFieldError('loginEmail', 'loginEmailError', 'Email is required.');
     hasError = true;
-  } else if (!email.includes('@')) {
-    showFieldError('loginEmail', 'loginEmailError', 'Enter a valid email address.');
+  } else if (!isValidEmail(email)) {
+    showFieldError('loginEmail', 'loginEmailError', 'Enter a valid email address (e.g. archer@gmail.com).');
     hasError = true;
   }
 
@@ -2971,11 +3051,11 @@ document.getElementById('registerSubmitBtn').addEventListener('click', async fun
 
   let hasError = false;
 
-  if (!email) {
+    if (!email) {
     showFieldError('registerEmail', 'registerEmailError', 'Email is required.');
     hasError = true;
-  } else if (!email.includes('@')) {
-    showFieldError('registerEmail', 'registerEmailError', 'Enter a valid email address.');
+  } else if (!isValidEmail(email)) {
+    showFieldError('registerEmail', 'registerEmailError', 'Enter a valid email address (e.g. archer@gmail.com).');
     hasError = true;
   }
 
