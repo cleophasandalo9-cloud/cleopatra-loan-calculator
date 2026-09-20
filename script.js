@@ -9,6 +9,111 @@
  */
 
 //===========================================
+// OFFLINE DETECTION MODULE
+//===========================================
+
+(function () {
+
+  const banner   = document.getElementById('offlineBanner');
+  const bannerText = document.getElementById('offlineBannerText');
+  const bannerIcon = document.getElementById('offlineBannerIcon');
+  let onlineTimer  = null;
+
+  // ── SHOW OFFLINE BANNER ────────────────────────────────────
+  function showOffline () {
+    banner.className          = 'offline-banner offline';
+    bannerIcon.textContent    = '⚠️';
+    bannerText.textContent    = 'You\'re offline — some features may be unavailable';
+    banner.style.display      = 'flex';
+
+    // Clear any pending online timer
+    if (onlineTimer) clearTimeout(onlineTimer);
+  }
+
+  // ── SHOW ONLINE BANNER ─────────────────────────────────────
+  function showOnline () {
+    banner.className          = 'offline-banner online';
+    bannerIcon.textContent    = '✅';
+    bannerText.textContent    = 'You\'re back online!';
+    banner.style.display      = 'flex';
+
+    // Hide the banner after 3 seconds
+    onlineTimer = setTimeout(() => {
+      banner.style.display = 'none';
+    }, 3000);
+  }
+
+  // ── FULL SCREEN OFFLINE (app loaded with no internet) ──────
+  function showOfflineScreen () {
+    // Don't show if already showing
+    if (document.getElementById('offlineScreen')) return;
+
+    const screen = document.createElement('div');
+    screen.id        = 'offlineScreen';
+    screen.className = 'offline-screen';
+    screen.innerHTML = `
+      <div class="offline-screen-icon">📡</div>
+      <h2>No Internet Connection</h2>
+      <p>LoanIQ needs an internet connection to load your account and sync your data. Please check your connection and try again.</p>
+      <button class="offline-screen-retry" id="offlineRetryBtn">Try Again</button>
+    `;
+
+    document.body.appendChild(screen);
+
+    // Retry button reloads the page
+    document.getElementById('offlineRetryBtn').addEventListener('click', function () {
+      if (navigator.onLine) {
+        // Internet is back — reload
+        window.location.reload();
+      } else {
+        // Still offline — shake the button to give feedback
+        this.style.transform = 'scale(0.95)';
+        setTimeout(() => { this.style.transform = 'scale(1)'; }, 150);
+        bannerText.textContent = 'Still offline. Please check your connection.';
+        showOffline();
+      }
+    });
+  }
+
+  function hideOfflineScreen () {
+    const screen = document.getElementById('offlineScreen');
+    if (screen) screen.remove();
+  }
+
+  // ── LISTEN FOR NETWORK CHANGES ─────────────────────────────
+  // These events fire automatically when the browser detects
+  // network state changes — no polling needed
+  window.addEventListener('offline', function () {
+    showOffline();
+    // If the loading screen is still showing, show the full screen
+    const loadingScreen = document.getElementById('loadingScreen');
+    if (loadingScreen && loadingScreen.style.display !== 'none') {
+      showOfflineScreen();
+    }
+  });
+
+  window.addEventListener('online', function () {
+    hideOfflineScreen();
+    showOnline();
+  });
+
+  // ── CHECK ON PAGE LOAD ─────────────────────────────────────
+  // Handle case where app loads with no internet already
+  if (!navigator.onLine) {
+    showOffline();
+
+    // Wait 2 seconds to see if loading screen is stuck
+    setTimeout(() => {
+      const loadingScreen = document.getElementById('loadingScreen');
+      if (loadingScreen && loadingScreen.style.display !== 'none') {
+        showOfflineScreen();
+      }
+    }, 2000);
+  }
+
+})();
+
+//===========================================
 //APP STATE MODULE
 //===========================================
 let isSyncing = false;
@@ -196,7 +301,8 @@ function showSection (sectionId) {
     'loanComparisonSection',
     'savingsSection',
     'refinanceSection',
-    'extraPaymentSection'
+    'extraPaymentSection',
+    'accountSettingsSection'
   ];
 
   allSections.forEach(id => {
@@ -213,14 +319,15 @@ function showSection (sectionId) {
 
   // Find the button whose ID matches this section and highlight it
   const sectionToBtn = {
-    'dashboardSection':      'dashboardBtn',
-    'amortizationSection':   'amortizationBtn',
-    'emiChartSection':       'emiChartBtn',
-    'paymentScheduleSection':'exportScheduleBtn',
-    'loanComparisonSection': 'loanComparisonBtn',
-    'savingsSection':        'savingsBtn',
-    'refinanceSection':      'refinanceBtn',
-    'extraPaymentSection':   'extraPaymentBtn'
+    'dashboardSection':       'dashboardBtn',
+    'amortizationSection':    'amortizationBtn',
+    'emiChartSection':        'emiChartBtn',
+    'paymentScheduleSection': 'exportScheduleBtn',
+    'loanComparisonSection':  'loanComparisonBtn',
+    'savingsSection':         'savingsBtn',
+    'refinanceSection':       'refinanceBtn',
+    'extraPaymentSection':    'extraPaymentBtn',
+    'accountSettingsSection': 'accountSettingsBtn'
   };
 
   const activeBtn = document.getElementById(sectionToBtn[sectionId]);
@@ -1154,9 +1261,10 @@ let selectedBillingPeriod = 'monthly';
 // If you ever change prices, change them here only
 const BILLING_CONFIG = {
   weekly: {
+    
     link:        STRIPE_LINK_WEEKLY,
     priceId:     STRIPE_PRICE_WEEKLY,
-    label:       'Get Premium — $1.50/week',
+    label:       'Get Premium — $1.55/week',
     amount:      150   // in cents — used to identify plan in webhook
   },
   monthly: {
@@ -2769,8 +2877,47 @@ function clearAuthErrors () {
 }
 
 // ── EMAIL VALIDATOR ──────────────────────────────────────────
+const DISPOSABLE_EMAIL_DOMAINS = new Set([
+  'mailinator.com', 'guerrillamail.com', 'tempmail.com', 'throwam.com',
+  'sharklasers.com', 'guerrillamailblock.com', 'grr.la', 'guerrillamail.info',
+  'guerrillamail.biz', 'guerrillamail.de', 'guerrillamail.net', 'guerrillamail.org',
+  'spam4.me', 'trashmail.com', 'trashmail.me', 'trashmail.net', 'trashmail.org',
+  'trashmail.io', 'yopmail.com', 'yopmail.fr', 'cool.fr.nf', 'jetable.fr.nf',
+  'nospam.ze.tc', 'nomail.xl.cx', 'mega.zik.dj', 'speed.1s.fr', 'courriel.fr.nf',
+  'moncourrier.fr.nf', 'monemail.fr.nf', 'monmail.fr.nf', 'dispostable.com',
+  'mailnull.com', 'spamgourmet.com', 'spamgourmet.net', 'spamgourmet.org',
+  'tempr.email', 'discard.email', 'mailnesia.com', 'maildrop.cc', 'spamfree24.org',
+  'spamfree24.de', 'spamfree24.eu', 'spamfree24.info', 'spamfree24.net',
+  'spamfree24.com', 'binkmail.com', 'bob.email', 'mailin8r.com', 'mailinator2.com',
+  'notmailinator.com', 'vomoto.com', 'tradermail.info', 'fakeinbox.com',
+  'mailblocks.com', 'spamhereplease.com', 'spamtrail.com', 'put2.net',
+  'drdrb.net', 'spamtroll.net', 'discard.email', 'spamavert.com',
+  'antispam24.de', 'spamevader.com', 'tempinbox.com', 'spamfree.eu',
+  'getonemail.com', 'mailexpire.com', 'spammotel.com', 'spamgap.com',
+  'throwam.com', 'getairmail.com', 'filzmail.com', 'throwam.com',
+  'dudmail.com', 'scatmail.com', 'trayna.com', 'spamgap.com',
+  'tempail.com', 'spoofmail.de', 'mytemp.email', 'throwam.com',
+  'temp-mail.org', 'temp-mail.io', 'emailondeck.com', 'getnada.com',
+  'mohmal.com', 'getmailbird.com', 'throwam.com', 'spamoverdose.com',
+  'spamspot.com', 'spaml.com', 'spamstack.net'
+]);
+
 function isValidEmail (email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+  // Basic format check
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return false;
+
+  // Extract domain
+  const domain = email.split('@')[1].toLowerCase();
+
+  // Block disposable email domains
+  if (DISPOSABLE_EMAIL_DOMAINS.has(domain)) return false;
+
+  // Block domains with no real TLD (e.g. test@fake or test@a.b)
+  const parts = domain.split('.');
+  if (parts.length < 2) return false;
+  if (parts[parts.length - 1].length < 2) return false;
+
+  return true;
 }
 
 // ── FIREBASE ERROR CODE TRANSLATOR ─────────────────────────
@@ -2785,6 +2932,7 @@ function translateAuthError (code) {
     'auth/weak-password':            'Password must be at least 6 characters.',
     'auth/too-many-requests':        'Too many failed attempts. Please try again later.',
     'auth/network-request-failed':   'Network error. Check your connection and try again.',
+    'auth/email-not-verified':       'Please verify your email before logging in. Check your inbox.',
   };
 
   // If the code is not in our map, show a generic fallback message
@@ -2868,6 +3016,17 @@ document.getElementById('registerPassword').addEventListener('input', function (
   updateStrengthUI(this.value);
 });
 
+document.getElementById('registerPassword').addEventListener('blur', function () {
+  document.getElementById('passwordStrengthWrapper').style.display = 'none';
+});
+
+document.getElementById('registerPassword').addEventListener('focus', function () {
+  if (this.value.length > 0) {
+    updateStrengthUI(this.value);
+  }
+});
+
+
 // ── PASSWORD VISIBILITY TOGGLES ─────────────────────────────
 function setupPasswordToggle (inputId, toggleId) {
   const input  = document.getElementById(inputId);
@@ -2903,6 +3062,146 @@ document.getElementById('switchToRegisterBtn').addEventListener('click', functio
 document.getElementById('switchToLoginBtn').addEventListener('click', function () {
   document.getElementById('loginTabBtn').click();
 });
+
+// ── EMAIL VERIFICATION SCREEN ────────────────────────────────
+
+function showVerifyEmailScreen (email) {
+  // Hide all other forms and tabs
+  document.getElementById('loginForm').style.display          = 'none';
+  document.getElementById('registerForm').style.display       = 'none';
+  document.getElementById('forgotPasswordForm').style.display = 'none';
+  document.getElementById('verifyEmailForm').style.display    = 'block';
+  document.querySelector('.auth-tabs').style.display          = 'none';
+
+  // Show the user's email address in the message
+  document.getElementById('verifyEmailAddress').textContent = email;
+
+  // Store email for resend functionality
+  document.getElementById('verifyEmailForm').dataset.email = email;
+}
+
+function hideVerifyEmailScreen () {
+  document.getElementById('verifyEmailForm').style.display = 'none';
+  document.getElementById('loginForm').style.display       = 'block';
+  document.querySelector('.auth-tabs').style.display       = 'flex';
+}
+
+// ── BACK TO LOGIN FROM VERIFY SCREEN ────────────────────────
+document.getElementById('backToLoginFromVerifyBtn').addEventListener('click', function () {
+  stopVerificationPolling();
+  hideVerifyEmailScreen();
+});
+
+// ── RESEND VERIFICATION EMAIL ────────────────────────────────
+document.getElementById('resendVerifyBtn').addEventListener('click', async function () {
+
+  const btn       = this;
+  const errorEl   = document.getElementById('verifyEmailError');
+  const successEl = document.getElementById('verifyEmailSuccess');
+
+  errorEl.style.display   = 'none';
+  successEl.style.display = 'none';
+
+  btn.disabled    = true;
+  btn.textContent = 'Sending...';
+
+  try {
+    const { auth, sendEmailVerification } = window._firebase;
+    const user = auth.currentUser;
+
+    if (!user) {
+      // No active session — ask user to log in again first
+      errorEl.textContent   = 'Session expired. Please go back to login and try again.';
+      errorEl.style.display = 'block';
+      btn.disabled    = false;
+      btn.textContent = 'Resend Verification Email';
+      return;
+    }
+
+    // Actually send the verification email
+    await sendEmailVerification(user);
+
+    successEl.textContent   = '✅ Verification email sent. Check your inbox and spam folder.';
+    successEl.style.display = 'block';
+
+  } catch (err) {
+    // auth/too-many-requests fires if they click resend too many times
+    errorEl.textContent   = translateAuthError(err.code);
+    errorEl.style.display = 'block';
+
+  } finally {
+    // Disable resend for 60 seconds to prevent spam
+    let seconds = 60;
+    btn.textContent = `Resend in ${seconds}s`;
+
+    const countdown = setInterval(() => {
+      seconds--;
+      btn.textContent = `Resend in ${seconds}s`;
+      if (seconds <= 0) {
+        clearInterval(countdown);
+        btn.disabled    = false;
+        btn.textContent = 'Resend Verification Email';
+      }
+    }, 1000);
+  }
+});
+
+// ── VERIFICATION POLLING ─────────────────────────────────────
+// After showing the verify screen, we poll every 3 seconds to
+// check if the user has clicked the verification link in their email.
+// When they do, we automatically redirect them into the app
+// without them needing to log in again.
+
+let _verificationPollTimer = null;
+
+function startVerificationPolling () {
+  // Clear any existing poll first
+  stopVerificationPolling();
+
+  _verificationPollTimer = setInterval(async () => {
+    try {
+      const { auth } = window._firebase;
+      const user = auth.currentUser;
+
+      if (!user) {
+        stopVerificationPolling();
+        return;
+      }
+
+      // Reload user from server to get latest emailVerified status
+      await user.reload();
+
+      if (user.emailVerified) {
+        // User has verified — stop polling and redirect into app
+        stopVerificationPolling();
+
+        // Hide the verify screen
+        document.getElementById('verifyEmailForm').style.display = 'none';
+
+        // Hide auth overlay and boot the app
+        document.getElementById('authOverlay').style.display = 'none';
+        document.getElementById('userInfoPanel').style.display  = 'block';
+        document.getElementById('userEmailDisplay').textContent = user.email;
+
+        fetchAndApplyRole(user.uid);
+        initRemoteConfig();
+        initApp();
+      }
+
+    } catch (err) {
+      // Silent fail — just keep polling
+      console.warn('Verification poll error:', err.message);
+    }
+  }, 3000); // Check every 3 seconds
+}
+
+function stopVerificationPolling () {
+  if (_verificationPollTimer) {
+    clearInterval(_verificationPollTimer);
+    _verificationPollTimer = null;
+  }
+}
+
 
 function hideForgotForm () {
   document.getElementById('forgotPasswordForm').style.display = 'none';
@@ -2995,7 +3294,7 @@ document.getElementById('loginSubmitBtn').addEventListener('click', async functi
     showFieldError('loginEmail', 'loginEmailError', 'Email is required.');
     hasError = true;
   } else if (!isValidEmail(email)) {
-    showFieldError('loginEmail', 'loginEmailError', 'Enter a valid email address (e.g. archer@gmail.com).');
+    showFieldError('registerEmail', 'registerEmailError', 'Enter a valid email address. Disposable or temporary emails are not allowed.');
     hasError = true;
   }
 
@@ -3011,9 +3310,23 @@ document.getElementById('loginSubmitBtn').addEventListener('click', async functi
   this.textContent = 'Signing in...';
 
   // Step 5 — call Firebase
-  try {
+    try {
     const { signInWithEmailAndPassword, auth } = window._firebase;
-    await signInWithEmailAndPassword(auth, email, password);
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user           = userCredential.user;
+
+    // Force reload to get latest emailVerified status from server
+    await user.reload();
+
+    // Block unverified users — show verify screen
+    // Do NOT sign out — we keep session alive so resend button works
+    // and so we can poll for verification and auto-redirect
+    if (!user.emailVerified) {
+      showVerifyEmailScreen(user.email);
+      startVerificationPolling();
+      return;
+    }
+
     // onAuthStateChanged (below) handles everything after successful login
 
   } catch (error) {
@@ -3055,7 +3368,7 @@ document.getElementById('registerSubmitBtn').addEventListener('click', async fun
     showFieldError('registerEmail', 'registerEmailError', 'Email is required.');
     hasError = true;
   } else if (!isValidEmail(email)) {
-    showFieldError('registerEmail', 'registerEmailError', 'Enter a valid email address (e.g. archer@gmail.com).');
+    showFieldError('registerEmail', 'registerEmailError', 'Enter a valid email address. Disposable or temporary emails are not allowed.');
     hasError = true;
   }
 
@@ -3095,10 +3408,19 @@ document.getElementById('registerSubmitBtn').addEventListener('click', async fun
   this.disabled    = true;
   this.textContent = 'Creating account...';
 
-  try {
-    const { createUserWithEmailAndPassword, auth } = window._firebase;
-    await createUserWithEmailAndPassword(auth, email, password);
-    // onAuthStateChanged handles everything after successful registration
+    try {
+    const { createUserWithEmailAndPassword, sendEmailVerification, auth } = window._firebase;
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user           = userCredential.user;
+
+    // Send verification email immediately after account creation
+    await sendEmailVerification(user);
+
+    // Sign the user out immediately — they must verify first
+    await auth.signOut();
+
+    // Show the verify email screen instead of logging them in
+    showVerifyEmailScreen(user.email);
 
   } catch (error) {
     showGeneralError('registerError', translateAuthError(error.code));
@@ -3129,13 +3451,18 @@ document.getElementById('logoutBtn').addEventListener('click', async function ()
 function initAuthListener () {
   const { onAuthStateChanged, auth } = window._firebase;
 
-onAuthStateChanged(auth, function (user) {
+onAuthStateChanged(auth, async function (user) {
 
     // Always hide the loading screen first — Firebase has responded,
     // so we no longer need to block the UI regardless of auth state
     document.getElementById('loadingScreen').style.display = 'none';
 
     if (user) {
+      // Force reload to get latest emailVerified status from server
+      await user.reload();
+    }
+
+    if (user && user.emailVerified) {
       // ── USER IS LOGGED IN ──────────────────────────────────
 
       // Overlay stays hidden (it starts hidden now)
@@ -3316,34 +3643,53 @@ const ROLE_ADMIN = 'admin';
 
 // ── APPLY ROLE TO UI ────────────────────────────────────────
 
-function applyRoleToUI (role) {
+function applyRoleToUI (role, plan) {
 
   const isAdmin = role === ROLE_ADMIN;
 
-  // Select every menu button that has a data-role attribute
+  // ── SIDEBAR FEATURE GATING ───────────────────────────────
   const menuButtons = document.querySelectorAll('.menu-item[data-role]');
 
   menuButtons.forEach(btn => {
     const requiredRole = btn.getAttribute('data-role');
 
     if (requiredRole === ROLE_FREE) {
-      // Free buttons are always visible to everyone
       btn.style.display = 'flex';
-
     } else if (requiredRole === ROLE_ADMIN) {
-      // Admin buttons are only visible to admins
       btn.style.display = isAdmin ? 'flex' : 'none';
     }
   });
 
-  // Update the role badge in the user info panel
+  // ── ROLE BADGE DISPLAY ───────────────────────────────────
+  // Map plan names to human-readable labels
+  const planLabels = {
+    weekly:  '⚡ Weekly Premium',
+    monthly: '⚡ Monthly Premium',
+    yearly:  '⚡ Annual Premium'
+  };
+
+  // Map plan names to badge colors
+  const planColors = {
+    weekly:  'rgb(255, 180, 0)',
+    monthly: 'rgb(100, 180, 255)',
+    yearly:  'rgb(180, 100, 255)'
+  };
+
   const roleDisplay = document.getElementById('userRoleDisplay');
   if (roleDisplay) {
-    roleDisplay.textContent  = isAdmin ? 'Admin'        : 'Free Account';
-    roleDisplay.style.color  = isAdmin ? 'rgb(255,200,0)' : 'rgb(0,200,80)';
+    if (isAdmin && plan) {
+      // Premium user — show their specific plan
+      roleDisplay.textContent = planLabels[plan] || '⚡ Premium';
+      roleDisplay.style.color = planColors[plan] || 'rgb(255,200,0)';
+    } else {
+      // Free user
+      roleDisplay.textContent = '🔒 Free Plan';
+      roleDisplay.style.color = 'rgba(255,255,255,0.45)';
+    }
   }
 
-    // Show upgrade button only to free users
+  // ── UPGRADE BUTTON ───────────────────────────────────────
+  // Only show to free users
   const upgradeBtn = document.getElementById('upgradeBtn');
   if (upgradeBtn) upgradeBtn.style.display = isAdmin ? 'none' : 'flex';
 }
@@ -3355,13 +3701,18 @@ async function fetchAndApplyRole (userId) {
 
   const { db, doc, getDoc, setDoc } = window._firebase;
 
+  // Small delay to ensure Firebase Auth token is fully
+  // propagated to Firestore before attempting a read
+  await new Promise(resolve => setTimeout(resolve, 500));
+
   try {
     const snapshot = await getDoc(doc(db, 'users', userId));
 
-    if (snapshot.exists() && snapshot.data().role) {
-      // Role already set — just apply it
+      if (snapshot.exists() && snapshot.data().role) {
+      // Role already set — apply it along with the plan
       const role = snapshot.data().role;
-      applyRoleToUI(role);
+      const plan = snapshot.data().plan || 'monthly'; // default to monthly if not set
+      applyRoleToUI(role, plan);
 
     } else {
       // Brand new user or missing role field — assign 'free' as default
@@ -3371,13 +3722,13 @@ async function fetchAndApplyRole (userId) {
         { role: ROLE_FREE },
         { merge: true }
       );
-      applyRoleToUI(ROLE_FREE);
+      applyRoleToUI(ROLE_FREE, null);
     }
 
   } catch (err) {
     // If Firestore fails, default to free to avoid exposing premium features
     console.warn('Role fetch failed — defaulting to free:', err.message);
-    applyRoleToUI(ROLE_FREE);
+    applyRoleToUI(ROLE_FREE, null);
   }
 }
 
@@ -3432,6 +3783,218 @@ function showAccessDenied () {
     toast.style.bottom  = '10px';
   }, 3000);
 }
+
+//===========================================
+// ACCOUNT SETTINGS MODULE
+//===========================================
+
+// ── SIDEBAR BUTTON ───────────────────────────────────────────
+document.getElementById('accountSettingsBtn').addEventListener('click', function () {
+  showSection('accountSettingsSection');
+  populateAccountSettings();
+});
+
+// ── POPULATE SETTINGS PAGE ───────────────────────────────────
+// Reads current user data from Firebase and fills the page
+function populateAccountSettings () {
+  const { auth, db, doc, getDoc } = window._firebase;
+  const user = auth.currentUser;
+  if (!user) return;
+
+  // Profile section
+  document.getElementById('settingsEmail').textContent = user.email;
+
+  // Member since — Firebase gives creation time on the user object
+  const createdAt = user.metadata?.creationTime;
+  document.getElementById('settingsMemberSince').textContent = createdAt
+    ? new Date(createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    : '—';
+
+  // Email verified status
+  const verifiedEl = document.getElementById('settingsVerified');
+  verifiedEl.textContent = user.emailVerified ? '✅ Verified' : '⚠️ Not verified';
+  verifiedEl.style.color = user.emailVerified ? 'rgb(0,200,80)' : 'rgb(255,160,0)';
+
+  // Subscription section — read from Firestore
+  getDoc(doc(db, 'users', user.uid)).then(snapshot => {
+    const data = snapshot.exists() ? snapshot.data() : {};
+    const role = data.role || 'free';
+    const plan = data.plan || null;
+
+    const planLabels = {
+      weekly:  '⚡ Weekly Premium',
+      monthly: '⚡ Monthly Premium',
+      yearly:  '⚡ Annual Premium'
+    };
+
+    const planEl   = document.getElementById('settingsPlan');
+    const statusEl = document.getElementById('settingsStatus');
+    const upgradeWrapper = document.getElementById('settingsUpgradeWrapper');
+
+    if (role === 'admin' && plan) {
+      planEl.textContent   = planLabels[plan] || '⚡ Premium';
+      planEl.style.color   = 'rgb(100,180,255)';
+      statusEl.textContent = '✅ Active';
+      statusEl.style.color = 'rgb(0,200,80)';
+      upgradeWrapper.style.display = 'none';
+    } else {
+      planEl.textContent   = '🔒 Free Plan';
+      planEl.style.color   = 'rgba(255,255,255,0.45)';
+      statusEl.textContent = '— No active subscription';
+      statusEl.style.color = 'rgba(255,255,255,0.45)';
+      upgradeWrapper.style.display = 'block';
+    }
+  }).catch(err => {
+    console.warn('Settings: Firestore read failed:', err.message);
+  });
+}
+
+// ── UPGRADE BUTTON IN SETTINGS ───────────────────────────────
+document.getElementById('settingsUpgradeBtn').addEventListener('click', function () {
+  showUpgradeModal();
+});
+
+// ── PASSWORD TOGGLES FOR SETTINGS ───────────────────────────
+setupPasswordToggle('currentPassword',    'currentPasswordToggle');
+setupPasswordToggle('newPassword',         'newPasswordToggle');
+setupPasswordToggle('confirmNewPassword',  'confirmNewPasswordToggle');
+
+// ── CHANGE PASSWORD ──────────────────────────────────────────
+document.getElementById('changePasswordBtn').addEventListener('click', async function () {
+
+  const currentPwd  = document.getElementById('currentPassword').value;
+  const newPwd      = document.getElementById('newPassword').value;
+  const confirmPwd  = document.getElementById('confirmNewPassword').value;
+  const successEl   = document.getElementById('changePasswordSuccess');
+  const errorEl     = document.getElementById('changePasswordError');
+  const newPwdErr   = document.getElementById('newPasswordError');
+  const confirmErr  = document.getElementById('confirmNewPasswordError');
+
+  // Clear previous messages
+  successEl.style.display  = 'none';
+  errorEl.style.display    = 'none';
+  newPwdErr.textContent    = '';
+  confirmErr.textContent   = '';
+
+  // Validate
+  if (!currentPwd) {
+    errorEl.textContent  = 'Please enter your current password.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  const { checks } = checkPasswordStrength(newPwd);
+  if (!newPwd) {
+    newPwdErr.textContent = 'New password is required.';
+    return;
+  } else if (!checks.length) {
+    newPwdErr.textContent = 'Password must be at least 8 characters.';
+    return;
+  } else if (!checks.upper) {
+    newPwdErr.textContent = 'Password must include at least one uppercase letter.';
+    return;
+  } else if (!checks.lower) {
+    newPwdErr.textContent = 'Password must include at least one lowercase letter.';
+    return;
+  } else if (!checks.number) {
+    newPwdErr.textContent = 'Password must include at least one number.';
+    return;
+  } else if (!checks.special) {
+    newPwdErr.textContent = 'Password must include at least one special character.';
+    return;
+  }
+
+  if (newPwd !== confirmPwd) {
+    confirmErr.textContent = 'Passwords do not match.';
+    return;
+  }
+
+  if (newPwd === currentPwd) {
+    newPwdErr.textContent = 'New password must be different from your current password.';
+    return;
+  }
+
+  this.disabled    = true;
+  this.textContent = 'Updating...';
+
+  try {
+    const { auth, reauthenticateWithCredential, EmailAuthProvider, updatePassword } = window._firebase;
+    const user = auth.currentUser;
+
+    // Re-authenticate first — Firebase requires this before sensitive operations
+    // Teaching moment: Firebase expires auth tokens for security. Before changing
+    // a password, you must prove the user still knows their current password.
+    const credential = EmailAuthProvider.credential(user.email, currentPwd);
+    await reauthenticateWithCredential(user, credential);
+
+    // Now update the password
+    await updatePassword(user, newPwd);
+
+    // Clear fields
+    document.getElementById('currentPassword').value    = '';
+    document.getElementById('newPassword').value        = '';
+    document.getElementById('confirmNewPassword').value = '';
+
+    successEl.textContent  = '✅ Password updated successfully.';
+    successEl.style.display = 'block';
+
+  } catch (err) {
+    errorEl.textContent   = translateAuthError(err.code);
+    errorEl.style.display = 'block';
+  } finally {
+    this.disabled    = false;
+    this.textContent = 'Update Password';
+  }
+});
+
+// ── DELETE ACCOUNT ───────────────────────────────────────────
+document.getElementById('deleteAccountBtn').addEventListener('click', async function () {
+
+  const password = document.getElementById('deleteConfirmPassword').value;
+  const errorEl  = document.getElementById('deleteAccountError');
+
+  errorEl.style.display = 'none';
+
+  if (!password) {
+    errorEl.textContent   = 'Please enter your password to confirm deletion.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  // Double confirm — this is irreversible
+  const confirmed = window.confirm(
+    '⚠️ Are you absolutely sure?\n\nThis will permanently delete your account and all your data. This cannot be undone.'
+  );
+  if (!confirmed) return;
+
+  this.disabled    = true;
+  this.textContent = 'Deleting...';
+
+  try {
+    const { auth, reauthenticateWithCredential, EmailAuthProvider, deleteUser, db, doc } = window._firebase;
+    const user = auth.currentUser;
+
+    // Re-authenticate before deleting
+    const credential = EmailAuthProvider.credential(user.email, password);
+    await reauthenticateWithCredential(user, credential);
+
+    // Delete Firestore user document first
+    const { deleteDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    await deleteDoc(doc(db, 'users', user.uid));
+
+    // Delete Firebase Auth account
+    await deleteUser(user);
+
+    // onAuthStateChanged will fire and show the auth overlay automatically
+
+  } catch (err) {
+    errorEl.textContent   = translateAuthError(err.code);
+    errorEl.style.display = 'block';
+    this.disabled    = false;
+    this.textContent = '🗑️ Delete My Account';
+  }
+});
+
 
 // ── FIREBASE READY LISTENER ─────────────────────────────────
 

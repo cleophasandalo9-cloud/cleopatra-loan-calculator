@@ -14,6 +14,12 @@
 
   <body>
 
+        <!-- ── OFFLINE BANNER ── -->
+    <div id="offlineBanner" class="offline-banner" style="display:none;" role="alert" aria-live="polite">
+      <span id="offlineBannerIcon">&#x26A0;&#xFE0F;</span>
+      <span id="offlineBannerText">You're offline — some features may be unavailable</span>
+    </div>
+
       <!-- ================== AUTH OVERLAY ================== -->
       <div id="authOverlay" class="auth-overlay" style="display: none;">
 
@@ -110,6 +116,17 @@
 
           </div>
 
+            <!-- ── VERIFY EMAIL MESSAGE ── -->
+          <div id="verifyEmailForm" class="auth-form" style="display:none;">
+            <div class="verify-email-icon">&#x2709;&#xFE0F;</div>
+            <h3 class="verify-email-title">Check your email</h3>
+            <p class="verify-email-text">We sent a verification link to <strong id="verifyEmailAddress"></strong>. Click the link to activate your account.</p>
+            <div id="verifyEmailError" class="auth-error-box" style="display:none;"></div>
+            <div id="verifyEmailSuccess" style="display:none; color: rgb(0,200,80); font-size:13px; text-align:center; margin-bottom:12px;"></div>
+            <button class="btn" id="resendVerifyBtn">Resend Verification Email</button>
+            <button type="button" class="forgot-password-btn" id="backToLoginFromVerifyBtn" style="margin-top: 12px;">&#8592; Back to Login</button>
+          </div>
+
           <!-- ── FORGOT PASSWORD FORM ── -->
           <div id="forgotPasswordForm" class="auth-form" style="display:none;">
             <p style="color: rgba(255,255,255,0.7); font-size: 14px; margin-bottom: 16px; text-align: center;">
@@ -145,6 +162,7 @@
       <h2>⚡ LoanIQ Premium</h2>
       <p>Unlock the full power of LoanIQ</p>
     </div>
+    
 
     <ul class="upgrade-feature-list">
       <li>&#9989; EMI Chart — visualise your payments</li>
@@ -167,7 +185,7 @@
 
     <!-- Weekly pricing -->
     <div class="upgrade-price-display" id="weeklyPricing" style="display:none;">
-      <span class="upgrade-price-amount">$1.50</span>
+      <span class="upgrade-price-amount">$1.55</span>
       <span class="upgrade-price-label">per week · cancel anytime</span>
     </div>
 
@@ -236,6 +254,8 @@
         <button class="menu-item" id="extraPaymentBtn"   data-role="admin">&#43; Extra Payment</button>
 
         <button class="menu-item" id="pdfDownloadBtn"    data-role="admin">&#128462; Download PDF</button>
+
+        <button class="menu-item" id="accountSettingsBtn" data-role="free">&#9881; Account Settings</button>
 
         <!--currency icon button-->
         <button class="currency-toggle" onclick="toggleConverter()" aria-label="Open currency converter" aria-expanded="false" aria-controls="converterPanel">
@@ -634,6 +654,97 @@
 
 
 
+<!--=================== ACCOUNT SETTINGS SECTION ===================-->
+      <div id="accountSettingsSection" style="display:none;">
+        <div class="table-container">
+          <h3 class="breakdown-title">&#9881; Account Settings</h3>
+
+          <!-- ── PROFILE CARD ── -->
+          <div class="settings-card">
+            <h4 class="settings-card-title">&#128100; Profile</h4>
+            <div class="settings-row">
+              <span class="settings-label">Email</span>
+              <span class="settings-value" id="settingsEmail">—</span>
+            </div>
+            <div class="settings-row">
+              <span class="settings-label">Member since</span>
+              <span class="settings-value" id="settingsMemberSince">—</span>
+            </div>
+            <div class="settings-row">
+              <span class="settings-label">Email verified</span>
+              <span class="settings-value" id="settingsVerified">—</span>
+            </div>
+          </div>
+
+          <!-- ── SUBSCRIPTION CARD ── -->
+          <div class="settings-card">
+            <h4 class="settings-card-title">&#9889; Subscription</h4>
+            <div class="settings-row">
+              <span class="settings-label">Current plan</span>
+              <span class="settings-value" id="settingsPlan">—</span>
+            </div>
+            <div class="settings-row">
+              <span class="settings-label">Status</span>
+              <span class="settings-value" id="settingsStatus">—</span>
+            </div>
+            <div id="settingsUpgradeWrapper" style="display:none; margin-top:12px;">
+              <button class="btn upgrade-pay-btn" id="settingsUpgradeBtn" style="width:100%; padding:12px; font-size:14px;">
+                &#9889; Upgrade to Premium
+              </button>
+            </div>
+          </div>
+
+          <!-- ── SECURITY CARD ── -->
+          <div class="settings-card">
+            <h4 class="settings-card-title">&#128274; Security</h4>
+
+            <div id="changePasswordSuccess" style="display:none; color:rgb(0,200,80); font-size:13px; margin-bottom:12px; text-align:center;"></div>
+            <div id="changePasswordError" class="auth-error-box" style="display:none; margin-bottom:12px;"></div>
+
+            <div class="input-group">
+              <label for="currentPassword">Current Password</label>
+              <div class="password-wrapper">
+                <input type="password" id="currentPassword" placeholder="Enter current password">
+                <button type="button" class="password-toggle" id="currentPasswordToggle" aria-label="Show password">&#128065;</button>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label for="newPassword">New Password</label>
+              <div class="password-wrapper">
+                <input type="password" id="newPassword" placeholder="Min 8 chars, 1 uppercase, 1 number">
+                <button type="button" class="password-toggle" id="newPasswordToggle" aria-label="Show password">&#128065;</button>
+              </div>
+              <small class="error-message" id="newPasswordError" role="alert"></small>
+            </div>
+
+            <div class="input-group">
+              <label for="confirmNewPassword">Confirm New Password</label>
+              <div class="password-wrapper">
+                <input type="password" id="confirmNewPassword" placeholder="Repeat new password">
+                <button type="button" class="password-toggle" id="confirmNewPasswordToggle" aria-label="Show password">&#128065;</button>
+              </div>
+              <small class="error-message" id="confirmNewPasswordError" role="alert"></small>
+            </div>
+
+            <button class="btn" id="changePasswordBtn" style="width:100%; margin-top:4px;">Update Password</button>
+          </div>
+
+          <!-- ── DANGER ZONE CARD ── -->
+          <div class="settings-card settings-card-danger">
+            <h4 class="settings-card-title" style="color: rgb(255,80,80);">&#9888; Danger Zone</h4>
+            <p class="settings-danger-text">Deleting your account is permanent and cannot be undone. All your data will be erased.</p>
+            <div id="deleteAccountError" class="auth-error-box" style="display:none; margin-bottom:12px;"></div>
+            <div class="input-group">
+              <label for="deleteConfirmPassword">Confirm your password to delete</label>
+              <input type="password" id="deleteConfirmPassword" placeholder="Enter your password">
+            </div>
+            <button class="btn settings-delete-btn" id="deleteAccountBtn">&#128465; Delete My Account</button>
+          </div>
+
+        </div>
+      </div>
+
 <!--=======================DASHBOARD SECTION========================-->
 
       <!--calculator card-->
@@ -753,7 +864,8 @@
         <!-- ===================== FIREBASE SDK ===================== -->
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged,
+             updatePassword, reauthenticateWithCredential, EmailAuthProvider, deleteUser, sendEmailVerification }
     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
     import { getFirestore, doc, setDoc, getDoc }
     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
@@ -791,6 +903,11 @@
       signInWithEmailAndPassword,
       signOut,
       onAuthStateChanged,
+      updatePassword,
+      reauthenticateWithCredential,
+      EmailAuthProvider,
+      deleteUser,
+      sendEmailVerification,
       doc,
       setDoc,
       getDoc,

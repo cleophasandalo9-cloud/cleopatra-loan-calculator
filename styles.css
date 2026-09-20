@@ -817,12 +817,11 @@ MENU ITEMS
 }
 
 .user-role {
-  color: rgb(0, 200, 80);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  margin-bottom: 10px;
+  margin: 2px 0 8px;
+  letter-spacing: 0.3px;
+  transition: color 0.3s ease;
 }
 
 .logout-btn {
@@ -1235,4 +1234,191 @@ MENU ITEMS
   border-radius: 4px;
   letter-spacing: 0.3px;
 }
+
+/* ── OFFLINE BANNER ─────────────────────────────────────────── */
+.offline-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999999;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  transition: background 0.4s ease, color 0.4s ease;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+
+.offline-banner.offline {
+  background: rgba(220, 50, 50, 0.95);
+  color: white;
+}
+
+.offline-banner.online {
+  background: rgba(0, 180, 80, 0.95);
+  color: white;
+}
+
+/* ── OFFLINE FULL SCREEN ────────────────────────────────────── */
+.offline-screen {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(10,15,30,0.98), rgba(5,10,20,0.98));
+  z-index: 88888;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 30px;
+  gap: 16px;
+}
+
+.offline-screen-icon {
+  font-size: 64px;
+  margin-bottom: 8px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.6; transform: scale(0.95); }
+}
+
+.offline-screen h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+}
+
+.offline-screen p {
+  font-size: 15px;
+  color: rgba(255,255,255,0.55);
+  max-width: 320px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.offline-screen-retry {
+  margin-top: 12px;
+  padding: 12px 28px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 10px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.offline-screen-retry:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+/* ── EMAIL VERIFICATION SCREEN ──────────────────────────────── */
+.verify-email-icon {
+  font-size: 52px;
+  text-align: center;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.verify-email-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+  text-align: center;
+  margin: 0 0 10px 0;
+}
+
+.verify-email-text {
+  font-size: 14px;
+  color: rgba(255,255,255,0.6);
+  text-align: center;
+  line-height: 1.6;
+  margin: 0 0 20px 0;
+}
+
+.verify-email-text strong {
+  color: rgba(255,255,255,0.9);
+}
+
+/* ── ACCOUNT SETTINGS ───────────────────────────────────────── */
+.settings-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.settings-card-danger {
+  border-color: rgba(255,80,80,0.25);
+  background: rgba(255,60,60,0.04);
+}
+
+.settings-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+  margin: 0 0 16px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  letter-spacing: 0.3px;
+}
+
+.settings-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  gap: 12px;
+}
+
+.settings-row:last-child {
+  border-bottom: none;
+}
+
+.settings-label {
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  flex-shrink: 0;
+}
+
+.settings-value {
+  font-size: 13px;
+  color: rgba(255,255,255,0.85);
+  font-weight: 500;
+  text-align: right;
+  word-break: break-all;
+}
+
+.settings-danger-text {
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+.settings-delete-btn {
+  width: 100%;
+  background: rgba(255,60,60,0.15) !important;
+  border: 1px solid rgba(255,60,60,0.4) !important;
+  color: rgb(255,100,100) !important;
+  margin-top: 4px;
+}
+
+.settings-delete-btn:hover {
+  background: rgba(255,60,60,0.3) !important;
+  border-color: rgba(255,60,60,0.6) !important;
+}
+
 /* ========================================================== */
