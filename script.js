@@ -9,6 +9,44 @@
  */
 
 //===========================================
+// THEME TOGGLE MODULE
+//===========================================
+
+(function () {
+
+  const THEME_KEY  = 'loaniq_theme';
+  const btn        = document.getElementById('themeToggleBtn');
+
+  // ── APPLY THEME ────────────────────────────────────────────
+  function applyTheme (theme) {
+    if (theme === 'light') {
+      document.body.classList.add('light-mode');
+      btn.textContent = '☀️';
+      btn.setAttribute('aria-label', 'Switch to dark mode');
+    } else {
+      document.body.classList.remove('light-mode');
+      btn.textContent = '🌙';
+      btn.setAttribute('aria-label', 'Switch to light mode');
+    }
+  }
+
+  // ── LOAD SAVED THEME ───────────────────────────────────────
+  // Read from localStorage on page load
+  const savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
+  applyTheme(savedTheme);
+
+  // ── TOGGLE ─────────────────────────────────────────────────
+  btn.addEventListener('click', function () {
+    const current  = document.body.classList.contains('light-mode') ? 'light' : 'dark';
+    const newTheme = current === 'light' ? 'dark' : 'light';
+
+    applyTheme(newTheme);
+    localStorage.setItem(THEME_KEY, newTheme);
+  });
+
+})();
+
+//===========================================
 // OFFLINE DETECTION MODULE
 //===========================================
 
@@ -302,7 +340,8 @@ function showSection (sectionId) {
     'savingsSection',
     'refinanceSection',
     'extraPaymentSection',
-    'accountSettingsSection'
+    'accountSettingsSection',
+    'loanHistorySection'
   ];
 
   allSections.forEach(id => {
@@ -327,7 +366,8 @@ function showSection (sectionId) {
     'savingsSection':         'savingsBtn',
     'refinanceSection':       'refinanceBtn',
     'extraPaymentSection':    'extraPaymentBtn',
-    'accountSettingsSection': 'accountSettingsBtn'
+    'accountSettingsSection': 'accountSettingsBtn',
+    'loanHistorySection':     'loanHistoryBtn'
   };
 
   const activeBtn = document.getElementById(sectionToBtn[sectionId]);
@@ -763,8 +803,9 @@ function populateCurrencies() {
 
   currencySelect.appendChild(popularGroup);
   currencySelect.appendChild(allGroup);
-  currencySelect.value = window._savedCurrency || 'USD';
+  currencySelect.value = window._sharedCurrency || window._savedCurrency || 'USD';
   delete window._savedCurrency;
+  delete window._sharedCurrency;
 }
 
 
@@ -984,11 +1025,28 @@ const ROW_HEIGHT = 36;
 const BUFFER = 5;
 
 function renderAmortizationTable (schedule, currency) {
+    // ── SHOW 5 SKELETON ROWS while table builds ───────────────
+  const tbody = document.querySelector('#breakdownTable tbody');
+  if (tbody) {
+    tbody.innerHTML = '';
+    for (let i = 0; i < 5; i++) {
+      const skRow = document.createElement('tr');
+      skRow.innerHTML = `
+        <td><span class="skeleton skeleton-row"></span></td>
+        <td><span class="skeleton skeleton-row"></span></td>
+        <td><span class="skeleton skeleton-row"></span></td>
+        <td><span class="skeleton skeleton-row"></span></td>
+        <td><span class="skeleton skeleton-row"></span></td>
+      `;
+      tbody.appendChild(skRow);
+    }
+  }
+
   _vtSchedule = schedule;
   _vtCurrency = currency;
 
   const scrollEl = document.querySelector('.table-scroll');
-  const tbody = document.querySelector(`#breakdownTable tbody`);
+  //const tbody = document.querySelector(`#breakdownTable tbody`);
 
   const totalHeight = schedule.length * ROW_HEIGHT;
 
@@ -1108,6 +1166,19 @@ function renderLoanResults (result, currency) {
 //======================
 function calculateLoan () {
 
+  // ── SHOW SKELETON while calculation runs ─────────────────
+  const skeletonIds = ['skeletonMonthly', 'skeletonInterest', 'skeletonTotal'];
+  const resultIds   = ['monthly', 'interest', 'total'];
+
+  skeletonIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'inline-block';
+  });
+  resultIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
   const loanData = getLoanInputs();
   const validation = validateLoanInputs(loanData);
 
@@ -1128,6 +1199,19 @@ function calculateLoan () {
   
 
   renderLoanResults(loanResult, loanData.currency);
+
+    // Save this calculation to Firestore history
+  saveToHistory(loanData, loanResult);
+
+    // ── HIDE SKELETON after results are ready ────────────────
+  skeletonIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  resultIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'block';
+  });
 
 
   if (loanData.interestType === 'compound') {
@@ -2656,6 +2740,8 @@ function initApp () {
   loadSavedInputs();
   getRates();
   calculateLoan();
+  // Load shared calculation from URL if present
+  loadFromSharedUrl();
 }
 
 
@@ -3995,6 +4081,351 @@ document.getElementById('deleteAccountBtn').addEventListener('click', async func
   }
 });
 
+//===========================================
+// LOAN HISTORY MODULE
+//===========================================
+
+// ── SAVE CALCULATION TO FIRESTORE ───────────────────────────
+async function saveToHistory (loanData, loanResult) {
+  try {
+    const { auth, db } = window._firebase;
+    const user = auth.currentUser;
+    if (!user) return;
+
+    // Import addDoc and collection dynamically
+    const { collection, addDoc } = await import(
+      'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js'
+    );
+
+    // Build the history entry — only save what's useful
+    const entry = {
+      savedAt:      new Date().toISOString(),
+      amount:       loanData.amount,
+      rate:         loanData.rate,
+      months:       loanData.months,
+      currency:     loanData.currency,
+      interestType: loanData.interestType,
+      monthly:      loanResult.monthly,
+      totalInterest: loanResult.interest,
+      totalPayment:  loanResult.total
+    };
+
+    // Save to /users/{uid}/history subcollection
+    await addDoc(collection(db, 'users', user.uid, 'history'), entry);
+
+  } catch (err) {
+    // Silent fail — never let history crash the calculator
+    console.warn('History save failed:', err.message);
+  }
+}
+
+
+// ── LOAD AND RENDER HISTORY ──────────────────────────────────
+async function loadHistory () {
+  const listEl    = document.getElementById('historyList');
+  const emptyEl   = document.getElementById('historyEmpty');
+  const loadingEl = document.getElementById('historyLoading');
+
+  // Show skeleton while loading
+  loadingEl.style.display = 'block';
+  listEl.innerHTML        = '';
+  emptyEl.style.display   = 'none';
+
+  try {
+    const { auth, db } = window._firebase;
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const { collection, getDocs, orderBy, query } = await import(
+      'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js'
+    );
+
+    // Get history ordered by newest first
+    const historyRef = collection(db, 'users', user.uid, 'history');
+    const q          = query(historyRef, orderBy('savedAt', 'desc'));
+    const snapshot   = await getDocs(q);
+
+    loadingEl.style.display = 'none';
+
+    if (snapshot.empty) {
+      emptyEl.style.display = 'block';
+      return;
+    }
+
+    // Render each history card
+    snapshot.forEach(docSnap => {
+      const entry = docSnap.data();
+      const card  = buildHistoryCard(docSnap.id, entry, user.uid);
+      listEl.appendChild(card);
+    });
+
+  } catch (err) {
+    console.warn('History load failed:', err.message);
+    loadingEl.style.display = 'none';
+    emptyEl.style.display   = 'block';
+  }
+}
+
+
+// ── BUILD A SINGLE HISTORY CARD ──────────────────────────────
+function buildHistoryCard (docId, entry, uid) {
+
+  // Format date nicely
+  const date = new Date(entry.savedAt).toLocaleDateString('en-US', {
+    year: 'numeric', month: 'short', day: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
+
+  const card       = document.createElement('div');
+  card.className   = 'history-card';
+  card.dataset.id  = docId;
+
+  card.innerHTML = `
+    <div class="history-card-top">
+      <span class="history-card-date">&#128337; ${date}</span>
+      <button class="history-card-delete" data-id="${docId}" title="Delete this entry">&#128465;</button>
+    </div>
+    <div class="history-card-inputs">
+      <span class="history-chip">&#128178; ${entry.currency} ${Number(entry.amount).toLocaleString()}</span>
+      <span class="history-chip">&#128200; ${entry.rate}% ${entry.interestType}</span>
+      <span class="history-chip">&#128197; ${entry.months} months</span>
+    </div>
+    <div class="history-card-results">
+      <span class="history-result-item">Monthly<span>${entry.currency} ${Number(entry.monthly).toFixed(2)}</span></span>
+      <span class="history-result-item">Interest<span>${entry.currency} ${Number(entry.totalInterest).toFixed(2)}</span></span>
+      <span class="history-result-item">Total<span>${entry.currency} ${Number(entry.totalPayment).toFixed(2)}</span></span>
+    </div>
+    <p class="history-reload-hint">&#8635; Click to reload this calculation</p>
+  `;
+
+  // ── CLICK CARD — reload into calculator ──────────────────
+  card.addEventListener('click', function (e) {
+    // Don't reload if user clicked the delete button
+    if (e.target.classList.contains('history-card-delete')) return;
+
+    // Fill the calculator inputs with this entry's values
+    document.getElementById('amount').value       = entry.amount;
+    document.getElementById('rate').value         = entry.rate;
+    document.getElementById('time').value         = entry.months;
+    document.getElementById('interestType').value = entry.interestType;
+
+    // Navigate to dashboard and recalculate
+    showSection('dashboardSection');
+    calculateLoan();
+  });
+
+  // ── DELETE BUTTON ─────────────────────────────────────────
+  card.querySelector('.history-card-delete').addEventListener('click', async function (e) {
+    e.stopPropagation(); // prevent card click from firing
+
+    try {
+      const { db } = window._firebase;
+      const { doc, deleteDoc } = await import(
+        'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js'
+      );
+
+      await deleteDoc(doc(db, 'users', uid, 'history', docId));
+
+      // Remove card from DOM smoothly
+      card.style.opacity    = '0';
+      card.style.transition = 'opacity 0.3s ease';
+      setTimeout(() => {
+        card.remove();
+        // Show empty state if no cards left
+        if (document.getElementById('historyList').children.length === 0) {
+          document.getElementById('historyEmpty').style.display = 'block';
+        }
+      }, 300);
+
+    } catch (err) {
+      console.warn('Delete failed:', err.message);
+    }
+  });
+
+  return card;
+}
+
+
+// ── CLEAR ALL HISTORY ────────────────────────────────────────
+document.getElementById('clearHistoryBtn').addEventListener('click', async function () {
+
+  const confirmed = window.confirm('Clear all loan history? This cannot be undone.');
+  if (!confirmed) return;
+
+  try {
+    const { auth, db } = window._firebase;
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const { collection, getDocs, doc, deleteDoc } = await import(
+      'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js'
+    );
+
+    const snapshot = await getDocs(collection(db, 'users', user.uid, 'history'));
+
+    // Delete all documents in the history subcollection
+    const deletions = snapshot.docs.map(d => deleteDoc(doc(db, 'users', user.uid, 'history', d.id)));
+    await Promise.all(deletions);
+
+    // Clear the UI
+    document.getElementById('historyList').innerHTML = '';
+    document.getElementById('historyEmpty').style.display = 'block';
+
+  } catch (err) {
+    console.warn('Clear history failed:', err.message);
+  }
+});
+
+
+// ── SIDEBAR BUTTON ───────────────────────────────────────────
+document.getElementById('loanHistoryBtn').addEventListener('click', async function () {
+  if (!await checkAccess()) return;
+  showSection('loanHistorySection');
+  loadHistory();
+});
+
+//===========================================
+// SHARE CALCULATION MODULE
+//===========================================
+
+// ── BUILD SHARE URL ──────────────────────────────────────────
+// Encodes current inputs into URL query parameters
+function buildShareUrl () {
+  const amount   = document.getElementById('amount').value;
+  const rate     = document.getElementById('rate').value;
+  const months   = document.getElementById('time').value;
+  const currency = document.getElementById('currency').value;
+  const type     = document.getElementById('interestType').value;
+
+  const base   = window.location.origin + window.location.pathname;
+  const params = new URLSearchParams({ amount, rate, months, currency, type });
+
+  return `${base}?${params.toString()}`;
+}
+
+// ── SHOW SHARE MODAL ─────────────────────────────────────────
+function showShareModal () {
+  const url        = buildShareUrl();
+  const input      = document.getElementById('shareLinkInput');
+  const whatsapp   = document.getElementById('shareWhatsApp');
+  const emailLink  = document.getElementById('shareEmail');
+  const copiedMsg  = document.getElementById('shareCopiedMsg');
+
+  input.value              = url;
+  copiedMsg.style.display  = 'none';
+
+  // WhatsApp share link
+  whatsapp.href = `https://wa.me/?text=${encodeURIComponent('Check out this loan calculation on LoanIQ: ' + url)}`;
+
+  // Email share link
+  const subject = encodeURIComponent('Loan Calculation from LoanIQ');
+  const body    = encodeURIComponent(`Hi,\n\nI wanted to share this loan calculation with you:\n\n${url}\n\nOpen the link to see the full breakdown.\n\nPowered by LoanIQ`);
+  emailLink.href = `mailto:?subject=${subject}&body=${body}`;
+
+  document.getElementById('shareModal').style.display = 'flex';
+}
+
+function hideShareModal () {
+  document.getElementById('shareModal').style.display = 'none';
+}
+
+// ── SHARE BUTTON ─────────────────────────────────────────────
+document.getElementById('shareBtn').addEventListener('click', function () {
+  const amount  = document.getElementById('amount').value;
+  const rate    = document.getElementById('rate').value;
+  const months  = document.getElementById('time').value;
+
+  // Only share if there's something to share
+  if (!amount || !rate || !months) {
+    alert('Please calculate a loan first before sharing.');
+    return;
+  }
+
+  showShareModal();
+});
+
+// ── CLOSE MODAL ───────────────────────────────────────────────
+document.getElementById('shareModalClose').addEventListener('click', hideShareModal);
+
+document.getElementById('shareModal').addEventListener('click', function (e) {
+  if (e.target === this) hideShareModal();
+});
+
+// ── COPY BUTTON ───────────────────────────────────────────────
+document.getElementById('shareCopyBtn').addEventListener('click', async function () {
+  const url       = document.getElementById('shareLinkInput').value;
+  const copiedMsg = document.getElementById('shareCopiedMsg');
+
+  try {
+    await navigator.clipboard.writeText(url);
+    copiedMsg.style.display = 'block';
+
+    // Hide the message after 3 seconds
+    setTimeout(() => {
+      copiedMsg.style.display = 'none';
+    }, 3000);
+
+  } catch (err) {
+    // Fallback for browsers that don't support clipboard API
+    // Select the text so user can copy manually
+    document.getElementById('shareLinkInput').select();
+    alert('Press Ctrl+C to copy the link.');
+  }
+});
+
+
+// ── READ SHARED URL ON PAGE LOAD ─────────────────────────────
+// When someone opens a shared link, this reads the parameters
+// and fills the calculator automatically
+function loadFromSharedUrl () {
+  const params = new URLSearchParams(window.location.search);
+
+  // Check if this is a shared link (has loan parameters)
+  // but not a payment return (which uses ?payment=)
+  const amount   = params.get('amount');
+  const rate     = params.get('rate');
+  const months   = params.get('months');
+  const currency = params.get('currency');
+  const type     = params.get('type');
+
+  if (!amount || !rate || !months) return; // not a shared link
+
+  // Fill the inputs
+  document.getElementById('amount').value       = amount;
+  document.getElementById('rate').value         = rate;
+  document.getElementById('time').value         = months;
+  document.getElementById('interestType').value = type || 'compound';
+
+  // Currency needs special handling — wait for currencies to populate
+  // then set the value
+  if (currency) {
+    window._sharedCurrency = currency;
+  }
+
+  // Clean the URL so it doesn't look messy after loading
+  // replaceState changes the URL without reloading the page
+  window.history.replaceState({}, '', window.location.pathname);
+
+  // Calculate automatically after a short delay
+  // to ensure DOM is fully ready
+  setTimeout(() => {
+    calculateLoan();
+
+    // Show a toast to tell the recipient this was shared
+    const toast = document.createElement('div');
+    toast.className     = 'access-toast';
+    toast.style.opacity = '1';
+    toast.style.bottom  = '30px';
+    toast.style.background = 'rgba(0,100,200,0.95)';
+    toast.textContent   = '🔗 Shared calculation loaded!';
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+    }, 4000);
+
+  }, 800);
+}
 
 // ── FIREBASE READY LISTENER ─────────────────────────────────
 

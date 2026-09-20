@@ -151,6 +151,42 @@
 
       </div>
 
+            <!-- ================== SHARE MODAL ================== -->
+      <div id="shareModal" class="upgrade-modal-overlay" style="display:none;">
+        <div class="upgrade-modal-card" style="max-width:380px;">
+
+          <button class="upgrade-modal-close" id="shareModalClose">&#x2715;</button>
+
+          <div class="upgrade-modal-header">
+            <h2>&#128279; Share Calculation</h2>
+            <p>Anyone with this link sees your exact calculation</p>
+          </div>
+
+          <div class="share-link-box">
+            <input type="text" id="shareLinkInput" class="share-link-input" readonly>
+            <button class="share-copy-btn" id="shareCopyBtn">&#128203; Copy</button>
+          </div>
+
+          <p id="shareCopiedMsg" style="display:none; text-align:center; color:rgb(0,200,80); font-size:13px; margin-top:10px;">
+            ✅ Link copied to clipboard!
+          </p>
+
+          <div class="share-options">
+            <a id="shareWhatsApp" class="share-option-btn share-whatsapp" target="_blank" rel="noopener">
+              &#128241; WhatsApp
+            </a>
+            <a id="shareEmail" class="share-option-btn share-email" target="_blank" rel="noopener">
+              &#9993; Email
+            </a>
+          </div>
+
+          <p class="upgrade-secure-note" style="margin-top:14px;">
+            No login required to view the shared calculation
+          </p>
+
+        </div>
+      </div>
+      <!-- ================ END SHARE MODAL ================ -->
       
       <!-- ================== UPGRADE MODAL ================== -->
 <div id="upgradeModal" class="upgrade-modal-overlay" style="display:none;">
@@ -257,6 +293,8 @@
 
         <button class="menu-item" id="accountSettingsBtn" data-role="free">&#9881; Account Settings</button>
 
+        <button class="menu-item" id="loanHistoryBtn" data-role="admin">&#128203; Loan History</button>
+
         <!--currency icon button-->
         <button class="currency-toggle" onclick="toggleConverter()" aria-label="Open currency converter" aria-expanded="false" aria-controls="converterPanel">
           &#128178;
@@ -281,7 +319,7 @@
       <div class="header">
         <h1>LoanIQ</h1>
         <p>Smart loan planning, made simple</p>
-        <!--<div class="theme-toggle" onclick="toggleTheme()">🌙</div>-->
+        <button class="theme-toggle" id="themeToggleBtn" aria-label="Toggle light/dark mode">🌙</button>
       </div>
 
       <!-- Remote Config notice banner — hidden until RC sets a message -->
@@ -651,10 +689,33 @@
       </div>
 
 
+<!--=================== LOAN HISTORY SECTION ===================-->
+      <div id="loanHistorySection" style="display:none;">
+        <div class="table-container">
+          <div class="history-header">
+            <h3 class="breakdown-title">&#128203; Loan History</h3>
+            <button class="history-clear-btn" id="clearHistoryBtn">&#128465; Clear All</button>
+          </div>
+
+          <div id="historyEmpty" class="history-empty" style="display:none;">
+            <p>&#128203;</p>
+            <p>No calculations saved yet.</p>
+            <p style="font-size:13px; color:rgba(255,255,255,0.4);">Every loan you calculate will appear here.</p>
+          </div>
+
+          <div id="historyLoading" class="history-loading">
+            <span class="skeleton skeleton-row" style="margin-bottom:8px;"></span>
+            <span class="skeleton skeleton-row" style="margin-bottom:8px;"></span>
+            <span class="skeleton skeleton-row"></span>
+          </div>
+
+          <div id="historyList" class="history-list"></div>
+
+        </div>
+      </div>
 
 
-
-<!--=================== ACCOUNT SETTINGS SECTION ===================-->
+<!--================== ACCOUNT SETTINGS SECTION ==================-->
       <div id="accountSettingsSection" style="display:none;">
         <div class="table-container">
           <h3 class="breakdown-title">&#9881; Account Settings</h3>
@@ -664,15 +725,15 @@
             <h4 class="settings-card-title">&#128100; Profile</h4>
             <div class="settings-row">
               <span class="settings-label">Email</span>
-              <span class="settings-value" id="settingsEmail">—</span>
+              <span class="settings-value" id="settingsEmail"><span class="skeleton skeleton-settings-value"></span></span>
             </div>
             <div class="settings-row">
               <span class="settings-label">Member since</span>
-              <span class="settings-value" id="settingsMemberSince">—</span>
+              <span class="settings-value" id="settingsMemberSince"><span class="skeleton skeleton-settings-value"></span></span>
             </div>
             <div class="settings-row">
               <span class="settings-label">Email verified</span>
-              <span class="settings-value" id="settingsVerified">—</span>
+              <span class="settings-value" id="settingsVerified"><span class="skeleton skeleton-settings-value"></span></span>
             </div>
           </div>
 
@@ -681,11 +742,12 @@
             <h4 class="settings-card-title">&#9889; Subscription</h4>
             <div class="settings-row">
               <span class="settings-label">Current plan</span>
-              <span class="settings-value" id="settingsPlan">—</span>
+              <span class="settings-value" id="settingsPlan"><span class="skeleton skeleton-settings-value"></span></span>
             </div>
             <div class="settings-row">
               <span class="settings-label">Status</span>
-              <span class="settings-value" id="settingsStatus">—</span>
+              <span class="settings-value" id="settingsStatus"><span class="skeleton skeleton-settings-value"></span></span>
+            </div>
             </div>
             <div id="settingsUpgradeWrapper" style="display:none; margin-top:12px;">
               <button class="btn upgrade-pay-btn" id="settingsUpgradeBtn" style="width:100%; padding:12px; font-size:14px;">
@@ -799,27 +861,33 @@
 
           
 
-          <!--results-->
-          <div class="results">
+                <div class="results">
 
             <div class="result-box">
               <h3>Monthly Payment</h3>
               <p id="monthly">0</p>
+              <span class="skeleton skeleton-value" id="skeletonMonthly" style="display:none;"></span>
             </div>
 
             <div class="result-box">
               <h3>Total Interest</h3>
               <p id="interest">0</p>
+              <span class="skeleton skeleton-value" id="skeletonInterest" style="display:none;"></span>
             </div>
 
             <div class="result-box">
               <h3>Total Payment</h3>
               <p id="total">0</p>
+              <span class="skeleton skeleton-value" id="skeletonTotal" style="display:none;"></span>
             </div>
 
           </div>
 
+          </div>
+
           <button class="btn" id="resetBtn" style="margin-top: 10px; background: rgba(255, 60, 60, 0.15); border: 1px solid rgba(255, 60, 60, 0.3); color: rgb(255, 120, 120);">&#x21BA; Reset</button>
+
+          <button class="btn" id="shareBtn" style="margin-top: 8px; background: rgba(0, 150, 255, 0.15); border: 1px solid rgba(0, 150, 255, 0.3); color: rgb(100, 180, 255);">&#128279; Share Calculation</button>
 
 
         </div>
