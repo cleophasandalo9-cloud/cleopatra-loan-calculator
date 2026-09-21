@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms and Conditions — LoanIQ</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <style>
+    :root {
+      --bg: linear-gradient(135deg, rgb(10, 12, 20), rgb(20, 25, 40));
+      --card: rgba(255,255,255,0.05);
+      --border: rgba(255,255,255,0.08);
+      --text: rgba(255,255,255,0.85);
+      --muted: rgba(255,255,255,0.5);
+      --accent: rgb(0,180,255);
+      --green: rgb(0,200,80);
+      --gold: rgb(255,200,80);
+      --red: rgb(255,80,80);
+      --heading: white;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,12,20,0.92);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .topbar-logo {
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      text-decoration: none;
+      letter-spacing: 0.3px;
+    }
+
+    .topbar-back {
+      font-size: 13px;
+      color: var(--accent);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: opacity 0.2s;
+    }
+
+    .topbar-back:hover { opacity: 0.75; }
+
+    /* ── PAGE ── */
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255,200,80,0.12);
+      border: 1px solid rgba(255,200,80,0.25);
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--heading);
+      margin-bottom: 10px;
+    }
+
+    .hero p {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .hero-meta {
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .hero-meta span { color: var(--green); font-weight: 600; }
+
+    /* ── SUMMARY GRID ── */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 48px;
+    }
+
+    .summary-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .summary-card .icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .summary-card p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── SECTIONS ── */
+    .section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      margin-bottom: 16px;
+    }
+
+    .section-number {
+      display: inline-block;
+      background: rgba(255,200,80,0.1);
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    .section h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--heading);
+      margin-bottom: 14px;
+    }
+
+    .section p {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.75;
+      margin-bottom: 12px;
+    }
+
+    .section p:last-child { margin-bottom: 0; }
+
+    .section ul {
+      list-style: none;
+      padding: 0;
+      margin: 12px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .section ul li {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.6;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 8px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .section ul li::before {
+      content: '✦';
+      color: var(--gold);
+      font-size: 10px;
+      margin-top: 3px;
+      flex-shrink: 0;
+    }
+
+    .section a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .section a:hover { text-decoration: underline; }
+
+    /* ── HIGHLIGHT BOX ── */
+    .highlight {
+      background: rgba(0,180,255,0.06);
+      border: 1px solid rgba(0,180,255,0.15);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin: 14px 0;
+    }
+
+    .highlight p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .highlight strong { color: var(--accent); }
+
+    /* ── WARNING BOX ── */
+    .warning {
+      background: rgba(255,80,80,0.06);
+      border: 1px solid rgba(255,80,80,0.2);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin: 14px 0;
+    }
+
+    .warning p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .warning strong { color: var(--red); }
+
+    /* ── GOLD BOX ── */
+    .gold-box {
+      background: rgba(255,200,80,0.06);
+      border: 1px solid rgba(255,200,80,0.2);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin: 14px 0;
+    }
+
+    .gold-box p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .gold-box strong { color: var(--gold); }
+
+    /* ── REFUND TABLE ── */
+    .refund-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 14px;
+    }
+
+    .refund-table th {
+      background: rgba(255,200,80,0.1);
+      color: var(--gold);
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .refund-table td {
+      padding: 10px 14px;
+      color: var(--text);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .refund-table tr:last-child td { border-bottom: none; }
+
+    .refund-table td.yes { color: var(--green); font-weight: 600; }
+    .refund-table td.no  { color: var(--red);   font-weight: 600; }
+
+    /* ── CONTACT CARD ── */
+    .contact-card {
+      background: linear-gradient(135deg, rgba(255,200,80,0.06), rgba(255,100,0,0.06));
+      border: 1px solid rgba(255,200,80,0.2);
+      border-radius: 14px;
+      padding: 28px;
+      text-align: center;
+      margin-top: 32px;
+    }
+
+    .contact-card h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 8px;
+    }
+
+    .contact-card p {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+
+    .contact-email {
+      display: inline-block;
+      background: rgba(255,200,80,0.12);
+      border: 1px solid rgba(255,200,80,0.3);
+      color: var(--gold);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .contact-email:hover { background: rgba(255,200,80,0.22); }
+
+    /* ── FOOTER ── */
+    .footer {
+      text-align: center;
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .footer a { color: var(--accent); text-decoration: none; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 480px) {
+      .page { padding: 32px 16px 60px; }
+      .hero h1 { font-size: 24px; }
+      .section { padding: 20px; }
+      .summary-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <nav class="topbar">
+    <a href="index.html" class="topbar-logo">LoanIQ</a>
+    <a href="index.html" class="topbar-back">&#8592; Back to App</a>
+  </nav>
+
+  <div class="page">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-badge">TERMS AND CONDITIONS</div>
+      <h1>Terms of Service</h1>
+      <p>These terms govern your use of LoanIQ. Please read them carefully before creating an account or making a payment. By using LoanIQ, you agree to these terms.</p>
+      <p class="hero-meta">Last updated: <span>September 2026</span> &nbsp;·&nbsp; Effective date: <span>September 2026</span></p>
+    </div>
+
+    <!-- QUICK SUMMARY -->
+    <div class="summary-grid">
+      <div class="summary-card">
+        <span class="icon">🔞</span>
+        <p>You must be 18 or older to use LoanIQ</p>
+      </div>
+      <div class="summary-card">
+        <span class="icon">💰</span>
+        <p>70% refund available within 7 days of first payment</p>
+      </div>
+      <div class="summary-card">
+        <span class="icon">⚠️</span>
+        <p>LoanIQ provides estimates only — not financial advice</p>
+      </div>
+      <div class="summary-card">
+        <span class="icon">🚫</span>
+        <p>We may terminate accounts that violate these terms</p>
+      </div>
+    </div>
+
+    <!-- 1. ACCEPTANCE -->
+    <div class="section">
+      <span class="section-number">01</span>
+      <h2>Acceptance of Terms</h2>
+      <p>These Terms and Conditions ("Terms") constitute a legally binding agreement between you ("User", "you") and LoanIQ Technologies ("LoanIQ", "we", "us", "our"), governing your access to and use of the LoanIQ web application available at our website.</p>
+      <p>By creating an account, accessing the app, or making a payment, you confirm that you have read, understood, and agree to be bound by these Terms and our <a href="privacy.html">Privacy Policy</a>. If you do not agree, you must not use LoanIQ.</p>
+      <div class="gold-box">
+        <p><strong>Important:</strong> These Terms may be updated from time to time. Continued use of LoanIQ after updates are posted constitutes acceptance of the revised Terms. We will notify you of significant changes via an in-app notice.</p>
+      </div>
+    </div>
+
+    <!-- 2. ELIGIBILITY -->
+    <div class="section">
+      <span class="section-number">02</span>
+      <h2>Eligibility</h2>
+      <p>To use LoanIQ, you must meet all of the following requirements:</p>
+      <ul>
+        <li>You must be at least <strong>18 years of age</strong>. LoanIQ is not intended for use by anyone under 18. By registering, you confirm that you are 18 or older.</li>
+        <li>You must have the legal capacity to enter into a binding agreement under the laws of Kenya or your country of residence.</li>
+        <li>Your account must not have been previously terminated by LoanIQ for a violation of these Terms.</li>
+        <li>You must provide accurate and truthful information when creating your account.</li>
+      </ul>
+      <p>If you do not meet these requirements, you are not permitted to use LoanIQ. We reserve the right to verify eligibility and terminate accounts that do not comply.</p>
+    </div>
+
+    <!-- 3. ACCOUNT -->
+    <div class="section">
+      <span class="section-number">03</span>
+      <h2>Your Account</h2>
+      <p>When you create a LoanIQ account, you are responsible for:</p>
+      <ul>
+        <li>Providing a valid, real email address that you own and control.</li>
+        <li>Keeping your password secure and confidential. Do not share your password with anyone.</li>
+        <li>All activity that occurs under your account, whether or not you authorised it.</li>
+        <li>Notifying us immediately at <a href="mailto:thecalculator79@gmail.com">thecalculator79@gmail.com</a> if you suspect your account has been compromised.</li>
+      </ul>
+      <p>You may only create one account per person. Creating multiple accounts to circumvent a termination or to abuse trial or refund policies is strictly prohibited and will result in permanent blocking of all associated email addresses.</p>
+      <div class="highlight">
+        <p><strong>Email verification:</strong> You must verify your email address before accessing LoanIQ. We send a verification link to your email upon registration. Unverified accounts cannot access the app.</p>
+      </div>
+    </div>
+
+    <!-- 4. FREE AND PREMIUM PLANS -->
+    <div class="section">
+      <span class="section-number">04</span>
+      <h2>Free and Premium Plans</h2>
+      <p>LoanIQ offers two tiers of access:</p>
+      <ul>
+        <li><strong>Free Plan</strong> — access to the basic loan calculator, amortization table, and currency converter. No payment required.</li>
+        <li><strong>Premium Plan</strong> — full access to all features including EMI Chart, Loan Comparison, PDF Export, CSV Export, Savings Calculator, Refinancing Calculator, Extra Payment Simulator, and Loan History. Requires a paid subscription.</li>
+      </ul>
+      <p>Premium is available on three billing cycles:</p>
+      <ul>
+        <li><strong>Weekly</strong> — billed every 7 days at $1.50 USD per week</li>
+        <li><strong>Monthly</strong> — billed every 30 days at $4.99 USD per month</li>
+        <li><strong>Annual</strong> — billed every 365 days at $50.00 USD per year</li>
+      </ul>
+      <p>All prices are in US Dollars (USD). Your bank or payment provider may apply currency conversion fees. LoanIQ is not responsible for such fees.</p>
+      <div class="gold-box">
+        <p><strong>Feature availability:</strong> We reserve the right to add, modify, or remove features from any plan at any time. We will notify existing subscribers of significant changes that reduce their plan features.</p>
+      </div>
+    </div>
+
+    <!-- 5. PAYMENTS -->
+    <div class="section">
+      <span class="section-number">05</span>
+      <h2>Payments and Billing</h2>
+      <p>All payments are processed securely by <strong>Stripe Inc.</strong> LoanIQ never stores or sees your payment card details. By subscribing, you authorise Stripe to charge your payment method on a recurring basis according to your chosen billing cycle.</p>
+      <ul>
+        <li>Subscriptions renew automatically at the end of each billing period unless cancelled before the renewal date.</li>
+        <li>You are responsible for ensuring your payment method is valid and has sufficient funds at the time of renewal.</li>
+        <li>If a payment fails, Stripe will attempt to retry the charge. If the retry fails, your account will be downgraded to the Free Plan automatically.</li>
+        <li>You will receive a payment receipt from Stripe at your registered email address after each successful payment.</li>
+      </ul>
+      <p>To cancel your subscription, contact us at <a href="mailto:thecalculator79@gmail.com">thecalculator79@gmail.com</a> before your next renewal date. Cancellation stops future charges but does not entitle you to a refund for the current billing period unless you qualify under our Refund Policy below.</p>
+    </div>
+
+    <!-- 6. REFUND POLICY -->
+    <div class="section">
+      <span class="section-number">06</span>
+      <h2>Refund Policy</h2>
+      <p>We want you to be satisfied with LoanIQ Premium. Our refund policy is as follows:</p>
+
+      <table class="refund-table">
+        <tr>
+          <th>Situation</th>
+          <th>Refund</th>
+        </tr>
+        <tr>
+          <td>First payment, refund requested within 7 days</td>
+          <td class="yes">70% refund</td>
+        </tr>
+        <tr>
+          <td>Refund requested after 7 days of first payment</td>
+          <td class="no">No refund</td>
+        </tr>
+        <tr>
+          <td>Renewal payments (2nd payment onwards)</td>
+          <td class="no">No refund</td>
+        </tr>
+        <tr>
+          <td>Account terminated for Terms violation</td>
+          <td class="no">No refund</td>
+        </tr>
+        <tr>
+          <td>Duplicate payment due to technical error</td>
+          <td class="yes">Full refund</td>
+        </tr>
+      </table>
+
+      <div class="gold-box">
+        <p><strong>Why 70% and not 100%?</strong> The 30% retained covers Stripe's non-refundable processing fees and the cost of granting you access to premium features during your trial period. This is standard practice for digital services.</p>
+      </div>
+
+      <p>To request a refund, email us at <a href="mailto:thecalculator79@gmail.com">thecalculator79@gmail.com</a> within 7 days of your first payment. Include your registered email address and the date of payment. We will process approved refunds within 10 business days. Refunds are returned to the original payment method.</p>
+
+      <div class="warning">
+        <p><strong>Abuse of refund policy:</strong> Repeated refund requests, creating new accounts to obtain multiple refunds, or any other abuse of this policy will result in permanent account termination and blocking of your email address from LoanIQ.</p>
+      </div>
+    </div>
+
+    <!-- 7. ACCEPTABLE USE -->
+    <div class="section">
+      <span class="section-number">07</span>
+      <h2>Acceptable Use</h2>
+      <p>You agree to use LoanIQ only for lawful purposes and in accordance with these Terms. You must not:</p>
+      <ul>
+        <li>Use LoanIQ to mislead, deceive, or defraud other people using shared calculation links or exported reports.</li>
+        <li>Attempt to gain unauthorised access to other users' accounts or to LoanIQ's systems or databases.</li>
+        <li>Use automated tools, bots, or scripts to access or scrape LoanIQ.</li>
+        <li>Attempt to reverse-engineer, decompile, or copy LoanIQ's source code or design for commercial use.</li>
+        <li>Use LoanIQ for any purpose that violates Kenyan law or any other applicable law.</li>
+        <li>Share your account credentials with others or allow others to use your account.</li>
+        <li>Create multiple accounts to circumvent a suspension, termination, or refund restriction.</li>
+        <li>Upload or transmit any malicious code, viruses, or harmful content through LoanIQ.</li>
+      </ul>
+      <p>Violation of these rules may result in immediate account suspension or permanent termination without a refund.</p>
+    </div>
+
+    <!-- 8. ACCOUNT TERMINATION -->
+    <div class="section">
+      <span class="section-number">08</span>
+      <h2>Account Suspension and Termination</h2>
+      <p>We reserve the right to suspend or permanently terminate your account, at our sole discretion, for any of the following reasons:</p>
+      <ul>
+        <li>Violation of any provision of these Terms</li>
+        <li>Fraudulent, abusive, or illegal activity</li>
+        <li>Abuse of the refund policy</li>
+        <li>Creating multiple accounts after a previous termination</li>
+        <li>Any behaviour that we reasonably believe harms LoanIQ, its users, or third parties</li>
+      </ul>
+
+      <div class="warning">
+        <p><strong>Email blocking:</strong> When an account is terminated for a Terms violation, the associated email address will be permanently blocked from registering a new LoanIQ account. Attempting to re-register with a different email address after a termination for misconduct also constitutes a violation of these Terms.</p>
+      </div>
+
+      <p>If your account is terminated for a Terms violation, you will not be entitled to any refund regardless of when your last payment was made.</p>
+      <p>You may also choose to delete your own account at any time using the "Delete My Account" option in Account Settings. Voluntary deletion is not subject to the email blocking policy.</p>
+    </div>
+
+    <!-- 9. DISCLAIMER -->
+    <div class="section">
+      <span class="section-number">09</span>
+      <h2>Disclaimer — Not Financial Advice</h2>
+      <p>LoanIQ is a calculation and planning tool. All results produced by LoanIQ — including monthly payment estimates, total interest, amortization schedules, savings projections, and refinancing comparisons — are <strong>estimates based on the inputs you provide</strong>.</p>
+
+      <div class="warning">
+        <p><strong>LoanIQ does not provide financial, legal, or investment advice.</strong> The results produced by LoanIQ should not be relied upon as the sole basis for any financial decision. Always consult a qualified financial advisor, bank, or lending institution before taking out a loan or making a financial commitment.</p>
+      </div>
+
+      <p>LoanIQ makes no representation or warranty that:</p>
+      <ul>
+        <li>The calculations produced are accurate for your specific loan product or lender.</li>
+        <li>Actual loan terms, interest rates, or repayment amounts will match the estimates shown.</li>
+        <li>The app is free from errors or interruptions at all times.</li>
+      </ul>
+      <p>LoanIQ is provided "as is" and "as available" without warranties of any kind, express or implied, to the fullest extent permitted by Kenyan law.</p>
+    </div>
+
+    <!-- 10. LIMITATION OF LIABILITY -->
+    <div class="section">
+      <span class="section-number">10</span>
+      <h2>Limitation of Liability</h2>
+      <p>To the maximum extent permitted by the laws of Kenya, LoanIQ Technologies shall not be liable for:</p>
+      <ul>
+        <li>Any financial loss arising from reliance on LoanIQ's calculation results.</li>
+        <li>Any indirect, incidental, special, or consequential damages arising from your use of LoanIQ.</li>
+        <li>Loss of data due to technical failures, even where we have been advised of the possibility of such loss.</li>
+        <li>Any interruption, suspension, or termination of the service.</li>
+        <li>Actions of third-party services including Stripe, Firebase, GitHub, or Netlify.</li>
+      </ul>
+      <p>Our total liability to you for any claim arising from your use of LoanIQ shall not exceed the amount you paid to LoanIQ in the 30 days preceding the claim.</p>
+    </div>
+
+    <!-- 11. INTELLECTUAL PROPERTY -->
+    <div class="section">
+      <span class="section-number">11</span>
+      <h2>Intellectual Property</h2>
+      <p>All content, design, code, branding, and features of LoanIQ — including the name "LoanIQ", the app interface, and all text — are the intellectual property of LoanIQ Technologies and are protected under Kenyan and international intellectual property laws.</p>
+      <p>You are granted a limited, non-exclusive, non-transferable licence to use LoanIQ for your personal, non-commercial financial planning purposes. You must not:</p>
+      <ul>
+        <li>Copy, reproduce, or redistribute LoanIQ's interface, design, or code for commercial use.</li>
+        <li>Use the LoanIQ name or branding without our written permission.</li>
+        <li>Create derivative products based on LoanIQ without our written permission.</li>
+      </ul>
+      <p>Personal use of shared calculation links and exported PDF or CSV reports is permitted and encouraged.</p>
+    </div>
+
+    <!-- 12. GOVERNING LAW -->
+    <div class="section">
+      <span class="section-number">12</span>
+      <h2>Governing Law and Dispute Resolution</h2>
+      <p>These Terms are governed by and construed in accordance with the laws of Kenya, including but not limited to the Kenya Data Protection Act 2019, the Consumer Protection Act 2012, and any other applicable Kenyan legislation.</p>
+      <p>Any dispute arising out of or in connection with these Terms shall first be referred to informal resolution by contacting us at <a href="mailto:thecalculator79@gmail.com">thecalculator79@gmail.com</a>. We will make reasonable efforts to resolve disputes within 30 days.</p>
+      <p>If informal resolution fails, disputes shall be submitted to the jurisdiction of the courts of Kenya.</p>
+    </div>
+
+    <!-- 13. CHANGES -->
+    <div class="section">
+      <span class="section-number">13</span>
+      <h2>Changes to These Terms</h2>
+      <p>We reserve the right to update these Terms at any time. When we make material changes, we will notify you by displaying a prominent notice in the LoanIQ app and updating the "Last updated" date at the top of this page.</p>
+      <p>Your continued use of LoanIQ after changes are posted constitutes your acceptance of the revised Terms. If you do not agree to the updated Terms, you must stop using LoanIQ and may delete your account.</p>
+    </div>
+
+    <!-- CONTACT -->
+    <div class="contact-card">
+      <h2>Questions About These Terms?</h2>
+      <p>If you have any questions about these Terms and Conditions, or wish to request a refund or report a concern, contact us directly.</p>
+      <a href="mailto:thecalculator79@gmail.com" class="contact-email">&#9993; thecalculator79@gmail.com</a>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <p>&copy; 2026 LoanIQ Technologies. All rights reserved.</p>
+      <p style="margin-top:8px;">
+        <a href="index.html">← Back to LoanIQ</a>
+        &nbsp;·&nbsp;
+        <a href="privacy.html">Privacy Policy</a>
+      </p>
+    </div>
+
+  </div>
+
+</body>
+</html>
