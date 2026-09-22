@@ -2145,4 +2145,200 @@ body.light-mode .theme-toggle {
   background: rgba(0,0,0,0.08);
   border-color: rgba(0,0,0,0.12);
 }
+
+/* ── TERMS CHECKBOX ─────────────────────────────────────────── */
+.terms-checkbox-wrapper {
+  margin-bottom: 14px;
+}
+
+.terms-checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  position: relative;
+}
+
+.terms-checkbox-label input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.terms-checkbox-custom {
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid rgba(255,255,255,0.25);
+  border-radius: 4px;
+  background: rgba(255,255,255,0.05);
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.terms-checkbox-label input[type="checkbox"]:checked + .terms-checkbox-custom {
+  background: rgb(0,120,255);
+  border-color: rgb(0,120,255);
+}
+
+.terms-checkbox-label input[type="checkbox"]:checked + .terms-checkbox-custom::after {
+  content: '✓';
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.terms-checkbox-text {
+  font-size: 12px;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.5;
+}
+
+.terms-checkbox-text a {
+  color: rgba(100,180,255,0.8);
+  text-decoration: none;
+}
+
+.terms-checkbox-text a:hover {
+  text-decoration: underline;
+}
+
+/* Light mode checkbox */
+body.light-mode .terms-checkbox-custom {
+  border-color: rgba(0,0,0,0.2);
+  background: rgba(0,0,0,0.04);
+}
+
+body.light-mode .terms-checkbox-text {
+  color: rgba(15,20,40,0.55);
+}
+
+body.light-mode .terms-checkbox-text a {
+  color: rgb(0,80,200);
+}
+
+/* ── NUMBER FORMATTING ──────────────────────────────────────── */
+#amount.formatted {
+  letter-spacing: 0.5px;
+}
+
+/* ── SECTION TRANSITIONS ────────────────────────────────────── */
+.section-transition {
+  animation: sectionFadeIn 0.25s ease forwards;
+}
+
+@keyframes sectionFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── ADMIN DASHBOARD ────────────────────────────────────────── */
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.admin-stat-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+}
+
+.admin-stat-icon {
+  font-size: 24px;
+}
+
+.admin-stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: rgb(100,200,255);
+}
+
+.admin-stat-label {
+  font-size: 12px;
+  color: rgba(255,255,255,0.45);
+  letter-spacing: 0.3px;
+}
+
+.admin-recent-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 13px;
+  gap: 8px;
+}
+
+.admin-recent-row:last-child {
+  border-bottom: none;
+}
+
+.admin-recent-email {
+  color: rgba(255,255,255,0.75);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.admin-recent-plan {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.plan-free    { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.45); }
+.plan-weekly  { background: rgba(255,180,0,0.15);   color: rgb(255,200,80); }
+.plan-monthly { background: rgba(0,150,255,0.15);   color: rgb(100,180,255); }
+.plan-yearly  { background: rgba(180,100,255,0.15); color: rgb(200,150,255); }
+
+.admin-recent-date {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  flex-shrink: 0;
+}
+
+/* Light mode admin */
+body.light-mode .admin-stat-card {
+  background: rgba(0,0,0,0.03);
+  border-color: rgba(0,0,0,0.08);
+}
+
+body.light-mode .admin-stat-value {
+  color: rgb(0,100,200);
+}
+
+body.light-mode .admin-stat-label {
+  color: rgba(15,20,40,0.45);
+}
+
+body.light-mode .admin-recent-email {
+  color: rgba(15,20,40,0.75);
+}
+
+body.light-mode .admin-recent-date {
+  color: rgba(15,20,40,0.3);
+}
 /* ========================================================== */

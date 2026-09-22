@@ -10,6 +10,8 @@
 
     
     <link rel="stylesheet" href="styles.css">
+
+      <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   </head>
 
   <body>
@@ -29,7 +31,7 @@
           <div class="auth-brand">
             <h1>LoanIQ</h1>
             <p>Sign in to save and sync your data</p>
-            <p style="font-size:11px; margin-top:6px; color:rgba(255,255,255,0.35);">By continuing, you agree to our <a href="privacy.html" target="_blank" style="color:rgba(100,180,255,0.7); text-decoration:none;">Privacy Policy</a></p>
+            <p style="font-size:11px; margin-top:6px; color:rgba(255,255,255,0.35);">By continuing, you agree to our <a href="privacy.html" target="_blank" style="color:rgba(100,180,255,0.7); text-decoration:none;">Privacy Policy</a> and <a href="terms.html" target="_blank" style="color:rgba(100,180,255,0.7); text-decoration:none;">Terms of Service</a></p>
           </div>
 
           <!-- Tab switcher — Login / Register -->
@@ -108,6 +110,16 @@
 
             <!-- General auth error -->
             <div id="registerError" class="auth-error-box" style="display:none;"></div>
+
+            <!-- Terms agreement checkbox -->
+            <div class="terms-checkbox-wrapper">
+              <label class="terms-checkbox-label">
+                <input type="checkbox" id="termsCheckbox">
+                <span class="terms-checkbox-custom"></span>
+                <span class="terms-checkbox-text">I agree to the <a href="terms.html" target="_blank">Terms of Service</a> and <a href="privacy.html" target="_blank">Privacy Policy</a></span>
+              </label>
+              <small class="error-message" id="termsCheckboxError" role="alert"></small>
+            </div>
 
             <button class="btn" id="registerSubmitBtn">Create Account</button>
 
@@ -242,8 +254,13 @@
       Get Premium — $4.99/month
     </button>
 
-    <p class="upgrade-secure-note">&#128274; Secure payment powered by Stripe</p>
-
+              <p class="upgrade-secure-note">&#128274; Secure payment powered by Stripe</p>
+          <p style="text-align:center; font-size:11px; margin-top:8px; color:rgba(255,255,255,0.25);">
+            By subscribing you agree to our
+            <a href="terms.html" target="_blank" style="color:rgba(100,180,255,0.5); text-decoration:none;">Terms of Service</a>
+            and
+            <a href="privacy.html" target="_blank" style="color:rgba(100,180,255,0.5); text-decoration:none;">Privacy Policy</a>
+          </p>
   </div>
 </div>
 <!-- ================ END UPGRADE MODAL ================ -->
@@ -294,6 +311,8 @@
 
         <button class="menu-item" id="accountSettingsBtn" data-role="free">&#9881; Account Settings</button>
 
+        <button class="menu-item" id="adminDashboardBtn" data-role="free" style="display:none; background:rgba(255,150,0,0.1); border-color:rgba(255,150,0,0.25); color:rgb(255,180,80);">&#128272; Admin Dashboard</button>
+
         <button class="menu-item" id="loanHistoryBtn" data-role="admin">&#128203; Loan History</button>
 
         <!--currency icon button-->
@@ -329,6 +348,66 @@
       </div>
 
       
+      <!--=================== ADMIN DASHBOARD SECTION ===================-->
+      <div id="adminDashboardSection" style="display:none;">
+        <div class="table-container">
+                    <div class="history-header">
+            <h3 class="breakdown-title">&#128272; Admin Dashboard</h3>
+            <div style="display:flex; gap:8px;">
+              <button class="history-clear-btn" id="adminRefreshBtn" style="background:rgba(0,180,255,0.12); border-color:rgba(0,180,255,0.3); color:rgb(100,180,255);">&#8635; Refresh</button>
+              <button class="history-clear-btn" id="adminBackBtn" style="background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.12); color:rgba(255,255,255,0.6);">&#8592; Back</button>
+            </div>
+          </div>
+
+          <!-- ── STATS GRID ── -->
+          <div class="admin-stats-grid">
+            <div class="admin-stat-card">
+              <span class="admin-stat-icon">&#128101;</span>
+              <span class="admin-stat-value" id="adminTotalUsers">—</span>
+              <span class="admin-stat-label">Total Users</span>
+            </div>
+            <div class="admin-stat-card">
+              <span class="admin-stat-icon">&#9889;</span>
+              <span class="admin-stat-value" id="adminPremiumUsers">—</span>
+              <span class="admin-stat-label">Premium Users</span>
+            </div>
+            <div class="admin-stat-card">
+              <span class="admin-stat-icon">&#128200;</span>
+              <span class="admin-stat-value" id="adminFreeUsers">—</span>
+              <span class="admin-stat-label">Free Users</span>
+            </div>
+            <div class="admin-stat-card">
+              <span class="admin-stat-icon">&#128178;</span>
+              <span class="admin-stat-value" id="adminRevenue">—</span>
+              <span class="admin-stat-label">Est. Monthly Revenue</span>
+            </div>
+          </div>
+
+          <!-- ── PLAN BREAKDOWN ── -->
+          <div class="settings-card" style="margin-top:16px;">
+            <h4 class="settings-card-title">&#128203; Plan Breakdown</h4>
+            <div class="settings-row">
+              <span class="settings-label">&#128336; Weekly Premium</span>
+              <span class="settings-value" id="adminWeeklyCount">—</span>
+            </div>
+            <div class="settings-row">
+              <span class="settings-label">&#128197; Monthly Premium</span>
+              <span class="settings-value" id="adminMonthlyCount">—</span>
+            </div>
+            <div class="settings-row">
+              <span class="settings-label">&#128198; Annual Premium</span>
+              <span class="settings-value" id="adminYearlyCount">—</span>
+            </div>
+          </div>
+
+          <!-- ── RECENT USERS ── -->
+          <div class="settings-card" style="margin-top:16px;">
+            <h4 class="settings-card-title">&#128336; Recent Registrations</h4>
+            <div id="adminRecentUsers"></div>
+          </div>
+
+        </div>
+      </div>
 
       <!--==================== AMORTIZATION TABLE =====================-->
       <div id="amortizationSection" style="display: none;">
@@ -802,10 +881,14 @@
               <label for="deleteConfirmPassword">Confirm your password to delete</label>
               <input type="password" id="deleteConfirmPassword" placeholder="Enter your password">
             </div>
-            <button class="btn settings-delete-btn" id="deleteAccountBtn">&#128465; Delete My Account</button>
-              <div class="settings-card" style="text-align:center;">
-                <a href="privacy.html" target="_blank" style="color:rgba(100,180,255,0.8); font-size:13px; text-decoration:none;">&#128274; Privacy Policy</a>
-              </div>
+                        <button class="btn settings-delete-btn" id="deleteAccountBtn">&#128465; Delete My Account</button>
+          </div>
+
+          <!-- ── LEGAL LINKS CARD ── -->
+          <div class="settings-card" style="text-align:center; display:flex; gap:24px; justify-content:center; align-items:center;">
+            <a href="privacy.html" target="_blank" style="color:rgba(100,180,255,0.8); font-size:13px; text-decoration:none;">&#128274; Privacy Policy</a>
+            <span style="color:rgba(255,255,255,0.15); font-size:13px;">|</span>
+            <a href="terms.html" target="_blank" style="color:rgba(100,180,255,0.8); font-size:13px; text-decoration:none;">&#128203; Terms of Service</a>
           </div>
 
         </div>
@@ -821,7 +904,7 @@
           <!--input group-->
           <div class="input-group">
             <label for="amount">Loan Amount </label>
-            <input type="number" id="amount" aria-describedby="amountError" placeholder="Enter Loan Amount" min="1">
+            <input type="text" id="amount" inputmode="numeric" aria-describedby="amountError" placeholder="Enter Loan Amount e.g. 50,000">
             <small class="error-message" id="amountError" role="alert"></small>
           </div>
 

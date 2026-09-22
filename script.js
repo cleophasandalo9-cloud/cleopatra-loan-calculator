@@ -160,6 +160,17 @@ let exchangeRates = {};
 const animationFrames = {};
 
 const POPULAR_CURRENCIES = ['USD', 'EUR', 'KES', 'GBP', 'INR', 'JPY', 'AUD', 'CAD', 'AED', 'ZAR', 'NGN', 'KWD'];
+
+// ── OWNER EMAIL ──────────────────────────────────────────────
+// Only this email can access the admin dashboard
+const OWNER_EMAIL = 'thecalculator79@gmail.com';
+
+// ── EMAILJS CONFIG ───────────────────────────────────────────
+const EMAILJS_SERVICE_ID   = 'service_69enw6j';
+const EMAILJS_WELCOME_ID   = 'template_ero68pp';
+const EMAILJS_ALERT_ID     = 'template_kietyzb';
+const EMAILJS_PUBLIC_KEY   = '5aU7zUAGTqP7rLC1r';
+
 // ── STRIPE CONFIG ────────────────────────────────────────────
 const STRIPE_PUBLISHABLE_KEY = 'pk_test_51UDjJLRvHL4nitcrQWwDeYY8QcSutzZMruKKn0x0ORbI2RFyLzQ12n6glGMi4FSYXJEcgyWicBram8Qmcv8LQwYM00RAZkc1JR';
 const STRIPE_PRICE_WEEKLY   = 'price_1UEukmRvHL4nitcr9ir9IaUC';
@@ -341,7 +352,8 @@ function showSection (sectionId) {
     'refinanceSection',
     'extraPaymentSection',
     'accountSettingsSection',
-    'loanHistorySection'
+    'loanHistorySection',
+    'adminDashboardSection'
   ];
 
   allSections.forEach(id => {
@@ -349,7 +361,11 @@ function showSection (sectionId) {
     if(el)el.style.display = 'none';
   });
 
-  document.getElementById(sectionId).style.display = 'block';
+  const activeSection = document.getElementById(sectionId);
+  activeSection.style.display = 'block';
+  activeSection.classList.remove('section-transition');
+  void activeSection.offsetWidth; // force browser to reflow so animation restarts
+  activeSection.classList.add('section-transition');
 
   // Remove active highlight from all sidebar buttons
   document.querySelectorAll('.menu-item[data-role]').forEach(btn => {
@@ -810,7 +826,7 @@ function populateCurrencies() {
 
 
 function saveInputs () {
-  const loanAmount   = document.getElementById('amount').value;
+  const loanAmount   = document.getElementById('amount').value.replace(/,/g, '');
   const interestRate = document.getElementById('rate').value;
   const loanTerm     = document.getElementById('time').value;
   const currency     = document.getElementById('currency').value;
@@ -858,8 +874,12 @@ function saveInputs () {
 //=====================================
 function getLoanInputs () {
 
+  // Strip commas from amount before parsing
+  // e.g. "50,000" → 50000
+  const rawAmount = amountInput.value.replace(/,/g, '');
+
   return {
-    amount: parseFloat(amountInput.value),
+    amount: parseFloat(rawAmount),
     rate: parseFloat(rateInput.value),
     months: parseFloat(timeInput.value),
 
@@ -1438,8 +1458,7 @@ function handleStripeReturn () {
     // Clean the URL so the message doesn't show on every refresh
     window.history.replaceState({}, '', window.location.pathname);
 
-    // Re-fetch the role after 4 seconds (gives webhook time to run)
-        // Upgrade user role directly after successful payment
+    // Re-fetch the role after 2 seconds (gives webhook time to run)
     setTimeout(async () => {
       const user = window._firebase?.auth?.currentUser;
       if (user) {
@@ -1450,6 +1469,10 @@ function handleStripeReturn () {
           { merge: true }
         );
         fetchAndApplyRole(user.uid);
+
+        // Notify you that someone upgraded
+        const plan = new URLSearchParams(window.location.search).get('plan') || 'Premium';
+        sendAdminAlert(user.email, 'Upgrade to Premium', plan);
       }
     }, 2000);
 
@@ -2762,6 +2785,42 @@ function initApp () {
 
 function bindInputEvents () {
 
+    // ── AMOUNT INPUT FORMATTING ───────────────────────────────
+  // Format the loan amount with commas as the user types
+  // e.g. 50000 → 50,000 → 1,000,000
+  amountInput.addEventListener('input', function () {
+
+    // Remove everything that isn't a digit or decimal point
+    let raw = this.value.replace(/[^0-9.]/g, '');
+
+    // Prevent more than one decimal point
+    const parts = raw.split('.');
+    if (parts.length > 2) raw = parts[0] + '.' + parts.slice(1).join('');
+
+    // Format the integer part with commas
+    // Only format the part before the decimal point
+    if (raw !== '') {
+      const intPart     = parts[0];
+      const decPart     = parts[1] !== undefined ? '.' + parts[1] : '';
+      const formatted   = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      this.value         = formatted + decPart;
+    }
+
+    this.classList.add('formatted');
+  });
+
+  // When the field loses focus, clean up trailing decimal points
+  amountInput.addEventListener('blur', function () {
+    let raw = this.value.replace(/[^0-9.]/g, '');
+    if (raw.endsWith('.')) raw = raw.slice(0, -1);
+    if (raw) {
+      const num = parseFloat(raw);
+      if (!isNaN(num)) {
+        this.value = num.toLocaleString('en-US');
+      }
+    }
+  });
+
   amountInput.addEventListener('input', function () {
     if (isSyncing) return;
     isSyncing = true;
@@ -3445,10 +3504,23 @@ document.getElementById('registerSubmitBtn').addEventListener('click', async fun
   const email    = document.getElementById('registerEmail').value.trim();
   const password = document.getElementById('registerPassword').value;
   const confirm  = document.getElementById('registerConfirm').value;
+  const termsChecked = document.getElementById('termsCheckbox').checked;
 
   clearAuthErrors();
 
   let hasError = false;
+
+    // Check terms agreement first
+  if (!termsChecked) {
+    const termsError = document.getElementById('termsCheckboxError');
+    termsError.textContent  = 'You must agree to the Terms of Service to create an account.';
+    termsError.style.opacity = '1';
+    hasError = true;
+  } else {
+    const termsError = document.getElementById('termsCheckboxError');
+    termsError.textContent  = '';
+    termsError.style.opacity = '0';
+  }
 
     if (!email) {
     showFieldError('registerEmail', 'registerEmailError', 'Email is required.');
@@ -3557,6 +3629,20 @@ onAuthStateChanged(auth, async function (user) {
       // Show user info in the sidebar
       document.getElementById('userInfoPanel').style.display  = 'block';
       document.getElementById('userEmailDisplay').textContent = user.email;
+
+      // ── FIRST LOGIN DETECTION ─────────────────────────────
+      // If creationTime and lastSignInTime are within 30 seconds
+      // of each other, this is the user's very first login
+      const createdAt    = new Date(user.metadata.creationTime).getTime();
+      const lastSignIn   = new Date(user.metadata.lastSignInTime).getTime();
+      const isFirstLogin = (lastSignIn - createdAt) < 30000;
+
+      if (isFirstLogin) {
+        // Send welcome email to the new user
+        sendWelcomeEmail(user.email);
+        // Notify you that someone new registered
+        sendAdminAlert(user.email, 'New Registration', 'Free');
+      }
 
       // Fetch role from Firestore and apply to sidebar immediately.
       fetchAndApplyRole(user.uid);
@@ -3775,11 +3861,19 @@ function applyRoleToUI (role, plan) {
   }
 
   // ── UPGRADE BUTTON ───────────────────────────────────────
-  // Only show to free users
+  // Show upgrade button only to free users
   const upgradeBtn = document.getElementById('upgradeBtn');
   if (upgradeBtn) upgradeBtn.style.display = isAdmin ? 'none' : 'flex';
-}
 
+  // Show admin dashboard button only to the owner email
+  const { auth } = window._firebase;
+  const currentUser = auth.currentUser;
+  const adminBtn = document.getElementById('adminDashboardBtn');
+  if (adminBtn) {
+    adminBtn.style.display =
+      (currentUser && currentUser.email === OWNER_EMAIL) ? 'flex' : 'none';
+  }
+}
 
 // ── FETCH USER ROLE ─────────────────────────────────────────
 
@@ -4391,7 +4485,7 @@ function loadFromSharedUrl () {
   if (!amount || !rate || !months) return; // not a shared link
 
   // Fill the inputs
-  document.getElementById('amount').value       = amount;
+  document.getElementById('amount').value = parseFloat(amount).toLocaleString('en-US');
   document.getElementById('rate').value         = rate;
   document.getElementById('time').value         = months;
   document.getElementById('interestType').value = type || 'compound';
@@ -4425,6 +4519,201 @@ function loadFromSharedUrl () {
     }, 4000);
 
   }, 800);
+}
+
+
+//===========================================
+// ADMIN DASHBOARD MODULE
+//===========================================
+
+// ── REFRESH BUTTON ───────────────────────────────────────────
+document.getElementById('adminRefreshBtn').addEventListener('click', function () {
+  loadAdminDashboard();
+});
+
+// ── BACK BUTTON ───────────────────────────────────────────────
+document.getElementById('adminBackBtn').addEventListener('click', function () {
+  showSection('dashboardSection');
+});
+
+// ── ADMIN DASHBOARD BUTTON ───────────────────────────────────
+document.getElementById('adminDashboardBtn').addEventListener('click', function () {
+  showSection('adminDashboardSection');
+  loadAdminDashboard();
+});
+
+// ── KEYBOARD SHORTCUT (desktop backup) ───────────────────────
+// Ctrl + Shift + A as a secondary way to open on desktop
+document.addEventListener('keydown', function (e) {
+  if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+    const { auth } = window._firebase;
+    const user = auth.currentUser;
+    if (!user || user.email !== OWNER_EMAIL) return;
+    showSection('adminDashboardSection');
+    loadAdminDashboard();
+  }
+});
+
+
+// ── LOAD DASHBOARD DATA ──────────────────────────────────────
+async function loadAdminDashboard () {
+
+  // Reset all stats to loading state
+  ['adminTotalUsers','adminPremiumUsers','adminFreeUsers',
+   'adminRevenue','adminWeeklyCount','adminMonthlyCount','adminYearlyCount'].forEach(id => {
+    document.getElementById(id).textContent = '...';
+  });
+  document.getElementById('adminRecentUsers').innerHTML =
+    '<span class="skeleton skeleton-row" style="display:block; margin-bottom:8px;"></span>' +
+    '<span class="skeleton skeleton-row" style="display:block;"></span>';
+
+  try {
+    const { db } = window._firebase;
+    const { collection, getDocs } = await import(
+      'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js'
+    );
+
+    // Fetch all users
+    const snapshot = await getDocs(collection(db, 'users'));
+
+    let total   = 0;
+    let premium = 0;
+    let free    = 0;
+    let weekly  = 0;
+    let monthly = 0;
+    let yearly  = 0;
+    const recentUsers = [];
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      total++;
+
+      if (data.role === 'admin') {
+        premium++;
+        if (data.plan === 'weekly')  weekly++;
+        if (data.plan === 'monthly') monthly++;
+        if (data.plan === 'yearly')  yearly++;
+      } else {
+        free++;
+      }
+
+      recentUsers.push({
+        email:      doc.id,
+        role:       data.role  || 'free',
+        plan:       data.plan  || null,
+        upgradedAt: data.upgradedAt || null
+      });
+    });
+
+    // Estimated monthly revenue
+    const estRevenue = (weekly * 1.50 * 4.3) + (monthly * 4.99) + (yearly * (50 / 12));
+
+    // Update stat cards
+    document.getElementById('adminTotalUsers').textContent   = total;
+    document.getElementById('adminPremiumUsers').textContent = premium;
+    document.getElementById('adminFreeUsers').textContent    = free;
+    document.getElementById('adminRevenue').textContent      = '$' + estRevenue.toFixed(2);
+    document.getElementById('adminWeeklyCount').textContent  = weekly;
+    document.getElementById('adminMonthlyCount').textContent = monthly;
+    document.getElementById('adminYearlyCount').textContent  = yearly;
+
+    // Render recent users list
+    const recentEl = document.getElementById('adminRecentUsers');
+    recentEl.innerHTML = '';
+
+    if (recentUsers.length === 0) {
+      recentEl.innerHTML = '<p style="color:rgba(255,255,255,0.35); font-size:13px; text-align:center; padding:12px;">No users yet.</p>';
+      return;
+    }
+
+    recentUsers
+      .sort((a, b) => {
+        if (a.upgradedAt && b.upgradedAt) return new Date(b.upgradedAt) - new Date(a.upgradedAt);
+        if (a.upgradedAt) return -1;
+        if (b.upgradedAt) return 1;
+        return 0;
+      })
+      .slice(0, 10)
+      .forEach(u => {
+        const planLabel = u.plan
+          ? u.plan.charAt(0).toUpperCase() + u.plan.slice(1)
+          : (u.role === 'admin' ? 'Premium' : 'Free');
+
+        const planClass = u.plan ? 'plan-' + u.plan
+          : (u.role === 'admin' ? 'plan-monthly' : 'plan-free');
+
+        const date = u.upgradedAt
+          ? new Date(u.upgradedAt).toLocaleDateString('en-US', {
+              month: 'short', day: 'numeric', year: 'numeric'
+            })
+          : '—';
+
+        const row = document.createElement('div');
+        row.className = 'admin-recent-row';
+        row.innerHTML = `
+          <span class="admin-recent-email">${u.email}</span>
+          <span class="admin-recent-plan ${planClass}">${planLabel}</span>
+          <span class="admin-recent-date">${date}</span>
+        `;
+        recentEl.appendChild(row);
+      });
+
+  } catch (err) {
+    console.warn('Admin dashboard load failed:', err.message);
+    document.getElementById('adminTotalUsers').textContent = 'Error';
+  }
+}
+
+//===========================================
+// EMAIL NOTIFICATIONS MODULE
+//===========================================
+
+// Initialise EmailJS once
+(function () {
+  if (typeof emailjs !== 'undefined') {
+    emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+  }
+})();
+
+// ── SEND WELCOME EMAIL ───────────────────────────────────────
+// Called once when a new user first logs in after verification
+async function sendWelcomeEmail (email) {
+  try {
+    if (typeof emailjs === 'undefined') return;
+
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_WELCOME_ID, {
+      to_name:  email.split('@')[0], // use part before @ as name
+      to_email: email,
+      app_url:  'https://cleophasandalo9-cloud.github.io/cleopatra-loan-calculator/'
+    });
+
+    console.log('Welcome email sent to:', email);
+  } catch (err) {
+    // Silent fail — never let email crash the app
+    console.warn('Welcome email failed:', err.message);
+  }
+}
+
+// ── SEND ADMIN ALERT EMAIL ───────────────────────────────────
+// Called when a new user registers OR upgrades to premium
+async function sendAdminAlert (userEmail, eventType, plan = 'Free') {
+  try {
+    if (typeof emailjs === 'undefined') return;
+
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_ALERT_ID, {
+      user_email: userEmail,
+      event_type: eventType,
+      plan:       plan,
+      time:       new Date().toLocaleString('en-US', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      })
+    });
+
+    console.log('Admin alert sent for:', eventType);
+  } catch (err) {
+    console.warn('Admin alert failed:', err.message);
+  }
 }
 
 // ── FIREBASE READY LISTENER ─────────────────────────────────
