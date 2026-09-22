@@ -10,9 +10,17 @@
 
     
     <link rel="stylesheet" href="styles.css">
+
+      <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   </head>
 
   <body>
+
+        <!-- ── OFFLINE BANNER ── -->
+    <div id="offlineBanner" class="offline-banner" style="display:none;" role="alert" aria-live="polite">
+      <span id="offlineBannerIcon">&#x26A0;&#xFE0F;</span>
+      <span id="offlineBannerText">You're offline — some features may be unavailable</span>
+    </div>
 
       <!-- ================== AUTH OVERLAY ================== -->
       <div id="authOverlay" class="auth-overlay" style="display: none;">
@@ -23,6 +31,7 @@
           <div class="auth-brand">
             <h1>LoanIQ</h1>
             <p>Sign in to save and sync your data</p>
+            <p style="font-size:11px; margin-top:6px; color:rgba(255,255,255,0.35);">By continuing, you agree to our <a href="privacy.html" target="_blank" style="color:rgba(100,180,255,0.7); text-decoration:none;">Privacy Policy</a> and <a href="terms.html" target="_blank" style="color:rgba(100,180,255,0.7); text-decoration:none;">Terms of Service</a></p>
           </div>
 
           <!-- Tab switcher — Login / Register -->
@@ -102,12 +111,33 @@
             <!-- General auth error -->
             <div id="registerError" class="auth-error-box" style="display:none;"></div>
 
+            <!-- Terms agreement checkbox -->
+            <div class="terms-checkbox-wrapper">
+              <label class="terms-checkbox-label">
+                <input type="checkbox" id="termsCheckbox">
+                <span class="terms-checkbox-custom"></span>
+                <span class="terms-checkbox-text">I agree to the <a href="terms.html" target="_blank">Terms of Service</a> and <a href="privacy.html" target="_blank">Privacy Policy</a></span>
+              </label>
+              <small class="error-message" id="termsCheckboxError" role="alert"></small>
+            </div>
+
             <button class="btn" id="registerSubmitBtn">Create Account</button>
 
             <p class="auth-switch-text">Already have an account? <button type="button" class="auth-switch-btn" id="switchToLoginBtn">Log in</button></p>
 
             </div>
 
+          </div>
+
+            <!-- ── VERIFY EMAIL MESSAGE ── -->
+          <div id="verifyEmailForm" class="auth-form" style="display:none;">
+            <div class="verify-email-icon">&#x2709;&#xFE0F;</div>
+            <h3 class="verify-email-title">Check your email</h3>
+            <p class="verify-email-text">We sent a verification link to <strong id="verifyEmailAddress"></strong>. Click the link to activate your account.</p>
+            <div id="verifyEmailError" class="auth-error-box" style="display:none;"></div>
+            <div id="verifyEmailSuccess" style="display:none; color: rgb(0,200,80); font-size:13px; text-align:center; margin-bottom:12px;"></div>
+            <button class="btn" id="resendVerifyBtn">Resend Verification Email</button>
+            <button type="button" class="forgot-password-btn" id="backToLoginFromVerifyBtn" style="margin-top: 12px;">&#8592; Back to Login</button>
           </div>
 
           <!-- ── FORGOT PASSWORD FORM ── -->
@@ -134,6 +164,42 @@
 
       </div>
 
+            <!-- ================== SHARE MODAL ================== -->
+      <div id="shareModal" class="upgrade-modal-overlay" style="display:none;">
+        <div class="upgrade-modal-card" style="max-width:380px;">
+
+          <button class="upgrade-modal-close" id="shareModalClose">&#x2715;</button>
+
+          <div class="upgrade-modal-header">
+            <h2>&#128279; Share Calculation</h2>
+            <p>Anyone with this link sees your exact calculation</p>
+          </div>
+
+          <div class="share-link-box">
+            <input type="text" id="shareLinkInput" class="share-link-input" readonly>
+            <button class="share-copy-btn" id="shareCopyBtn">&#128203; Copy</button>
+          </div>
+
+          <p id="shareCopiedMsg" style="display:none; text-align:center; color:rgb(0,200,80); font-size:13px; margin-top:10px;">
+            ✅ Link copied to clipboard!
+          </p>
+
+          <div class="share-options">
+            <a id="shareWhatsApp" class="share-option-btn share-whatsapp" target="_blank" rel="noopener">
+              &#128241; WhatsApp
+            </a>
+            <a id="shareEmail" class="share-option-btn share-email" target="_blank" rel="noopener">
+              &#9993; Email
+            </a>
+          </div>
+
+          <p class="upgrade-secure-note" style="margin-top:14px;">
+            No login required to view the shared calculation
+          </p>
+
+        </div>
+      </div>
+      <!-- ================ END SHARE MODAL ================ -->
       
       <!-- ================== UPGRADE MODAL ================== -->
 <div id="upgradeModal" class="upgrade-modal-overlay" style="display:none;">
@@ -145,6 +211,7 @@
       <h2>⚡ LoanIQ Premium</h2>
       <p>Unlock the full power of LoanIQ</p>
     </div>
+    
 
     <ul class="upgrade-feature-list">
       <li>&#9989; EMI Chart — visualise your payments</li>
@@ -167,7 +234,7 @@
 
     <!-- Weekly pricing -->
     <div class="upgrade-price-display" id="weeklyPricing" style="display:none;">
-      <span class="upgrade-price-amount">$1.50</span>
+      <span class="upgrade-price-amount">$1.55</span>
       <span class="upgrade-price-label">per week · cancel anytime</span>
     </div>
 
@@ -187,8 +254,13 @@
       Get Premium — $4.99/month
     </button>
 
-    <p class="upgrade-secure-note">&#128274; Secure payment powered by Stripe</p>
-
+              <p class="upgrade-secure-note">&#128274; Secure payment powered by Stripe</p>
+          <p style="text-align:center; font-size:11px; margin-top:8px; color:rgba(255,255,255,0.25);">
+            By subscribing you agree to our
+            <a href="terms.html" target="_blank" style="color:rgba(100,180,255,0.5); text-decoration:none;">Terms of Service</a>
+            and
+            <a href="privacy.html" target="_blank" style="color:rgba(100,180,255,0.5); text-decoration:none;">Privacy Policy</a>
+          </p>
   </div>
 </div>
 <!-- ================ END UPGRADE MODAL ================ -->
@@ -237,6 +309,12 @@
 
         <button class="menu-item" id="pdfDownloadBtn"    data-role="admin">&#128462; Download PDF</button>
 
+        <button class="menu-item" id="accountSettingsBtn" data-role="free">&#9881; Account Settings</button>
+
+        <button class="menu-item" id="adminDashboardBtn" data-role="free" style="display:none; background:rgba(255,150,0,0.1); border-color:rgba(255,150,0,0.25); color:rgb(255,180,80);">&#128272; Admin Dashboard</button>
+
+        <button class="menu-item" id="loanHistoryBtn" data-role="admin">&#128203; Loan History</button>
+
         <!--currency icon button-->
         <button class="currency-toggle" onclick="toggleConverter()" aria-label="Open currency converter" aria-expanded="false" aria-controls="converterPanel">
           &#128178;
@@ -261,7 +339,7 @@
       <div class="header">
         <h1>LoanIQ</h1>
         <p>Smart loan planning, made simple</p>
-        <!--<div class="theme-toggle" onclick="toggleTheme()">🌙</div>-->
+        <button class="theme-toggle" id="themeToggleBtn" aria-label="Toggle light/dark mode">🌙</button>
       </div>
 
       <!-- Remote Config notice banner — hidden until RC sets a message -->
@@ -270,6 +348,66 @@
       </div>
 
       
+      <!--=================== ADMIN DASHBOARD SECTION ===================-->
+      <div id="adminDashboardSection" style="display:none;">
+        <div class="table-container">
+                    <div class="history-header">
+            <h3 class="breakdown-title">&#128272; Admin Dashboard</h3>
+            <div style="display:flex; gap:8px;">
+              <button class="history-clear-btn" id="adminRefreshBtn" style="background:rgba(0,180,255,0.12); border-color:rgba(0,180,255,0.3); color:rgb(100,180,255);">&#8635; Refresh</button>
+              <button class="history-clear-btn" id="adminBackBtn" style="background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.12); color:rgba(255,255,255,0.6);">&#8592; Back</button>
+            </div>
+          </div>
+
+          <!-- ── STATS GRID ── -->
+          <div class="admin-stats-grid">
+            <div class="admin-stat-card">
+              <span class="admin-stat-icon">&#128101;</span>
+              <span class="admin-stat-value" id="adminTotalUsers">—</span>
+              <span class="admin-stat-label">Total Users</span>
+            </div>
+            <div class="admin-stat-card">
+              <span class="admin-stat-icon">&#9889;</span>
+              <span class="admin-stat-value" id="adminPremiumUsers">—</span>
+              <span class="admin-stat-label">Premium Users</span>
+            </div>
+            <div class="admin-stat-card">
+              <span class="admin-stat-icon">&#128200;</span>
+              <span class="admin-stat-value" id="adminFreeUsers">—</span>
+              <span class="admin-stat-label">Free Users</span>
+            </div>
+            <div class="admin-stat-card">
+              <span class="admin-stat-icon">&#128178;</span>
+              <span class="admin-stat-value" id="adminRevenue">—</span>
+              <span class="admin-stat-label">Est. Monthly Revenue</span>
+            </div>
+          </div>
+
+          <!-- ── PLAN BREAKDOWN ── -->
+          <div class="settings-card" style="margin-top:16px;">
+            <h4 class="settings-card-title">&#128203; Plan Breakdown</h4>
+            <div class="settings-row">
+              <span class="settings-label">&#128336; Weekly Premium</span>
+              <span class="settings-value" id="adminWeeklyCount">—</span>
+            </div>
+            <div class="settings-row">
+              <span class="settings-label">&#128197; Monthly Premium</span>
+              <span class="settings-value" id="adminMonthlyCount">—</span>
+            </div>
+            <div class="settings-row">
+              <span class="settings-label">&#128198; Annual Premium</span>
+              <span class="settings-value" id="adminYearlyCount">—</span>
+            </div>
+          </div>
+
+          <!-- ── RECENT USERS ── -->
+          <div class="settings-card" style="margin-top:16px;">
+            <h4 class="settings-card-title">&#128336; Recent Registrations</h4>
+            <div id="adminRecentUsers"></div>
+          </div>
+
+        </div>
+      </div>
 
       <!--==================== AMORTIZATION TABLE =====================-->
       <div id="amortizationSection" style="display: none;">
@@ -631,8 +769,130 @@
       </div>
 
 
+<!--=================== LOAN HISTORY SECTION ===================-->
+      <div id="loanHistorySection" style="display:none;">
+        <div class="table-container">
+          <div class="history-header">
+            <h3 class="breakdown-title">&#128203; Loan History</h3>
+            <button class="history-clear-btn" id="clearHistoryBtn">&#128465; Clear All</button>
+          </div>
+
+          <div id="historyEmpty" class="history-empty" style="display:none;">
+            <p>&#128203;</p>
+            <p>No calculations saved yet.</p>
+            <p style="font-size:13px; color:rgba(255,255,255,0.4);">Every loan you calculate will appear here.</p>
+          </div>
+
+          <div id="historyLoading" class="history-loading">
+            <span class="skeleton skeleton-row" style="margin-bottom:8px;"></span>
+            <span class="skeleton skeleton-row" style="margin-bottom:8px;"></span>
+            <span class="skeleton skeleton-row"></span>
+          </div>
+
+          <div id="historyList" class="history-list"></div>
+
+        </div>
+      </div>
 
 
+<!--================== ACCOUNT SETTINGS SECTION ==================-->
+      <div id="accountSettingsSection" style="display:none;">
+        <div class="table-container">
+          <h3 class="breakdown-title">&#9881; Account Settings</h3>
+
+          <!-- ── PROFILE CARD ── -->
+          <div class="settings-card">
+            <h4 class="settings-card-title">&#128100; Profile</h4>
+            <div class="settings-row">
+              <span class="settings-label">Email</span>
+              <span class="settings-value" id="settingsEmail"><span class="skeleton skeleton-settings-value"></span></span>
+            </div>
+            <div class="settings-row">
+              <span class="settings-label">Member since</span>
+              <span class="settings-value" id="settingsMemberSince"><span class="skeleton skeleton-settings-value"></span></span>
+            </div>
+            <div class="settings-row">
+              <span class="settings-label">Email verified</span>
+              <span class="settings-value" id="settingsVerified"><span class="skeleton skeleton-settings-value"></span></span>
+            </div>
+          </div>
+
+          <!-- ── SUBSCRIPTION CARD ── -->
+          <div class="settings-card">
+            <h4 class="settings-card-title">&#9889; Subscription</h4>
+            <div class="settings-row">
+              <span class="settings-label">Current plan</span>
+              <span class="settings-value" id="settingsPlan"><span class="skeleton skeleton-settings-value"></span></span>
+            </div>
+            <div class="settings-row">
+              <span class="settings-label">Status</span>
+              <span class="settings-value" id="settingsStatus"><span class="skeleton skeleton-settings-value"></span></span>
+            </div>
+            </div>
+            <div id="settingsUpgradeWrapper" style="display:none; margin-top:12px;">
+              <button class="btn upgrade-pay-btn" id="settingsUpgradeBtn" style="width:100%; padding:12px; font-size:14px;">
+                &#9889; Upgrade to Premium
+              </button>
+            </div>
+          </div>
+
+          <!-- ── SECURITY CARD ── -->
+          <div class="settings-card">
+            <h4 class="settings-card-title">&#128274; Security</h4>
+
+            <div id="changePasswordSuccess" style="display:none; color:rgb(0,200,80); font-size:13px; margin-bottom:12px; text-align:center;"></div>
+            <div id="changePasswordError" class="auth-error-box" style="display:none; margin-bottom:12px;"></div>
+
+            <div class="input-group">
+              <label for="currentPassword">Current Password</label>
+              <div class="password-wrapper">
+                <input type="password" id="currentPassword" placeholder="Enter current password">
+                <button type="button" class="password-toggle" id="currentPasswordToggle" aria-label="Show password">&#128065;</button>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label for="newPassword">New Password</label>
+              <div class="password-wrapper">
+                <input type="password" id="newPassword" placeholder="Min 8 chars, 1 uppercase, 1 number">
+                <button type="button" class="password-toggle" id="newPasswordToggle" aria-label="Show password">&#128065;</button>
+              </div>
+              <small class="error-message" id="newPasswordError" role="alert"></small>
+            </div>
+
+            <div class="input-group">
+              <label for="confirmNewPassword">Confirm New Password</label>
+              <div class="password-wrapper">
+                <input type="password" id="confirmNewPassword" placeholder="Repeat new password">
+                <button type="button" class="password-toggle" id="confirmNewPasswordToggle" aria-label="Show password">&#128065;</button>
+              </div>
+              <small class="error-message" id="confirmNewPasswordError" role="alert"></small>
+            </div>
+
+            <button class="btn" id="changePasswordBtn" style="width:100%; margin-top:4px;">Update Password</button>
+          </div>
+
+          <!-- ── DANGER ZONE CARD ── -->
+          <div class="settings-card settings-card-danger">
+            <h4 class="settings-card-title" style="color: rgb(255,80,80);">&#9888; Danger Zone</h4>
+            <p class="settings-danger-text">Deleting your account is permanent and cannot be undone. All your data will be erased.</p>
+            <div id="deleteAccountError" class="auth-error-box" style="display:none; margin-bottom:12px;"></div>
+            <div class="input-group">
+              <label for="deleteConfirmPassword">Confirm your password to delete</label>
+              <input type="password" id="deleteConfirmPassword" placeholder="Enter your password">
+            </div>
+                        <button class="btn settings-delete-btn" id="deleteAccountBtn">&#128465; Delete My Account</button>
+          </div>
+
+          <!-- ── LEGAL LINKS CARD ── -->
+          <div class="settings-card" style="text-align:center; display:flex; gap:24px; justify-content:center; align-items:center;">
+            <a href="privacy.html" target="_blank" style="color:rgba(100,180,255,0.8); font-size:13px; text-decoration:none;">&#128274; Privacy Policy</a>
+            <span style="color:rgba(255,255,255,0.15); font-size:13px;">|</span>
+            <a href="terms.html" target="_blank" style="color:rgba(100,180,255,0.8); font-size:13px; text-decoration:none;">&#128203; Terms of Service</a>
+          </div>
+
+        </div>
+      </div>
 
 <!--=======================DASHBOARD SECTION========================-->
 
@@ -644,7 +904,7 @@
           <!--input group-->
           <div class="input-group">
             <label for="amount">Loan Amount </label>
-            <input type="number" id="amount" aria-describedby="amountError" placeholder="Enter Loan Amount" min="1">
+            <input type="text" id="amount" inputmode="numeric" aria-describedby="amountError" placeholder="Enter Loan Amount e.g. 50,000">
             <small class="error-message" id="amountError" role="alert"></small>
           </div>
 
@@ -688,27 +948,33 @@
 
           
 
-          <!--results-->
-          <div class="results">
+                <div class="results">
 
             <div class="result-box">
               <h3>Monthly Payment</h3>
               <p id="monthly">0</p>
+              <span class="skeleton skeleton-value" id="skeletonMonthly" style="display:none;"></span>
             </div>
 
             <div class="result-box">
               <h3>Total Interest</h3>
               <p id="interest">0</p>
+              <span class="skeleton skeleton-value" id="skeletonInterest" style="display:none;"></span>
             </div>
 
             <div class="result-box">
               <h3>Total Payment</h3>
               <p id="total">0</p>
+              <span class="skeleton skeleton-value" id="skeletonTotal" style="display:none;"></span>
             </div>
 
           </div>
 
+          </div>
+
           <button class="btn" id="resetBtn" style="margin-top: 10px; background: rgba(255, 60, 60, 0.15); border: 1px solid rgba(255, 60, 60, 0.3); color: rgb(255, 120, 120);">&#x21BA; Reset</button>
+
+          <button class="btn" id="shareBtn" style="margin-top: 8px; background: rgba(0, 150, 255, 0.15); border: 1px solid rgba(0, 150, 255, 0.3); color: rgb(100, 180, 255);">&#128279; Share Calculation</button>
 
 
         </div>
@@ -753,7 +1019,8 @@
         <!-- ===================== FIREBASE SDK ===================== -->
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged,
+             updatePassword, reauthenticateWithCredential, EmailAuthProvider, deleteUser, sendEmailVerification }
     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
     import { getFirestore, doc, setDoc, getDoc }
     from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
@@ -791,6 +1058,11 @@
       signInWithEmailAndPassword,
       signOut,
       onAuthStateChanged,
+      updatePassword,
+      reauthenticateWithCredential,
+      EmailAuthProvider,
+      deleteUser,
+      sendEmailVerification,
       doc,
       setDoc,
       getDoc,

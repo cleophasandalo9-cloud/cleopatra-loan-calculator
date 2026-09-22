@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — LoanIQ</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <style>
+    :root {
+      --bg: linear-gradient(135deg, rgb(10, 12, 20), rgb(20, 25, 40));
+      --card: rgba(255,255,255,0.05);
+      --border: rgba(255,255,255,0.08);
+      --text: rgba(255,255,255,0.85);
+      --muted: rgba(255,255,255,0.5);
+      --accent: rgb(0,180,255);
+      --green: rgb(0,200,80);
+      --heading: white;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,12,20,0.92);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .topbar-logo {
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      text-decoration: none;
+      letter-spacing: 0.3px;
+    }
+
+    .topbar-back {
+      font-size: 13px;
+      color: var(--accent);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: opacity 0.2s;
+    }
+
+    .topbar-back:hover {
+      opacity: 0.75;
+    }
+
+    /* ── PAGE WRAPPER ── */
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(0,180,255,0.12);
+      border: 1px solid rgba(0,180,255,0.25);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--heading);
+      margin-bottom: 10px;
+    }
+
+    .hero p {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .hero-meta {
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .hero-meta span {
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    /* ── QUICK SUMMARY CARDS ── */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 48px;
+    }
+
+    .summary-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .summary-card .icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .summary-card p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── SECTIONS ── */
+    .section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      margin-bottom: 16px;
+    }
+
+    .section-number {
+      display: inline-block;
+      background: rgba(0,180,255,0.12);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    .section h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--heading);
+      margin-bottom: 14px;
+    }
+
+    .section p {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.75;
+      margin-bottom: 12px;
+    }
+
+    .section p:last-child {
+      margin-bottom: 0;
+    }
+
+    .section ul {
+      list-style: none;
+      padding: 0;
+      margin: 12px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .section ul li {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.6;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 8px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .section ul li::before {
+      content: '✦';
+      color: var(--accent);
+      font-size: 10px;
+      margin-top: 3px;
+      flex-shrink: 0;
+    }
+
+    .section a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .section a:hover {
+      text-decoration: underline;
+    }
+
+    /* ── HIGHLIGHT BOX ── */
+    .highlight {
+      background: rgba(0,180,255,0.06);
+      border: 1px solid rgba(0,180,255,0.15);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin: 14px 0;
+    }
+
+    .highlight p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .highlight strong {
+      color: var(--accent);
+    }
+
+    /* ── WARNING BOX ── */
+    .warning {
+      background: rgba(255,180,0,0.06);
+      border: 1px solid rgba(255,180,0,0.2);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin: 14px 0;
+    }
+
+    .warning p {
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .warning strong {
+      color: rgb(255,200,80);
+    }
+
+    /* ── CONTACT CARD ── */
+    .contact-card {
+      background: linear-gradient(135deg, rgba(0,180,255,0.08), rgba(0,100,255,0.08));
+      border: 1px solid rgba(0,180,255,0.2);
+      border-radius: 14px;
+      padding: 28px;
+      text-align: center;
+      margin-top: 32px;
+    }
+
+    .contact-card h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 8px;
+    }
+
+    .contact-card p {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+
+    .contact-email {
+      display: inline-block;
+      background: rgba(0,180,255,0.12);
+      border: 1px solid rgba(0,180,255,0.3);
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .contact-email:hover {
+      background: rgba(0,180,255,0.22);
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      text-align: center;
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 480px) {
+      .page {
+        padding: 32px 16px 60px;
+      }
+
+      .hero h1 {
+        font-size: 24px;
+      }
+
+      .section {
+        padding: 20px;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <nav class="topbar">
+    <a href="index.html" class="topbar-logo">LoanIQ</a>
+    <a href="index.html" class="topbar-back">&#8592; Back to App</a>
+  </nav>
+
+  <div class="page">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-badge">PRIVACY POLICY</div>
+      <h1>Your Privacy Matters</h1>
+      <p>We built LoanIQ to help you make smarter financial decisions. This page explains exactly what data we collect, why we collect it, and how we protect it.</p>
+      <p class="hero-meta">Last updated: <span>September 2026</span> &nbsp;·&nbsp; Effective date: <span>September 2026</span></p>
+    </div>
+
+    <!-- QUICK SUMMARY -->
+    <div class="summary-grid">
+      <div class="summary-card">
+        <span class="icon">🔒</span>
+        <p>We never sell your personal data to third parties</p>
+      </div>
+      <div class="summary-card">
+        <span class="icon">💳</span>
+        <p>We never see your card details — Stripe handles all payments</p>
+      </div>
+      <div class="summary-card">
+        <span class="icon">🗑️</span>
+        <p>You can delete your account and all data at any time</p>
+      </div>
+      <div class="summary-card">
+        <span class="icon">🇰🇪</span>
+        <p>We comply with Kenya's Data Protection Act 2019</p>
+      </div>
+    </div>
+
+    <!-- 1. WHO WE ARE -->
+    <div class="section">
+      <span class="section-number">01</span>
+      <h2>Who We Are</h2>
+      <p>LoanIQ is a web-based loan calculator operated by <strong>LoanIQ Technologies</strong>, based in Kenya. We provide tools to help individuals plan and understand their loan repayments.</p>
+      <p>This Privacy Policy applies to all users of LoanIQ at <a href="https://cleophasandalo9-cloud.github.io/cleopatra-loan-calculator/" target="_blank">our website</a>. By using LoanIQ, you agree to the practices described in this policy.</p>
+      <p>For any privacy-related questions, contact us at: <a href="mailto:thecalculator79@gmail.com">thecalculator79@gmail.com</a></p>
+    </div>
+
+    <!-- 2. WHAT WE COLLECT -->
+    <div class="section">
+      <span class="section-number">02</span>
+      <h2>What Data We Collect</h2>
+      <p>We collect only the minimum data necessary to provide our service. Here is exactly what we collect and why:</p>
+
+      <ul>
+        <li><strong>Email address</strong> — collected when you create an account. Used to identify your account and send you verification and password reset emails.</li>
+        <li><strong>Password</strong> — stored in encrypted form by Firebase Authentication. We never see or store your plain text password.</li>
+        <li><strong>Loan calculation inputs</strong> — loan amount, interest rate, loan term, currency, and interest type. Saved to your account so you can access them across devices.</li>
+        <li><strong>Loan history</strong> — a record of your past loan calculations, stored in your account so you can review and reload them.</li>
+        <li><strong>Subscription status</strong> — your current plan (Free, Weekly, Monthly, or Annual), stored to control access to premium features.</li>
+        <li><strong>Stripe customer ID</strong> — a reference ID assigned by Stripe after payment, stored so we can manage your subscription status. We never store your card number or payment details.</li>
+        <li><strong>Usage analytics</strong> — anonymous data about how you use the app (which features you open, errors that occur) collected via Firebase Analytics. This data is not linked to your personal identity.</li>
+        <li><strong>Device and browser information</strong> — basic technical information (browser type, operating system) collected automatically by Firebase. Used for error reporting and improving the app.</li>
+      </ul>
+
+      <div class="highlight">
+        <p><strong>What we do NOT collect:</strong> We do not collect your name, phone number, physical address, national ID, financial account numbers, or any sensitive personal information beyond what is listed above.</p>
+      </div>
+    </div>
+
+    <!-- 3. HOW WE USE YOUR DATA -->
+    <div class="section">
+      <span class="section-number">03</span>
+      <h2>How We Use Your Data</h2>
+      <p>We use the data we collect strictly for the following purposes:</p>
+      <ul>
+        <li>To create and manage your LoanIQ account</li>
+        <li>To save and sync your loan calculations across devices</li>
+        <li>To process your subscription payment and grant access to premium features</li>
+        <li>To send you account-related emails — verification, password reset, and payment receipts</li>
+        <li>To improve the app based on anonymous usage patterns</li>
+        <li>To detect and fix technical errors</li>
+        <li>To comply with our legal obligations under Kenyan law</li>
+      </ul>
+      <p>We do not use your data for targeted advertising, profiling, or any purpose not listed above.</p>
+    </div>
+
+    <!-- 4. HOW WE SHARE YOUR DATA -->
+    <div class="section">
+      <span class="section-number">04</span>
+      <h2>How We Share Your Data</h2>
+      <p>We do not sell your data. We share your data only with the following trusted service providers, and only to the extent necessary to operate LoanIQ:</p>
+      <ul>
+        <li><strong>Google Firebase</strong> — provides our database (Firestore), authentication, analytics, and remote configuration. Firebase is operated by Google LLC and is subject to Google's Privacy Policy. Firebase servers are located in the United States. <a href="https://firebase.google.com/support/privacy" target="_blank">Firebase Privacy Policy →</a></li>
+        <li><strong>Stripe Inc.</strong> — processes all subscription payments. When you pay, you are interacting directly with Stripe's secure payment page. LoanIQ never receives or stores your card details. <a href="https://stripe.com/privacy" target="_blank">Stripe Privacy Policy →</a></li>
+        <li><strong>Netlify</strong> — hosts our payment webhook function that updates your account after a successful payment. Netlify does not store your personal data. <a href="https://www.netlify.com/privacy/" target="_blank">Netlify Privacy Policy →</a></li>
+        <li><strong>GitHub Pages</strong> — hosts the LoanIQ website. GitHub may log your IP address as part of standard web server operations. <a href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement" target="_blank">GitHub Privacy Statement →</a></li>
+      </ul>
+
+      <div class="warning">
+        <p><strong>Legal disclosure:</strong> We may disclose your data if required to do so by law, court order, or lawful request by Kenyan authorities under the Kenya Data Protection Act 2019 or any other applicable law.</p>
+      </div>
+    </div>
+
+    <!-- 5. DATA STORAGE AND SECURITY -->
+    <div class="section">
+      <span class="section-number">05</span>
+      <h2>Data Storage and Security</h2>
+      <p>Your data is stored on Google Firebase servers located in the United States. Firebase implements industry-standard security measures including encryption in transit (TLS) and encryption at rest.</p>
+      <p>We implement the following security measures on our end:</p>
+      <ul>
+        <li>Firestore security rules that ensure each user can only access their own data</li>
+        <li>Email verification required before accessing your account</li>
+        <li>Password hashing handled entirely by Firebase Authentication — we never see your password</li>
+        <li>Stripe webhook signature verification to prevent fraudulent payment confirmations</li>
+      </ul>
+      <p>While we take reasonable steps to protect your data, no internet transmission or electronic storage is 100% secure. We cannot guarantee absolute security.</p>
+    </div>
+
+    <!-- 6. DATA TRANSFERS -->
+    <div class="section">
+      <span class="section-number">06</span>
+      <h2>International Data Transfers</h2>
+      <p>LoanIQ is operated from Kenya, but our service providers (Google Firebase, Stripe, Netlify, GitHub) are based in the United States. By using LoanIQ, you consent to your data being transferred to and processed in the United States.</p>
+      <p>These transfers are made in compliance with applicable data protection laws. Google, Stripe, Netlify, and GitHub are all participants in frameworks that provide appropriate safeguards for international data transfers.</p>
+    </div>
+
+    <!-- 7. YOUR RIGHTS -->
+    <div class="section">
+      <span class="section-number">07</span>
+      <h2>Your Rights Under the Kenya Data Protection Act 2019</h2>
+      <p>As a user of LoanIQ and a data subject under the Kenya Data Protection Act 2019, you have the following rights:</p>
+      <ul>
+        <li><strong>Right to access</strong> — you can request a copy of the personal data we hold about you at any time.</li>
+        <li><strong>Right to rectification</strong> — you can correct inaccurate data. Your email address can be updated by contacting us.</li>
+        <li><strong>Right to erasure</strong> — you can delete your account and all associated data at any time using the "Delete My Account" option in Account Settings. We will delete your data from our systems within 30 days.</li>
+        <li><strong>Right to data portability</strong> — you can request an export of your loan history data by contacting us at <a href="mailto:thecalculator79@gmail.com">thecalculator79@gmail.com</a>.</li>
+        <li><strong>Right to withdraw consent</strong> — you can stop using LoanIQ and delete your account at any time.</li>
+        <li><strong>Right to lodge a complaint</strong> — if you believe we have violated your data protection rights, you may lodge a complaint with the Office of the Data Protection Commissioner of Kenya at <a href="https://www.odpc.go.ke" target="_blank">www.odpc.go.ke</a>.</li>
+      </ul>
+      <p>To exercise any of these rights, contact us at <a href="mailto:thecalculator79@gmail.com">thecalculator79@gmail.com</a>. We will respond within 30 days.</p>
+    </div>
+
+    <!-- 8. COOKIES -->
+    <div class="section">
+      <span class="section-number">08</span>
+      <h2>Cookies and Local Storage</h2>
+      <p>LoanIQ uses browser local storage (not traditional cookies) to remember your preferences between sessions. Specifically, we store:</p>
+      <ul>
+        <li><strong>Theme preference</strong> — whether you prefer dark or light mode</li>
+        <li><strong>Exchange rate cache</strong> — recently fetched currency exchange rates, to reduce loading time</li>
+        <li><strong>Loan inputs</strong> — your most recent loan calculation inputs, so they persist when you return</li>
+        <li><strong>Firebase authentication token</strong> — stored by Firebase to keep you logged in between sessions</li>
+      </ul>
+      <p>You can clear local storage at any time by clearing your browser data. This will log you out of LoanIQ and reset your preferences.</p>
+      <p>We do not use advertising cookies or third-party tracking cookies.</p>
+    </div>
+
+    <!-- 9. CHILDREN -->
+    <div class="section">
+      <span class="section-number">09</span>
+      <h2>Children's Privacy</h2>
+      <p>LoanIQ is not intended for use by children under the age of 18. We do not knowingly collect personal data from children. If you are a parent or guardian and believe your child has provided us with personal data, please contact us at <a href="mailto:thecalculator79@gmail.com">thecalculator79@gmail.com</a> and we will delete the data promptly.</p>
+    </div>
+
+    <!-- 10. CHANGES -->
+    <div class="section">
+      <span class="section-number">10</span>
+      <h2>Changes to This Privacy Policy</h2>
+      <p>We may update this Privacy Policy from time to time to reflect changes in our practices or applicable law. When we make significant changes, we will notify you by displaying a notice in the LoanIQ app.</p>
+      <p>The "Last updated" date at the top of this page always reflects when the policy was last revised. We encourage you to review this policy periodically.</p>
+      <p>Continued use of LoanIQ after changes are posted constitutes your acceptance of the updated policy.</p>
+    </div>
+
+    <!-- CONTACT -->
+    <div class="contact-card">
+      <h2>Questions About Your Privacy?</h2>
+      <p>We're happy to answer any questions about how we handle your data. Reach out and we'll respond within 30 days.</p>
+      <a href="mailto:thecalculator79@gmail.com" class="contact-email">&#9993; thecalculator79@gmail.com</a>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <p>&copy; 2026 LoanIQ Technologies. All rights reserved.</p>
+      <p style="margin-top:8px;"><a href="index.html">← Back to LoanIQ</a></p>
+    </div>
+
+  </div>
+
+</body>
+</html>

@@ -9,44 +9,6 @@
  */
 
 //===========================================
-// THEME TOGGLE MODULE
-//===========================================
-
-(function () {
-
-  const THEME_KEY  = 'loaniq_theme';
-  const btn        = document.getElementById('themeToggleBtn');
-
-  // ── APPLY THEME ────────────────────────────────────────────
-  function applyTheme (theme) {
-    if (theme === 'light') {
-      document.body.classList.add('light-mode');
-      btn.textContent = '☀️';
-      btn.setAttribute('aria-label', 'Switch to dark mode');
-    } else {
-      document.body.classList.remove('light-mode');
-      btn.textContent = '🌙';
-      btn.setAttribute('aria-label', 'Switch to light mode');
-    }
-  }
-
-  // ── LOAD SAVED THEME ───────────────────────────────────────
-  // Read from localStorage on page load
-  const savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
-  applyTheme(savedTheme);
-
-  // ── TOGGLE ─────────────────────────────────────────────────
-  btn.addEventListener('click', function () {
-    const current  = document.body.classList.contains('light-mode') ? 'light' : 'dark';
-    const newTheme = current === 'light' ? 'dark' : 'light';
-
-    applyTheme(newTheme);
-    localStorage.setItem(THEME_KEY, newTheme);
-  });
-
-})();
-
-//===========================================
 // OFFLINE DETECTION MODULE
 //===========================================
 
@@ -160,17 +122,6 @@ let exchangeRates = {};
 const animationFrames = {};
 
 const POPULAR_CURRENCIES = ['USD', 'EUR', 'KES', 'GBP', 'INR', 'JPY', 'AUD', 'CAD', 'AED', 'ZAR', 'NGN', 'KWD'];
-
-// ── OWNER EMAIL ──────────────────────────────────────────────
-// Only this email can access the admin dashboard
-const OWNER_EMAIL = 'thecalculator79@gmail.com';
-
-// ── EMAILJS CONFIG ───────────────────────────────────────────
-const EMAILJS_SERVICE_ID   = 'service_69enw6j';
-const EMAILJS_WELCOME_ID   = 'template_ero68pp';
-const EMAILJS_ALERT_ID     = 'template_kietyzb';
-const EMAILJS_PUBLIC_KEY   = '5aU7zUAGTqP7rLC1r';
-
 // ── STRIPE CONFIG ────────────────────────────────────────────
 const STRIPE_PUBLISHABLE_KEY = 'pk_test_51UDjJLRvHL4nitcrQWwDeYY8QcSutzZMruKKn0x0ORbI2RFyLzQ12n6glGMi4FSYXJEcgyWicBram8Qmcv8LQwYM00RAZkc1JR';
 const STRIPE_PRICE_WEEKLY   = 'price_1UEukmRvHL4nitcr9ir9IaUC';
@@ -351,9 +302,7 @@ function showSection (sectionId) {
     'savingsSection',
     'refinanceSection',
     'extraPaymentSection',
-    'accountSettingsSection',
-    'loanHistorySection',
-    'adminDashboardSection'
+    'accountSettingsSection'
   ];
 
   allSections.forEach(id => {
@@ -361,11 +310,7 @@ function showSection (sectionId) {
     if(el)el.style.display = 'none';
   });
 
-  const activeSection = document.getElementById(sectionId);
-  activeSection.style.display = 'block';
-  activeSection.classList.remove('section-transition');
-  void activeSection.offsetWidth; // force browser to reflow so animation restarts
-  activeSection.classList.add('section-transition');
+  document.getElementById(sectionId).style.display = 'block';
 
   // Remove active highlight from all sidebar buttons
   document.querySelectorAll('.menu-item[data-role]').forEach(btn => {
@@ -382,8 +327,7 @@ function showSection (sectionId) {
     'savingsSection':         'savingsBtn',
     'refinanceSection':       'refinanceBtn',
     'extraPaymentSection':    'extraPaymentBtn',
-    'accountSettingsSection': 'accountSettingsBtn',
-    'loanHistorySection':     'loanHistoryBtn'
+    'accountSettingsSection': 'accountSettingsBtn'
   };
 
   const activeBtn = document.getElementById(sectionToBtn[sectionId]);
@@ -819,14 +763,13 @@ function populateCurrencies() {
 
   currencySelect.appendChild(popularGroup);
   currencySelect.appendChild(allGroup);
-  currencySelect.value = window._sharedCurrency || window._savedCurrency || 'USD';
+  currencySelect.value = window._savedCurrency || 'USD';
   delete window._savedCurrency;
-  delete window._sharedCurrency;
 }
 
 
 function saveInputs () {
-  const loanAmount   = document.getElementById('amount').value.replace(/,/g, '');
+  const loanAmount   = document.getElementById('amount').value;
   const interestRate = document.getElementById('rate').value;
   const loanTerm     = document.getElementById('time').value;
   const currency     = document.getElementById('currency').value;
@@ -874,12 +817,8 @@ function saveInputs () {
 //=====================================
 function getLoanInputs () {
 
-  // Strip commas from amount before parsing
-  // e.g. "50,000" → 50000
-  const rawAmount = amountInput.value.replace(/,/g, '');
-
   return {
-    amount: parseFloat(rawAmount),
+    amount: parseFloat(amountInput.value),
     rate: parseFloat(rateInput.value),
     months: parseFloat(timeInput.value),
 
@@ -1045,28 +984,11 @@ const ROW_HEIGHT = 36;
 const BUFFER = 5;
 
 function renderAmortizationTable (schedule, currency) {
-    // ── SHOW 5 SKELETON ROWS while table builds ───────────────
-  const tbody = document.querySelector('#breakdownTable tbody');
-  if (tbody) {
-    tbody.innerHTML = '';
-    for (let i = 0; i < 5; i++) {
-      const skRow = document.createElement('tr');
-      skRow.innerHTML = `
-        <td><span class="skeleton skeleton-row"></span></td>
-        <td><span class="skeleton skeleton-row"></span></td>
-        <td><span class="skeleton skeleton-row"></span></td>
-        <td><span class="skeleton skeleton-row"></span></td>
-        <td><span class="skeleton skeleton-row"></span></td>
-      `;
-      tbody.appendChild(skRow);
-    }
-  }
-
   _vtSchedule = schedule;
   _vtCurrency = currency;
 
   const scrollEl = document.querySelector('.table-scroll');
-  //const tbody = document.querySelector(`#breakdownTable tbody`);
+  const tbody = document.querySelector(`#breakdownTable tbody`);
 
   const totalHeight = schedule.length * ROW_HEIGHT;
 
@@ -1186,19 +1108,6 @@ function renderLoanResults (result, currency) {
 //======================
 function calculateLoan () {
 
-  // ── SHOW SKELETON while calculation runs ─────────────────
-  const skeletonIds = ['skeletonMonthly', 'skeletonInterest', 'skeletonTotal'];
-  const resultIds   = ['monthly', 'interest', 'total'];
-
-  skeletonIds.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = 'inline-block';
-  });
-  resultIds.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = 'none';
-  });
-
   const loanData = getLoanInputs();
   const validation = validateLoanInputs(loanData);
 
@@ -1219,19 +1128,6 @@ function calculateLoan () {
   
 
   renderLoanResults(loanResult, loanData.currency);
-
-    // Save this calculation to Firestore history
-  saveToHistory(loanData, loanResult);
-
-    // ── HIDE SKELETON after results are ready ────────────────
-  skeletonIds.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = 'none';
-  });
-  resultIds.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = 'block';
-  });
 
 
   if (loanData.interestType === 'compound') {
@@ -1458,7 +1354,8 @@ function handleStripeReturn () {
     // Clean the URL so the message doesn't show on every refresh
     window.history.replaceState({}, '', window.location.pathname);
 
-    // Re-fetch the role after 2 seconds (gives webhook time to run)
+    // Re-fetch the role after 4 seconds (gives webhook time to run)
+        // Upgrade user role directly after successful payment
     setTimeout(async () => {
       const user = window._firebase?.auth?.currentUser;
       if (user) {
@@ -1469,10 +1366,6 @@ function handleStripeReturn () {
           { merge: true }
         );
         fetchAndApplyRole(user.uid);
-
-        // Notify you that someone upgraded
-        const plan = new URLSearchParams(window.location.search).get('plan') || 'Premium';
-        sendAdminAlert(user.email, 'Upgrade to Premium', plan);
       }
     }, 2000);
 
@@ -2763,8 +2656,6 @@ function initApp () {
   loadSavedInputs();
   getRates();
   calculateLoan();
-  // Load shared calculation from URL if present
-  loadFromSharedUrl();
 }
 
 
@@ -2784,42 +2675,6 @@ function initApp () {
 //===================
 
 function bindInputEvents () {
-
-    // ── AMOUNT INPUT FORMATTING ───────────────────────────────
-  // Format the loan amount with commas as the user types
-  // e.g. 50000 → 50,000 → 1,000,000
-  amountInput.addEventListener('input', function () {
-
-    // Remove everything that isn't a digit or decimal point
-    let raw = this.value.replace(/[^0-9.]/g, '');
-
-    // Prevent more than one decimal point
-    const parts = raw.split('.');
-    if (parts.length > 2) raw = parts[0] + '.' + parts.slice(1).join('');
-
-    // Format the integer part with commas
-    // Only format the part before the decimal point
-    if (raw !== '') {
-      const intPart     = parts[0];
-      const decPart     = parts[1] !== undefined ? '.' + parts[1] : '';
-      const formatted   = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-      this.value         = formatted + decPart;
-    }
-
-    this.classList.add('formatted');
-  });
-
-  // When the field loses focus, clean up trailing decimal points
-  amountInput.addEventListener('blur', function () {
-    let raw = this.value.replace(/[^0-9.]/g, '');
-    if (raw.endsWith('.')) raw = raw.slice(0, -1);
-    if (raw) {
-      const num = parseFloat(raw);
-      if (!isNaN(num)) {
-        this.value = num.toLocaleString('en-US');
-      }
-    }
-  });
 
   amountInput.addEventListener('input', function () {
     if (isSyncing) return;
@@ -3232,10 +3087,7 @@ function hideVerifyEmailScreen () {
 }
 
 // ── BACK TO LOGIN FROM VERIFY SCREEN ────────────────────────
-document.getElementById('backToLoginFromVerifyBtn').addEventListener('click', function () {
-  stopVerificationPolling();
-  hideVerifyEmailScreen();
-});
+document.getElementById('backToLoginFromVerifyBtn').addEventListener('click', hideVerifyEmailScreen);
 
 // ── RESEND VERIFICATION EMAIL ────────────────────────────────
 document.getElementById('resendVerifyBtn').addEventListener('click', async function () {
@@ -3290,63 +3142,6 @@ document.getElementById('resendVerifyBtn').addEventListener('click', async funct
     }, 1000);
   }
 });
-
-// ── VERIFICATION POLLING ─────────────────────────────────────
-// After showing the verify screen, we poll every 3 seconds to
-// check if the user has clicked the verification link in their email.
-// When they do, we automatically redirect them into the app
-// without them needing to log in again.
-
-let _verificationPollTimer = null;
-
-function startVerificationPolling () {
-  // Clear any existing poll first
-  stopVerificationPolling();
-
-  _verificationPollTimer = setInterval(async () => {
-    try {
-      const { auth } = window._firebase;
-      const user = auth.currentUser;
-
-      if (!user) {
-        stopVerificationPolling();
-        return;
-      }
-
-      // Reload user from server to get latest emailVerified status
-      await user.reload();
-
-      if (user.emailVerified) {
-        // User has verified — stop polling and redirect into app
-        stopVerificationPolling();
-
-        // Hide the verify screen
-        document.getElementById('verifyEmailForm').style.display = 'none';
-
-        // Hide auth overlay and boot the app
-        document.getElementById('authOverlay').style.display = 'none';
-        document.getElementById('userInfoPanel').style.display  = 'block';
-        document.getElementById('userEmailDisplay').textContent = user.email;
-
-        fetchAndApplyRole(user.uid);
-        initRemoteConfig();
-        initApp();
-      }
-
-    } catch (err) {
-      // Silent fail — just keep polling
-      console.warn('Verification poll error:', err.message);
-    }
-  }, 3000); // Check every 3 seconds
-}
-
-function stopVerificationPolling () {
-  if (_verificationPollTimer) {
-    clearInterval(_verificationPollTimer);
-    _verificationPollTimer = null;
-  }
-}
-
 
 function hideForgotForm () {
   document.getElementById('forgotPasswordForm').style.display = 'none';
@@ -3460,15 +3255,11 @@ document.getElementById('loginSubmitBtn').addEventListener('click', async functi
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user           = userCredential.user;
 
-    // Force reload to get latest emailVerified status from server
-    await user.reload();
-
     // Block unverified users — show verify screen
-    // Do NOT sign out — we keep session alive so resend button works
-    // and so we can poll for verification and auto-redirect
+    // Do NOT sign out yet — we keep the session alive so
+    // the resend button can send the verification email
     if (!user.emailVerified) {
       showVerifyEmailScreen(user.email);
-      startVerificationPolling();
       return;
     }
 
@@ -3504,23 +3295,10 @@ document.getElementById('registerSubmitBtn').addEventListener('click', async fun
   const email    = document.getElementById('registerEmail').value.trim();
   const password = document.getElementById('registerPassword').value;
   const confirm  = document.getElementById('registerConfirm').value;
-  const termsChecked = document.getElementById('termsCheckbox').checked;
 
   clearAuthErrors();
 
   let hasError = false;
-
-    // Check terms agreement first
-  if (!termsChecked) {
-    const termsError = document.getElementById('termsCheckboxError');
-    termsError.textContent  = 'You must agree to the Terms of Service to create an account.';
-    termsError.style.opacity = '1';
-    hasError = true;
-  } else {
-    const termsError = document.getElementById('termsCheckboxError');
-    termsError.textContent  = '';
-    termsError.style.opacity = '0';
-  }
 
     if (!email) {
     showFieldError('registerEmail', 'registerEmailError', 'Email is required.');
@@ -3609,16 +3387,11 @@ document.getElementById('logoutBtn').addEventListener('click', async function ()
 function initAuthListener () {
   const { onAuthStateChanged, auth } = window._firebase;
 
-onAuthStateChanged(auth, async function (user) {
+onAuthStateChanged(auth, function (user) {
 
     // Always hide the loading screen first — Firebase has responded,
     // so we no longer need to block the UI regardless of auth state
     document.getElementById('loadingScreen').style.display = 'none';
-
-    if (user) {
-      // Force reload to get latest emailVerified status from server
-      await user.reload();
-    }
 
     if (user && user.emailVerified) {
       // ── USER IS LOGGED IN ──────────────────────────────────
@@ -3629,20 +3402,6 @@ onAuthStateChanged(auth, async function (user) {
       // Show user info in the sidebar
       document.getElementById('userInfoPanel').style.display  = 'block';
       document.getElementById('userEmailDisplay').textContent = user.email;
-
-      // ── FIRST LOGIN DETECTION ─────────────────────────────
-      // If creationTime and lastSignInTime are within 30 seconds
-      // of each other, this is the user's very first login
-      const createdAt    = new Date(user.metadata.creationTime).getTime();
-      const lastSignIn   = new Date(user.metadata.lastSignInTime).getTime();
-      const isFirstLogin = (lastSignIn - createdAt) < 30000;
-
-      if (isFirstLogin) {
-        // Send welcome email to the new user
-        sendWelcomeEmail(user.email);
-        // Notify you that someone new registered
-        sendAdminAlert(user.email, 'New Registration', 'Free');
-      }
 
       // Fetch role from Firestore and apply to sidebar immediately.
       fetchAndApplyRole(user.uid);
@@ -3861,19 +3620,11 @@ function applyRoleToUI (role, plan) {
   }
 
   // ── UPGRADE BUTTON ───────────────────────────────────────
-  // Show upgrade button only to free users
+  // Only show to free users
   const upgradeBtn = document.getElementById('upgradeBtn');
   if (upgradeBtn) upgradeBtn.style.display = isAdmin ? 'none' : 'flex';
-
-  // Show admin dashboard button only to the owner email
-  const { auth } = window._firebase;
-  const currentUser = auth.currentUser;
-  const adminBtn = document.getElementById('adminDashboardBtn');
-  if (adminBtn) {
-    adminBtn.style.display =
-      (currentUser && currentUser.email === OWNER_EMAIL) ? 'flex' : 'none';
-  }
 }
+
 
 // ── FETCH USER ROLE ─────────────────────────────────────────
 
@@ -4175,546 +3926,6 @@ document.getElementById('deleteAccountBtn').addEventListener('click', async func
   }
 });
 
-//===========================================
-// LOAN HISTORY MODULE
-//===========================================
-
-// ── SAVE CALCULATION TO FIRESTORE ───────────────────────────
-async function saveToHistory (loanData, loanResult) {
-  try {
-    const { auth, db } = window._firebase;
-    const user = auth.currentUser;
-    if (!user) return;
-
-    // Import addDoc and collection dynamically
-    const { collection, addDoc } = await import(
-      'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js'
-    );
-
-    // Build the history entry — only save what's useful
-    const entry = {
-      savedAt:      new Date().toISOString(),
-      amount:       loanData.amount,
-      rate:         loanData.rate,
-      months:       loanData.months,
-      currency:     loanData.currency,
-      interestType: loanData.interestType,
-      monthly:      loanResult.monthly,
-      totalInterest: loanResult.interest,
-      totalPayment:  loanResult.total
-    };
-
-    // Save to /users/{uid}/history subcollection
-    await addDoc(collection(db, 'users', user.uid, 'history'), entry);
-
-  } catch (err) {
-    // Silent fail — never let history crash the calculator
-    console.warn('History save failed:', err.message);
-  }
-}
-
-
-// ── LOAD AND RENDER HISTORY ──────────────────────────────────
-async function loadHistory () {
-  const listEl    = document.getElementById('historyList');
-  const emptyEl   = document.getElementById('historyEmpty');
-  const loadingEl = document.getElementById('historyLoading');
-
-  // Show skeleton while loading
-  loadingEl.style.display = 'block';
-  listEl.innerHTML        = '';
-  emptyEl.style.display   = 'none';
-
-  try {
-    const { auth, db } = window._firebase;
-    const user = auth.currentUser;
-    if (!user) return;
-
-    const { collection, getDocs, orderBy, query } = await import(
-      'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js'
-    );
-
-    // Get history ordered by newest first
-    const historyRef = collection(db, 'users', user.uid, 'history');
-    const q          = query(historyRef, orderBy('savedAt', 'desc'));
-    const snapshot   = await getDocs(q);
-
-    loadingEl.style.display = 'none';
-
-    if (snapshot.empty) {
-      emptyEl.style.display = 'block';
-      return;
-    }
-
-    // Render each history card
-    snapshot.forEach(docSnap => {
-      const entry = docSnap.data();
-      const card  = buildHistoryCard(docSnap.id, entry, user.uid);
-      listEl.appendChild(card);
-    });
-
-  } catch (err) {
-    console.warn('History load failed:', err.message);
-    loadingEl.style.display = 'none';
-    emptyEl.style.display   = 'block';
-  }
-}
-
-
-// ── BUILD A SINGLE HISTORY CARD ──────────────────────────────
-function buildHistoryCard (docId, entry, uid) {
-
-  // Format date nicely
-  const date = new Date(entry.savedAt).toLocaleDateString('en-US', {
-    year: 'numeric', month: 'short', day: 'numeric',
-    hour: '2-digit', minute: '2-digit'
-  });
-
-  const card       = document.createElement('div');
-  card.className   = 'history-card';
-  card.dataset.id  = docId;
-
-  card.innerHTML = `
-    <div class="history-card-top">
-      <span class="history-card-date">&#128337; ${date}</span>
-      <button class="history-card-delete" data-id="${docId}" title="Delete this entry">&#128465;</button>
-    </div>
-    <div class="history-card-inputs">
-      <span class="history-chip">&#128178; ${entry.currency} ${Number(entry.amount).toLocaleString()}</span>
-      <span class="history-chip">&#128200; ${entry.rate}% ${entry.interestType}</span>
-      <span class="history-chip">&#128197; ${entry.months} months</span>
-    </div>
-    <div class="history-card-results">
-      <span class="history-result-item">Monthly<span>${entry.currency} ${Number(entry.monthly).toFixed(2)}</span></span>
-      <span class="history-result-item">Interest<span>${entry.currency} ${Number(entry.totalInterest).toFixed(2)}</span></span>
-      <span class="history-result-item">Total<span>${entry.currency} ${Number(entry.totalPayment).toFixed(2)}</span></span>
-    </div>
-    <p class="history-reload-hint">&#8635; Click to reload this calculation</p>
-  `;
-
-  // ── CLICK CARD — reload into calculator ──────────────────
-  card.addEventListener('click', function (e) {
-    // Don't reload if user clicked the delete button
-    if (e.target.classList.contains('history-card-delete')) return;
-
-    // Fill the calculator inputs with this entry's values
-    document.getElementById('amount').value       = entry.amount;
-    document.getElementById('rate').value         = entry.rate;
-    document.getElementById('time').value         = entry.months;
-    document.getElementById('interestType').value = entry.interestType;
-
-    // Navigate to dashboard and recalculate
-    showSection('dashboardSection');
-    calculateLoan();
-  });
-
-  // ── DELETE BUTTON ─────────────────────────────────────────
-  card.querySelector('.history-card-delete').addEventListener('click', async function (e) {
-    e.stopPropagation(); // prevent card click from firing
-
-    try {
-      const { db } = window._firebase;
-      const { doc, deleteDoc } = await import(
-        'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js'
-      );
-
-      await deleteDoc(doc(db, 'users', uid, 'history', docId));
-
-      // Remove card from DOM smoothly
-      card.style.opacity    = '0';
-      card.style.transition = 'opacity 0.3s ease';
-      setTimeout(() => {
-        card.remove();
-        // Show empty state if no cards left
-        if (document.getElementById('historyList').children.length === 0) {
-          document.getElementById('historyEmpty').style.display = 'block';
-        }
-      }, 300);
-
-    } catch (err) {
-      console.warn('Delete failed:', err.message);
-    }
-  });
-
-  return card;
-}
-
-
-// ── CLEAR ALL HISTORY ────────────────────────────────────────
-document.getElementById('clearHistoryBtn').addEventListener('click', async function () {
-
-  const confirmed = window.confirm('Clear all loan history? This cannot be undone.');
-  if (!confirmed) return;
-
-  try {
-    const { auth, db } = window._firebase;
-    const user = auth.currentUser;
-    if (!user) return;
-
-    const { collection, getDocs, doc, deleteDoc } = await import(
-      'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js'
-    );
-
-    const snapshot = await getDocs(collection(db, 'users', user.uid, 'history'));
-
-    // Delete all documents in the history subcollection
-    const deletions = snapshot.docs.map(d => deleteDoc(doc(db, 'users', user.uid, 'history', d.id)));
-    await Promise.all(deletions);
-
-    // Clear the UI
-    document.getElementById('historyList').innerHTML = '';
-    document.getElementById('historyEmpty').style.display = 'block';
-
-  } catch (err) {
-    console.warn('Clear history failed:', err.message);
-  }
-});
-
-
-// ── SIDEBAR BUTTON ───────────────────────────────────────────
-document.getElementById('loanHistoryBtn').addEventListener('click', async function () {
-  if (!await checkAccess()) return;
-  showSection('loanHistorySection');
-  loadHistory();
-});
-
-//===========================================
-// SHARE CALCULATION MODULE
-//===========================================
-
-// ── BUILD SHARE URL ──────────────────────────────────────────
-// Encodes current inputs into URL query parameters
-function buildShareUrl () {
-  const amount   = document.getElementById('amount').value;
-  const rate     = document.getElementById('rate').value;
-  const months   = document.getElementById('time').value;
-  const currency = document.getElementById('currency').value;
-  const type     = document.getElementById('interestType').value;
-
-  const base   = window.location.origin + window.location.pathname;
-  const params = new URLSearchParams({ amount, rate, months, currency, type });
-
-  return `${base}?${params.toString()}`;
-}
-
-// ── SHOW SHARE MODAL ─────────────────────────────────────────
-function showShareModal () {
-  const url        = buildShareUrl();
-  const input      = document.getElementById('shareLinkInput');
-  const whatsapp   = document.getElementById('shareWhatsApp');
-  const emailLink  = document.getElementById('shareEmail');
-  const copiedMsg  = document.getElementById('shareCopiedMsg');
-
-  input.value              = url;
-  copiedMsg.style.display  = 'none';
-
-  // WhatsApp share link
-  whatsapp.href = `https://wa.me/?text=${encodeURIComponent('Check out this loan calculation on LoanIQ: ' + url)}`;
-
-  // Email share link
-  const subject = encodeURIComponent('Loan Calculation from LoanIQ');
-  const body    = encodeURIComponent(`Hi,\n\nI wanted to share this loan calculation with you:\n\n${url}\n\nOpen the link to see the full breakdown.\n\nPowered by LoanIQ`);
-  emailLink.href = `mailto:?subject=${subject}&body=${body}`;
-
-  document.getElementById('shareModal').style.display = 'flex';
-}
-
-function hideShareModal () {
-  document.getElementById('shareModal').style.display = 'none';
-}
-
-// ── SHARE BUTTON ─────────────────────────────────────────────
-document.getElementById('shareBtn').addEventListener('click', function () {
-  const amount  = document.getElementById('amount').value;
-  const rate    = document.getElementById('rate').value;
-  const months  = document.getElementById('time').value;
-
-  // Only share if there's something to share
-  if (!amount || !rate || !months) {
-    alert('Please calculate a loan first before sharing.');
-    return;
-  }
-
-  showShareModal();
-});
-
-// ── CLOSE MODAL ───────────────────────────────────────────────
-document.getElementById('shareModalClose').addEventListener('click', hideShareModal);
-
-document.getElementById('shareModal').addEventListener('click', function (e) {
-  if (e.target === this) hideShareModal();
-});
-
-// ── COPY BUTTON ───────────────────────────────────────────────
-document.getElementById('shareCopyBtn').addEventListener('click', async function () {
-  const url       = document.getElementById('shareLinkInput').value;
-  const copiedMsg = document.getElementById('shareCopiedMsg');
-
-  try {
-    await navigator.clipboard.writeText(url);
-    copiedMsg.style.display = 'block';
-
-    // Hide the message after 3 seconds
-    setTimeout(() => {
-      copiedMsg.style.display = 'none';
-    }, 3000);
-
-  } catch (err) {
-    // Fallback for browsers that don't support clipboard API
-    // Select the text so user can copy manually
-    document.getElementById('shareLinkInput').select();
-    alert('Press Ctrl+C to copy the link.');
-  }
-});
-
-
-// ── READ SHARED URL ON PAGE LOAD ─────────────────────────────
-// When someone opens a shared link, this reads the parameters
-// and fills the calculator automatically
-function loadFromSharedUrl () {
-  const params = new URLSearchParams(window.location.search);
-
-  // Check if this is a shared link (has loan parameters)
-  // but not a payment return (which uses ?payment=)
-  const amount   = params.get('amount');
-  const rate     = params.get('rate');
-  const months   = params.get('months');
-  const currency = params.get('currency');
-  const type     = params.get('type');
-
-  if (!amount || !rate || !months) return; // not a shared link
-
-  // Fill the inputs
-  document.getElementById('amount').value = parseFloat(amount).toLocaleString('en-US');
-  document.getElementById('rate').value         = rate;
-  document.getElementById('time').value         = months;
-  document.getElementById('interestType').value = type || 'compound';
-
-  // Currency needs special handling — wait for currencies to populate
-  // then set the value
-  if (currency) {
-    window._sharedCurrency = currency;
-  }
-
-  // Clean the URL so it doesn't look messy after loading
-  // replaceState changes the URL without reloading the page
-  window.history.replaceState({}, '', window.location.pathname);
-
-  // Calculate automatically after a short delay
-  // to ensure DOM is fully ready
-  setTimeout(() => {
-    calculateLoan();
-
-    // Show a toast to tell the recipient this was shared
-    const toast = document.createElement('div');
-    toast.className     = 'access-toast';
-    toast.style.opacity = '1';
-    toast.style.bottom  = '30px';
-    toast.style.background = 'rgba(0,100,200,0.95)';
-    toast.textContent   = '🔗 Shared calculation loaded!';
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-      toast.style.opacity = '0';
-    }, 4000);
-
-  }, 800);
-}
-
-
-//===========================================
-// ADMIN DASHBOARD MODULE
-//===========================================
-
-// ── REFRESH BUTTON ───────────────────────────────────────────
-document.getElementById('adminRefreshBtn').addEventListener('click', function () {
-  loadAdminDashboard();
-});
-
-// ── BACK BUTTON ───────────────────────────────────────────────
-document.getElementById('adminBackBtn').addEventListener('click', function () {
-  showSection('dashboardSection');
-});
-
-// ── ADMIN DASHBOARD BUTTON ───────────────────────────────────
-document.getElementById('adminDashboardBtn').addEventListener('click', function () {
-  showSection('adminDashboardSection');
-  loadAdminDashboard();
-});
-
-// ── KEYBOARD SHORTCUT (desktop backup) ───────────────────────
-// Ctrl + Shift + A as a secondary way to open on desktop
-document.addEventListener('keydown', function (e) {
-  if (e.ctrlKey && e.shiftKey && e.key === 'A') {
-    const { auth } = window._firebase;
-    const user = auth.currentUser;
-    if (!user || user.email !== OWNER_EMAIL) return;
-    showSection('adminDashboardSection');
-    loadAdminDashboard();
-  }
-});
-
-
-// ── LOAD DASHBOARD DATA ──────────────────────────────────────
-async function loadAdminDashboard () {
-
-  // Reset all stats to loading state
-  ['adminTotalUsers','adminPremiumUsers','adminFreeUsers',
-   'adminRevenue','adminWeeklyCount','adminMonthlyCount','adminYearlyCount'].forEach(id => {
-    document.getElementById(id).textContent = '...';
-  });
-  document.getElementById('adminRecentUsers').innerHTML =
-    '<span class="skeleton skeleton-row" style="display:block; margin-bottom:8px;"></span>' +
-    '<span class="skeleton skeleton-row" style="display:block;"></span>';
-
-  try {
-    const { db } = window._firebase;
-    const { collection, getDocs } = await import(
-      'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js'
-    );
-
-    // Fetch all users
-    const snapshot = await getDocs(collection(db, 'users'));
-
-    let total   = 0;
-    let premium = 0;
-    let free    = 0;
-    let weekly  = 0;
-    let monthly = 0;
-    let yearly  = 0;
-    const recentUsers = [];
-
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      total++;
-
-      if (data.role === 'admin') {
-        premium++;
-        if (data.plan === 'weekly')  weekly++;
-        if (data.plan === 'monthly') monthly++;
-        if (data.plan === 'yearly')  yearly++;
-      } else {
-        free++;
-      }
-
-      recentUsers.push({
-        email:      doc.id,
-        role:       data.role  || 'free',
-        plan:       data.plan  || null,
-        upgradedAt: data.upgradedAt || null
-      });
-    });
-
-    // Estimated monthly revenue
-    const estRevenue = (weekly * 1.50 * 4.3) + (monthly * 4.99) + (yearly * (50 / 12));
-
-    // Update stat cards
-    document.getElementById('adminTotalUsers').textContent   = total;
-    document.getElementById('adminPremiumUsers').textContent = premium;
-    document.getElementById('adminFreeUsers').textContent    = free;
-    document.getElementById('adminRevenue').textContent      = '$' + estRevenue.toFixed(2);
-    document.getElementById('adminWeeklyCount').textContent  = weekly;
-    document.getElementById('adminMonthlyCount').textContent = monthly;
-    document.getElementById('adminYearlyCount').textContent  = yearly;
-
-    // Render recent users list
-    const recentEl = document.getElementById('adminRecentUsers');
-    recentEl.innerHTML = '';
-
-    if (recentUsers.length === 0) {
-      recentEl.innerHTML = '<p style="color:rgba(255,255,255,0.35); font-size:13px; text-align:center; padding:12px;">No users yet.</p>';
-      return;
-    }
-
-    recentUsers
-      .sort((a, b) => {
-        if (a.upgradedAt && b.upgradedAt) return new Date(b.upgradedAt) - new Date(a.upgradedAt);
-        if (a.upgradedAt) return -1;
-        if (b.upgradedAt) return 1;
-        return 0;
-      })
-      .slice(0, 10)
-      .forEach(u => {
-        const planLabel = u.plan
-          ? u.plan.charAt(0).toUpperCase() + u.plan.slice(1)
-          : (u.role === 'admin' ? 'Premium' : 'Free');
-
-        const planClass = u.plan ? 'plan-' + u.plan
-          : (u.role === 'admin' ? 'plan-monthly' : 'plan-free');
-
-        const date = u.upgradedAt
-          ? new Date(u.upgradedAt).toLocaleDateString('en-US', {
-              month: 'short', day: 'numeric', year: 'numeric'
-            })
-          : '—';
-
-        const row = document.createElement('div');
-        row.className = 'admin-recent-row';
-        row.innerHTML = `
-          <span class="admin-recent-email">${u.email}</span>
-          <span class="admin-recent-plan ${planClass}">${planLabel}</span>
-          <span class="admin-recent-date">${date}</span>
-        `;
-        recentEl.appendChild(row);
-      });
-
-  } catch (err) {
-    console.warn('Admin dashboard load failed:', err.message);
-    document.getElementById('adminTotalUsers').textContent = 'Error';
-  }
-}
-
-//===========================================
-// EMAIL NOTIFICATIONS MODULE
-//===========================================
-
-// Initialise EmailJS once
-(function () {
-  if (typeof emailjs !== 'undefined') {
-    emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
-  }
-})();
-
-// ── SEND WELCOME EMAIL ───────────────────────────────────────
-// Called once when a new user first logs in after verification
-async function sendWelcomeEmail (email) {
-  try {
-    if (typeof emailjs === 'undefined') return;
-
-    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_WELCOME_ID, {
-      to_name:  email.split('@')[0], // use part before @ as name
-      to_email: email,
-      app_url:  'https://cleophasandalo9-cloud.github.io/cleopatra-loan-calculator/'
-    });
-
-    console.log('Welcome email sent to:', email);
-  } catch (err) {
-    // Silent fail — never let email crash the app
-    console.warn('Welcome email failed:', err.message);
-  }
-}
-
-// ── SEND ADMIN ALERT EMAIL ───────────────────────────────────
-// Called when a new user registers OR upgrades to premium
-async function sendAdminAlert (userEmail, eventType, plan = 'Free') {
-  try {
-    if (typeof emailjs === 'undefined') return;
-
-    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_ALERT_ID, {
-      user_email: userEmail,
-      event_type: eventType,
-      plan:       plan,
-      time:       new Date().toLocaleString('en-US', {
-        dateStyle: 'medium',
-        timeStyle: 'short'
-      })
-    });
-
-    console.log('Admin alert sent for:', eventType);
-  } catch (err) {
-    console.warn('Admin alert failed:', err.message);
-  }
-}
 
 // ── FIREBASE READY LISTENER ─────────────────────────────────
 
