@@ -831,6 +831,164 @@ body {
   }
 }
 
+
+/* ══════════════════════════════════════════════════
+  DESKTOP RESPONSIVE LAYOUT (768px and above)
+   ══════════════════════════════════════════════════ */
+@media (min-width: 768px) {
+
+  /* ── MAX WIDTH CONTAINER ── */
+  /* Constrain the whole app to a readable width */
+  body {
+    max-width: 860px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  /* ── TOP BAR ── */
+  /* Fix the top bar to stay within the max-width container */
+  .menu-toggle {
+    max-width: 860px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  /* ── SIDEBAR ── */
+  /* Make sidebar permanent and visible on desktop */
+  .sidebar {
+    position: fixed;
+    left: calc(50% - 430px);
+    top: 70px;
+    width: 240px;
+    height: calc(100vh - 70px);
+    transform: none !important;
+    transition: none;
+    padding-top: 16px;
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+
+  /* Always show sidebar on desktop — override the active toggle */
+  .sidebar.active,
+  .sidebar {
+    left: calc(50% - 430px);
+  }
+
+  /* ── HIDE HAMBURGER ON DESKTOP ── */
+  /* Sidebar is always visible so hamburger is not needed */
+  .hamburger {
+    display: none;
+  }
+
+  /* ── MAIN CONTENT ── */
+  /* Push content to the right of the permanent sidebar */
+  #dashboardSection,
+  #amortizationSection,
+  #emiChartSection,
+  #paymentScheduleSection,
+  #loanComparisonSection,
+  #savingsSection,
+  #refinanceSection,
+  #extraPaymentSection,
+  #accountSettingsSection,
+  #loanHistorySection,
+  #adminDashboardSection {
+    margin-left: 250px;
+    padding: 20px;
+  }
+
+  /* ── RESULT BOXES ── */
+  /* Show result boxes in a row on desktop */
+  .results {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  /* ── SHARE BUTTON ── */
+  /* Remove the bottom-pinned position on desktop */
+  #shareBtn {
+    position: static;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  /* ── CALCULATOR CARD ── */
+  .calculator-card {
+    max-width: 100%;
+  }
+
+  /* ── CURRENCY TOGGLE ── */
+  /* Keep converter toggle visible but reposition */
+  .currency-toggle {
+    right: 20px;
+    top: 80px;
+  }
+
+  /* ── OVERLAY ── */
+  /* Don't dim the whole screen on desktop sidebar open */
+  .overlay {
+    display: none !important;
+  }
+
+  /* ── UPGRADE MODAL ── */
+  .upgrade-modal-card {
+    max-width: 480px;
+  }
+
+  /* ── TABLE SCROLL ── */
+  /* Give tables more height on desktop */
+  .table-scroll {
+    max-height: 60vh;
+    height: 60vh;
+  }
+
+  /* ── ADMIN STATS ── */
+  .admin-stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  /* ── SHARE MODAL ── */
+  .share-link-box {
+    flex-direction: row;
+  }
+
+}
+
+/* ── EXTRA WIDE SCREENS (1200px+) ── */
+@media (min-width: 1200px) {
+  body {
+    max-width: 1000px;
+  }
+
+  .menu-toggle {
+    max-width: 1000px;
+  }
+
+  .sidebar {
+    left: calc(50% - 500px);
+    width: 260px;
+  }
+
+  .sidebar.active,
+  .sidebar {
+    left: calc(50% - 500px);
+  }
+
+  #dashboardSection,
+  #amortizationSection,
+  #emiChartSection,
+  #paymentScheduleSection,
+  #loanComparisonSection,
+  #savingsSection,
+  #refinanceSection,
+  #extraPaymentSection,
+  #accountSettingsSection,
+  #loanHistorySection,
+  #adminDashboardSection {
+    margin-left: 270px;
+  }
+}
+
 /*===================== HAMBURGER STYLINGS =====================*/
 /*==========================
 HAMBURGER BUTTON
