@@ -851,26 +851,26 @@ body {
     max-width: 860px;
     left: 50%;
     transform: translateX(-50%);
+    background: rgba(10,14,26,0.96);
   }
 
   /* ── SIDEBAR ── */
-  /* Make sidebar permanent and visible on desktop */
   .sidebar {
     position: fixed;
-    left: calc(50% - 430px);
+    left: calc(50% - 420px);
     top: 70px;
-    width: 240px;
+    width: 220px;
     height: calc(100vh - 70px);
     transform: none !important;
     transition: none;
     padding-top: 16px;
     border-right: 1px solid rgba(255,255,255,0.06);
+    background: linear-gradient(180deg, rgb(10,14,26), rgb(15,20,35));
   }
 
-  /* Always show sidebar on desktop — override the active toggle */
   .sidebar.active,
   .sidebar {
-    left: calc(50% - 430px);
+    left: calc(50% - 420px);
   }
 
   /* ── HIDE HAMBURGER ON DESKTOP ── */
@@ -892,8 +892,9 @@ body {
   #accountSettingsSection,
   #loanHistorySection,
   #adminDashboardSection {
-    margin-left: 250px;
-    padding: 20px;
+    margin-left: 230px;
+    padding: 20px 24px;
+    min-height: calc(100vh - 70px);
   }
 
   /* ── RESULT BOXES ── */
@@ -969,9 +970,14 @@ body {
     width: 260px;
   }
 
+  .sidebar {
+    left: calc(50% - 490px);
+    width: 255px;
+  }
+
   .sidebar.active,
   .sidebar {
-    left: calc(50% - 500px);
+    left: calc(50% - 490px);
   }
 
   #dashboardSection,
@@ -985,7 +991,7 @@ body {
   #accountSettingsSection,
   #loanHistorySection,
   #adminDashboardSection {
-    margin-left: 270px;
+    margin-left: 265px;
   }
 }
 
